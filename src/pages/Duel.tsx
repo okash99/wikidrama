@@ -52,7 +52,7 @@ export default function Duel() {
 
   const winner = getWinner()
 
-  // --- Category picker screen ---
+  // --- Category picker ---
   if (phase === 'pick-category') {
     return (
       <main className="flex flex-col flex-1 px-4 py-6 gap-5">
@@ -72,7 +72,7 @@ export default function Duel() {
     )
   }
 
-  // --- Loading screen ---
+  // --- Loading ---
   if (phase === 'loading') {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-4">
@@ -92,74 +92,76 @@ export default function Duel() {
     )
   }
 
-  // --- Duel split screen ---
+  // --- Duel ---
   return (
-    <main className="flex flex-col flex-1 relative">
+    <main className="flex flex-col flex-1">
 
-      {/* Back button */}
-      <button
-        onClick={() => navigate('/')}
-        className="absolute top-4 left-4 z-30 text-white/60 text-sm bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full"
-      >
-        ←
-      </button>
+      {/* Split screen — hauteur fixe, ne dépasse pas */}
+      <div className={`relative flex flex-col ${ phase === 'reveal' ? 'h-[55vh]' : 'flex-1' } transition-all duration-300`}>
 
-      {/* Result banner */}
-      {phase === 'reveal' && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 fade-in">
-          <span className={`text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm
-            ${ selected === winner
-              ? 'bg-green-500/80 text-white'
-              : 'bg-red-500/80 text-white'
-            }`}
-          >
-            {selected === winner ? '✅ Bien joué !' : '❌ Raté !'}
-          </span>
-        </div>
-      )}
+        {/* Back button */}
+        <button
+          onClick={() => navigate('/')}
+          className="absolute top-4 left-4 z-30 text-white/60 text-sm bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full"
+        >
+          ←
+        </button>
 
-      {/* Split screen cards */}
-      {articles && (
-        <div className="flex flex-col flex-1">
-          <DuelCard
-            data={articles[0]}
-            revealed={phase === 'reveal'}
-            selected={selected === 0}
-            winner={phase === 'reveal' && winner === 0}
-            onClick={() => handleVote(0)}
-            position="top"
-          />
-
-          {/* Divider VS */}
-          <div className="relative z-20 flex items-center justify-center h-0">
-            <span className="bg-slate-950 border-2 border-slate-600 text-white font-extrabold text-xs w-9 h-9 rounded-full flex items-center justify-center shadow-lg">
-              VS
+        {/* Result banner */}
+        {phase === 'reveal' && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 fade-in">
+            <span className={`text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm
+              ${ selected === winner ? 'bg-green-500/80 text-white' : 'bg-red-500/80 text-white' }`}
+            >
+              {selected === winner ? '✅ Bien joué !' : '❌ Raté !'}
             </span>
           </div>
+        )}
 
-          <DuelCard
-            data={articles[1]}
-            revealed={phase === 'reveal'}
-            selected={selected === 1}
-            winner={phase === 'reveal' && winner === 1}
-            onClick={() => handleVote(1)}
-            position="bottom"
-          />
-        </div>
-      )}
+        {/* Cards */}
+        {articles && (
+          <div className="flex flex-col flex-1">
+            <DuelCard
+              data={articles[0]}
+              revealed={phase === 'reveal'}
+              selected={selected === 0}
+              winner={phase === 'reveal' && winner === 0}
+              onClick={() => handleVote(0)}
+              position="top"
+            />
 
-      {/* Bottom actions after reveal */}
+            {/* VS divider */}
+            <div className="relative z-20 flex items-center justify-center h-0">
+              <span className="bg-slate-950 border-2 border-slate-600 text-white font-extrabold text-xs w-9 h-9 rounded-full flex items-center justify-center shadow-lg">
+                VS
+              </span>
+            </div>
+
+            <DuelCard
+              data={articles[1]}
+              revealed={phase === 'reveal'}
+              selected={selected === 1}
+              winner={phase === 'reveal' && winner === 1}
+              onClick={() => handleVote(1)}
+              position="bottom"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Actions post-reveal — en dessous du split, dans le flux */}
       {phase === 'reveal' && articles && (
-        <div className="absolute bottom-0 left-0 right-0 z-30 p-4 flex flex-col gap-2 bg-gradient-to-t from-black/80 to-transparent pt-8 fade-in">
+        <div className="flex flex-col gap-3 px-4 py-4 fade-in bg-slate-950">
           <ShareButton articles={articles} winner={winner} selected={selected} />
           <button
             onClick={() => mode === 'thematic' ? loadDuel(category) : loadDuel()}
-            className="w-full py-3 rounded-2xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-base"
+            className="w-full py-4 rounded-2xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-lg"
           >
             🔄 Rejouer
           </button>
         </div>
       )}
+
     </main>
   )
 }
