@@ -15,15 +15,18 @@ export default function DuelCard({ data, revealed, selected, winner, onClick, po
   const score = computeDramaScore(stats)
   const colorText = getDramaColor(score)
   const colorBar = getDramaBarColor(score)
-
   const isLoser = revealed && selected && !winner
+
+  // Extrait court — 1 phrase max
+  const shortExtract = article.extract
+    ? article.extract.split('.')[0] + '.'
+    : null
 
   return (
     <button
       onClick={onClick}
       disabled={revealed}
       className={`relative w-full flex-1 overflow-hidden transition-all
-        ${ position === 'top' ? '' : '' }
         ${ isLoser ? 'opacity-50' : 'opacity-100' }
         ${ !revealed ? 'active:brightness-110' : '' }
       `}
@@ -63,9 +66,17 @@ export default function DuelCard({ data, revealed, selected, winner, onClick, po
           {article.title}
         </h2>
 
+        {/* Description pill — toujours visible */}
+        {shortExtract && (
+          <p className="text-white/80 text-xs text-center leading-relaxed
+            bg-black/30 backdrop-blur-sm rounded-xl px-3 py-2 max-w-xs line-clamp-2">
+            {shortExtract}
+          </p>
+        )}
+
         {/* Pre-reveal CTA */}
         {!revealed && (
-          <span className="text-white/60 text-sm border border-white/30 rounded-full px-4 py-1">
+          <span className="text-white/60 text-sm border border-white/30 rounded-full px-4 py-1 mt-1">
             Voter ↑
           </span>
         )}
