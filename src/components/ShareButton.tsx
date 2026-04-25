@@ -13,6 +13,8 @@ function dramaBar(score: number): string {
   return '█'.repeat(filled) + '░'.repeat(10 - filled)
 }
 
+const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
+
 export default function ShareButton({ articles, winner, selected }: Props) {
   const [showModal, setShowModal] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -75,12 +77,10 @@ export default function ShareButton({ articles, winner, selected }: Props) {
   }
 
   async function shareNative() {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'WikiDrama', text: shareText })
-        setShowModal(false)
-      } catch { /* cancelled */ }
-    }
+    try {
+      await navigator.share({ title: 'WikiDrama', text: shareText })
+      setShowModal(false)
+    } catch { /* cancelled */ }
   }
 
   return (
@@ -111,7 +111,7 @@ export default function ShareButton({ articles, winner, selected }: Props) {
             </div>
 
             <div className="flex flex-col gap-2">
-              {typeof navigator !== 'undefined' && navigator.share && (
+              {canShare && (
                 <button
                   onClick={shareNative}
                   className="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2"
