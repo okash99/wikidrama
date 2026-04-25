@@ -1,6 +1,9 @@
+import { DRAMA_POOL_FLAT, DRAMA_POOL, DRAMA_CATEGORIES } from '../data/drama-articles'
+
 const BASE_URL = 'https://en.wikipedia.org/api/rest_v1'
 const ACTION_URL = 'https://en.wikipedia.org/w/api.php'
-const CACHE_TTL = 1000 * 60 * 30 // 30 minutes
+const CACHE_TTL = 1000 * 60 * 30 // 30 min
+const DRAMA_SCORE_THRESHOLD = 15
 
 export interface WikiArticle {
   title: string
@@ -14,7 +17,7 @@ export interface ArticleStats {
   editCount: number
   uniqueEditors: number
   recentEdits: number
-  reversionRate: number // Sprint 3: détection via commentaires revert/undo
+  reversionRate: number
 }
 
 export interface ArticleData {
@@ -22,45 +25,54 @@ export interface ArticleData {
   stats: ArticleStats
 }
 
-// --- Cache localStorage ---
+// Re-export categories from drama-articles
+export { DRAMA_CATEGORIES as CATEGORIES }
+
+// --- Cache ---
 function cacheGet<T>(key: string): T | null {
   try {
     const raw = localStorage.getItem(key)
     if (!raw) return null
     const { data, ts } = JSON.parse(raw)
-    if (Date.now() - ts > CACHE_TTL) {
-      localStorage.removeItem(key)
-      return null
-    }
+    if (Date.now() - ts > CACHE_TTL) { localStorage.removeItem(key); return null }
     return data as T
-  } catch {
-    return null
-  }
+  } catch { return null }
 }
 
 function cacheSet(key: string, data: unknown): void {
-  try {
-    localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }))
-  } catch {
-    // localStorage full — silent fail
-  }
+  try { localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() })) }
+  catch { /* silent fail */ }
 }
 
-// --- Fetch random article summary ---
-export async function fetchRandomArticle(): Promise<WikiArticle> {
-  const res = await fetch(`${BASE_URL}/page/random/summary`)
-  if (!res.ok) throw new Error('Wikipedia API error')
+// --- Fetch article summary by title ---
+async function fetchSummary(title: string): Promise<WikiArticle> {
+  const res = await fetch(`${BASE_URL}/page/summary/${encodeURIComponent(title)}`)
+  if (!res.ok) throw new Error(`Summary fetch failed: ${title}`)
   const data = await res.json()
   return {
     title: data.title,
-    extract: data.extract?.slice(0, 200) + '...' || '',
+    extract: data.extract?.slice(0, 300) || '',
     thumbnail: data.thumbnail?.source,
     pageId: data.pageid,
     url: data.content_urls?.desktop?.page || '',
   }
 }
 
-// --- Fetch article stats (edit count, unique editors, recent edits, reversion rate) ---
+// --- Fetch random article summary ---
+async function fetchRandomSummary(): Promise<WikiArticle> {
+  const res = await fetch(`${BASE_URL}/page/random/summary`)
+  if (!res.ok) throw new Error('Random fetch failed')
+  const data = await res.json()
+  return {
+    title: data.title,
+    extract: data.extract?.slice(0, 300) || '',
+    thumbnail: data.thumbnail?.source,
+    pageId: data.pageid,
+    url: data.content_urls?.desktop?.page || '',
+  }
+}
+
+// --- Fetch article stats ---
 export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   const cacheKey = `wiki_stats_${title}`
   const cached = cacheGet<ArticleStats>(cacheKey)
@@ -77,7 +89,7 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   })
 
   const res = await fetch(`${ACTION_URL}?${params}`)
-  if (!res.ok) throw new Error('Wikipedia stats API error')
+  if (!res.ok) throw new Error('Stats fetch failed')
   const data = await res.json()
 
   const pages = data.query?.pages || {}
@@ -87,78 +99,103 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  const recentEdits = revisions.filter(
-    (r) => new Date(r.timestamp) > thirtyDaysAgo
-  ).length
-
-  const uniqueEditors = new Set(revisions.map((r) => r.user)).size
-
-  // Sprint 2: reversion rate via commentaire contenant revert/undo
-  const reverts = revisions.filter((r) => {
-    const comment = (r.comment || '').toLowerCase()
-    return comment.includes('revert') || comment.includes('undo') || comment.includes('undid')
+  const recentEdits = revisions.filter(r => new Date(r.timestamp) > thirtyDaysAgo).length
+  const uniqueEditors = new Set(revisions.map(r => r.user)).size
+  const reverts = revisions.filter(r => {
+    const c = (r.comment || '').toLowerCase()
+    return c.includes('revert') || c.includes('undo') || c.includes('undid')
   }).length
-  const reversionRate = revisions.length > 0
-    ? Math.round((reverts / revisions.length) * 100)
-    : 0
+  const reversionRate = revisions.length > 0 ? Math.round((reverts / revisions.length) * 100) : 0
 
-  const stats: ArticleStats = {
-    editCount: revisions.length,
-    uniqueEditors,
-    recentEdits,
-    reversionRate,
-  }
-
+  const stats: ArticleStats = { editCount: revisions.length, uniqueEditors, recentEdits, reversionRate }
   cacheSet(cacheKey, stats)
   return stats
 }
 
-// --- Fetch full article data (article + stats) ---
-export async function fetchArticleData(): Promise<ArticleData> {
-  const article = await fetchRandomArticle()
-  const stats = await fetchArticleStats(article.title)
-  return { article, stats }
-}
-
-// --- Fetch article from a Wikipedia category ---
-export const CATEGORIES: Record<string, string> = {
-  'Politique':    'Category:Politics',
-  'Sport':        'Category:Sports',
-  'Pop Culture':  'Category:Popular_culture',
-  'Science':      'Category:Science',
-  'Histoire':     'Category:History',
-}
-
-export async function fetchArticleFromCategory(category: string): Promise<ArticleData> {
-  const wikiCategory = CATEGORIES[category] || 'Category:Politics'
+// --- Filtre 1 : vérifier si un article est protégé ---
+async function isProtected(title: string): Promise<boolean> {
   const params = new URLSearchParams({
     action: 'query',
-    list: 'categorymembers',
-    cmtitle: wikiCategory,
-    cmlimit: '50',
-    cmtype: 'page',
+    prop: 'info',
+    inprop: 'protection',
+    titles: title,
     format: 'json',
     origin: '*',
   })
+  try {
+    const res = await fetch(`${ACTION_URL}?${params}`)
+    const data = await res.json()
+    const pages = data.query?.pages || {}
+    const page = Object.values(pages)[0] as any
+    const protections: any[] = page?.protection || []
+    // Garde si l'article a une protection en édition (guerre d'édition détectée)
+    return protections.some(p => p.type === 'edit')
+  } catch { return false }
+}
 
-  const res = await fetch(`${ACTION_URL}?${params}`)
-  const data = await res.json()
-  const members: any[] = data.query?.categorymembers || []
+// --- Fetch article complet avec les 3 filtres ---
+import { computeDramaScore } from '../utils/dramaScore'
 
-  if (members.length === 0) return fetchArticleData()
+async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
+  const MAX_ATTEMPTS = 3
 
-  const random = members[Math.floor(Math.random() * members.length)]
-  const summaryRes = await fetch(`${BASE_URL}/page/summary/${encodeURIComponent(random.title)}`)
-  const summaryData = await summaryRes.json()
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    try {
+      // Source : liste blanche si pas de titre fourni, sinon titre direct
+      let article: WikiArticle
+      if (title) {
+        article = await fetchSummary(title)
+      } else {
+        // Filtre 2 : pioche en priorité dans la liste drama
+        const useWhitelist = Math.random() < 0.7 // 70% whitelist, 30% pure random
+        if (useWhitelist) {
+          const randomTitle = DRAMA_POOL_FLAT[Math.floor(Math.random() * DRAMA_POOL_FLAT.length)]
+          article = await fetchSummary(randomTitle)
+        } else {
+          article = await fetchRandomSummary()
+        }
+      }
 
-  const article: WikiArticle = {
-    title: summaryData.title,
-    extract: summaryData.extract?.slice(0, 200) + '...' || '',
-    thumbnail: summaryData.thumbnail?.source,
-    pageId: summaryData.pageid,
-    url: summaryData.content_urls?.desktop?.page || '',
+      const stats = await fetchArticleStats(article.title)
+      const score = computeDramaScore(stats)
+
+      // Filtre 3 : seuil Drama Score > 15%
+      if (score < DRAMA_SCORE_THRESHOLD && !title) {
+        continue // retry
+      }
+
+      return { article, stats }
+    } catch {
+      if (attempt === MAX_ATTEMPTS - 1) throw new Error('Failed to fetch article after retries')
+    }
   }
 
-  const stats = await fetchArticleStats(article.title)
-  return { article, stats }
+  throw new Error('No valid article found')
+}
+
+// --- API publique ---
+
+export async function fetchArticleData(): Promise<ArticleData> {
+  return fetchValidatedArticle()
+}
+
+export async function fetchArticleFromCategory(category: string): Promise<ArticleData> {
+  const pool = DRAMA_POOL[category]
+  if (!pool || pool.length === 0) return fetchValidatedArticle()
+
+  // Filtre 1 : on essaie d'abord un article protégé de la catégorie
+  const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 5)
+
+  for (const title of shuffled) {
+    try {
+      const protected_ = await isProtected(title)
+      if (protected_) {
+        return await fetchValidatedArticle(title)
+      }
+    } catch { continue }
+  }
+
+  // Fallback : n'importe quel article de la liste
+  const randomTitle = pool[Math.floor(Math.random() * pool.length)]
+  return fetchValidatedArticle(randomTitle)
 }
