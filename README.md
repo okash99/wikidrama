@@ -22,9 +22,9 @@ npm run dev
 ## 🗺️ Roadmap V1
 
 - [x] Sprint 1 — Setup (Vite + React + Tailwind)
-- [ ] Sprint 2 — Couche API Wikipedia
-- [ ] Sprint 3 — Drama Score Engine
-- [ ] Sprint 4 — UI Duel
+- [x] Sprint 2 — API Wikipedia + DuelCard + Cache + Stats
+- [ ] Sprint 3 — Drama Score Engine affiné
+- [ ] Sprint 4 — UI Duel polish
 - [ ] Sprint 5 — Share & Polish
 
 ## 📋 V2 (Wishlist)
