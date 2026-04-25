@@ -10,11 +10,11 @@ interface Props {
 
 function dramaBar(score: number): string {
   const filled = Math.round(score / 10)
-  const bar = '█'.repeat(filled) + '░'.repeat(10 - filled)
-  return bar
+  return '█'.repeat(filled) + '░'.repeat(10 - filled)
 }
 
 export default function ShareButton({ articles, winner, selected }: Props) {
+  const [showModal, setShowModal] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const [a, b] = articles
@@ -24,7 +24,6 @@ export default function ShareButton({ articles, winner, selected }: Props) {
   const loserData = articles[winner === 0 ? 1 : 0]
   const winnerScore = winner === 0 ? scoreA : scoreB
   const loserScore = winner === 0 ? scoreB : scoreA
-
   const guessedRight = selected === winner
 
   const shareText = [
@@ -45,55 +44,123 @@ export default function ShareButton({ articles, winner, selected }: Props) {
     guessedRight ? '✅ J\'avais le bon flair !' : '❌ Je me suis fait avoir...',
     '',
     '👉 Tente ta chance sur WikiDrama',
-    `https://wikidrama.pages.dev`,
+    'https://wikidrama.pages.dev',
   ].join('\n')
 
-  async function handleShare() {
-    // Web Share API (mobile natif)
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'WikiDrama — Duel Wikipedia',
-          text: shareText,
-        })
-        return
-      } catch {
-        // user cancelled — silent
-      }
-    }
-
-    // Fallback clipboard (desktop)
+  async function copyToClipboard() {
     try {
       await navigator.clipboard.writeText(shareText)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2500)
+      setTimeout(() => { setCopied(false); setShowModal(false) }, 2000)
     } catch {
-      // clipboard blocked — show alert
       alert(shareText)
     }
   }
 
-  return (
-    <div className="w-full flex flex-col gap-3">
-      {/* Preview */}
-      <div className="w-full bg-slate-800 border border-slate-700 rounded-2xl p-4">
-        <p className="text-xs text-slate-500 uppercase tracking-wide mb-2">Aperçu du partage</p>
-        <pre className="text-xs text-slate-300 whitespace-pre-wrap font-mono leading-relaxed">
-          {shareText}
-        </pre>
-      </div>
+  function shareToWhatsApp() {
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank')
+    setShowModal(false)
+  }
 
-      {/* Share button */}
+  function shareToTwitter() {
+    // Twitter a une limite de 280 chars, on partage une version courte
+    const shortText = [
+      `⚔️ WikiDrama`,
+      `🏆 ${winnerData.article.title} — ${winnerScore}%`,
+      `😤 ${loserData.article.title} — ${loserScore}%`,
+      guessedRight ? '✅ Je l\'avais senti !' : '❌ Je me suis fait avoir...',
+      'https://wikidrama.pages.dev',
+    ].join('\n')
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shortText)}`, '_blank')
+    setShowModal(false)
+  }
+
+  async function shareNative() {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'WikiDrama', text: shareText })
+        setShowModal(false)
+      } catch { /* cancelled */ }
+    }
+  }
+
+  return (
+    <>
+      {/* Bouton principal */}
       <button
-        onClick={handleShare}
+        onClick={() => setShowModal(true)}
         className="w-full py-4 rounded-2xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-bold text-base flex items-center justify-center gap-2"
       >
-        {copied ? (
-          <><span>✅</span> Copié dans le presse-papier !</>
-        ) : (
-          <><span>📤</span> Partager ce duel</>
-        )}
+        <span>📤</span> Partager ce duel
       </button>
-    </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="w-full max-w-md bg-slate-900 border border-slate-700 rounded-t-3xl p-5 flex flex-col gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Handle bar */}
+            <div className="w-10 h-1 bg-slate-600 rounded-full mx-auto" />
+
+            <p className="text-sm font-semibold text-slate-300 text-center">Partager le duel</p>
+
+            {/* Apercu */}
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4 max-h-52 overflow-y-auto">
+              <pre className="text-xs text-slate-300 whitespace-pre-wrap font-mono leading-relaxed">
+                {shareText}
+              </pre>
+            </div>
+
+            {/* Destinations */}
+            <div className="flex flex-col gap-2">
+              {/* Share natif mobile */}
+              {typeof navigator !== 'undefined' && navigator.share && (
+                <button
+                  onClick={shareNative}
+                  className="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2"
+                >
+                  📱 Partager via...
+                </button>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  onClick={shareToWhatsApp}
+                  className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2"
+                >
+                  💬 WhatsApp
+                </button>
+                <button
+                  onClick={shareToTwitter}
+                  className="flex-1 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2"
+                >
+                  🐦 Twitter
+                </button>
+              </div>
+
+              <button
+                onClick={copyToClipboard}
+                className="w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2"
+              >
+                {copied ? '✅ Copié !' : '📋 Copier le texte'}
+              </button>
+            </div>
+
+            {/* Annuler */}
+            <button
+              onClick={() => setShowModal(false)}
+              className="text-slate-500 text-sm text-center py-1"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
