@@ -63,9 +63,8 @@ export default function ShareButton({ articles, winner, selected }: Props) {
   }
 
   function shareToTwitter() {
-    // Twitter a une limite de 280 chars, on partage une version courte
     const shortText = [
-      `⚔️ WikiDrama`,
+      '⚔️ WikiDrama',
       `🏆 ${winnerData.article.title} — ${winnerScore}%`,
       `😤 ${loserData.article.title} — ${loserScore}%`,
       guessedRight ? '✅ Je l\'avais senti !' : '❌ Je me suis fait avoir...',
@@ -86,7 +85,6 @@ export default function ShareButton({ articles, winner, selected }: Props) {
 
   return (
     <>
-      {/* Bouton principal */}
       <button
         onClick={() => setShowModal(true)}
         className="w-full py-4 rounded-2xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-bold text-base flex items-center justify-center gap-2"
@@ -94,31 +92,25 @@ export default function ShareButton({ articles, winner, selected }: Props) {
         <span>📤</span> Partager ce duel
       </button>
 
-      {/* Modal */}
       {showModal && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="w-full max-w-md bg-slate-900 border border-slate-700 rounded-t-3xl p-5 flex flex-col gap-4"
+            className="w-full max-w-md bg-slate-900 border border-slate-700 rounded-t-3xl p-5 flex flex-col gap-4 slide-up"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Handle bar */}
             <div className="w-10 h-1 bg-slate-600 rounded-full mx-auto" />
-
             <p className="text-sm font-semibold text-slate-300 text-center">Partager le duel</p>
 
-            {/* Apercu */}
-            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4 max-h-52 overflow-y-auto">
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4 max-h-48 overflow-y-auto scrollbar-none">
               <pre className="text-xs text-slate-300 whitespace-pre-wrap font-mono leading-relaxed">
                 {shareText}
               </pre>
             </div>
 
-            {/* Destinations */}
             <div className="flex flex-col gap-2">
-              {/* Share natif mobile */}
               {typeof navigator !== 'undefined' && navigator.share && (
                 <button
                   onClick={shareNative}
@@ -127,7 +119,6 @@ export default function ShareButton({ articles, winner, selected }: Props) {
                   📱 Partager via...
                 </button>
               )}
-
               <div className="flex gap-2">
                 <button
                   onClick={shareToWhatsApp}
@@ -142,7 +133,6 @@ export default function ShareButton({ articles, winner, selected }: Props) {
                   🐦 Twitter
                 </button>
               </div>
-
               <button
                 onClick={copyToClipboard}
                 className="w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2"
@@ -151,7 +141,6 @@ export default function ShareButton({ articles, winner, selected }: Props) {
               </button>
             </div>
 
-            {/* Annuler */}
             <button
               onClick={() => setShowModal(false)}
               className="text-slate-500 text-sm text-center py-1"

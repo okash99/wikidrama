@@ -19,12 +19,21 @@ npm install
 npm run dev
 ```
 
+## ☁️ Déploiement Cloudflare Pages
+
+1. [pages.cloudflare.com](https://pages.cloudflare.com) → **Connect to Git**
+2. Sélectionner `okash99/wikidrama`
+3. Framework preset : **Vite**
+4. Build command : `npm run build`
+5. Output directory : `dist`
+6. **Save & Deploy**
+
 ## 🗺️ Roadmap V1
 
 - [x] Sprint 1 — Setup (Vite + React + Tailwind)
 - [x] Sprint 2 — API Wikipedia + DuelCard + Cache + Stats
 - [x] Sprint 3 — ShareButton (Wordle-style avec stats enrichies)
-- [ ] Sprint 4 — UI Polish & mobile finitions
+- [x] Sprint 4 — UI Polish, animations, edge cases, mobile finitions
 - [ ] Sprint 5 — Déploiement Cloudflare Pages
 
 ## 📋 V2 (Wishlist)
