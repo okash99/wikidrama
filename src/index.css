@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
 * {
   -webkit-tap-highlight-color: transparent;
@@ -24,7 +24,6 @@ body {
   @apply max-w-md mx-auto min-h-screen flex flex-col;
 }
 
-/* Hide scrollbar but keep scroll */
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -33,7 +32,6 @@ body {
   display: none;
 }
 
-/* Bottom sheet animation */
 @keyframes slideUp {
   from { transform: translateY(100%); opacity: 0; }
   to   { transform: translateY(0);    opacity: 1; }
@@ -42,7 +40,6 @@ body {
   animation: slideUp 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
 
-/* Fade in */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -51,7 +48,6 @@ body {
   animation: fadeIn 0.3s ease forwards;
 }
 
-/* Score bar fill */
 @keyframes fillBar {
   from { width: 0%; }
 }
