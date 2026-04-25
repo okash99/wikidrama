@@ -54,9 +54,7 @@ export default function ShareButton({ articles, winner, selected }: Props) {
       await navigator.clipboard.writeText(shareText)
       setCopied(true)
       setTimeout(() => { setCopied(false); setShowModal(false) }, 2000)
-    } catch {
-      alert(shareText)
-    }
+    } catch { alert(shareText) }
   }
 
   function shareToWhatsApp() {
@@ -85,11 +83,12 @@ export default function ShareButton({ articles, winner, selected }: Props) {
 
   return (
     <>
+      {/* Bouton compact */}
       <button
         onClick={() => setShowModal(true)}
-        className="w-full py-4 rounded-2xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-bold text-base flex items-center justify-center gap-2"
+        className="flex-1 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-bold text-sm flex items-center justify-center gap-1.5"
       >
-        <span>📤</span> Partager ce duel
+        <span>📤</span> Partager
       </button>
 
       {showModal && (
@@ -105,46 +104,33 @@ export default function ShareButton({ articles, winner, selected }: Props) {
             <p className="text-sm font-semibold text-slate-300 text-center">Partager le duel</p>
 
             <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4 max-h-48 overflow-y-auto scrollbar-none">
-              <pre className="text-xs text-slate-300 whitespace-pre-wrap font-mono leading-relaxed">
-                {shareText}
-              </pre>
+              <pre className="text-xs text-slate-300 whitespace-pre-wrap font-mono leading-relaxed">{shareText}</pre>
             </div>
 
             <div className="flex flex-col gap-2">
               {canShare && (
-                <button
-                  onClick={shareNative}
-                  className="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2"
-                >
+                <button onClick={shareNative}
+                  className="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
                   📱 Partager via...
                 </button>
               )}
               <div className="flex gap-2">
-                <button
-                  onClick={shareToWhatsApp}
-                  className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2"
-                >
+                <button onClick={shareToWhatsApp}
+                  className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
                   💬 WhatsApp
                 </button>
-                <button
-                  onClick={shareToTwitter}
-                  className="flex-1 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2"
-                >
+                <button onClick={shareToTwitter}
+                  className="flex-1 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
                   🐦 Twitter
                 </button>
               </div>
-              <button
-                onClick={copyToClipboard}
-                className="w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2"
-              >
+              <button onClick={copyToClipboard}
+                className="w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
                 {copied ? '✅ Copié !' : '📋 Copier le texte'}
               </button>
             </div>
 
-            <button
-              onClick={() => setShowModal(false)}
-              className="text-slate-500 text-sm text-center py-1"
-            >
+            <button onClick={() => setShowModal(false)} className="text-slate-500 text-sm text-center py-1">
               Annuler
             </button>
           </div>

@@ -15,9 +15,8 @@ export default function DuelCard({ data, revealed, selected, winner, onClick, po
   const score = computeDramaScore(stats)
   const colorText = getDramaColor(score)
   const colorBar = getDramaBarColor(score)
-  const isLoser = revealed && selected && !winner
+  const isLoser = revealed && !winner
 
-  // Extrait court — 1 phrase max
   const shortExtract = article.extract
     ? article.extract.split('.')[0] + '.'
     : null
@@ -26,81 +25,64 @@ export default function DuelCard({ data, revealed, selected, winner, onClick, po
     <button
       onClick={onClick}
       disabled={revealed}
-      className={`relative w-full flex-1 overflow-hidden transition-all
+      className={`relative w-full h-full overflow-hidden transition-all
         ${ isLoser ? 'opacity-50' : 'opacity-100' }
         ${ !revealed ? 'active:brightness-110' : '' }
       `}
     >
-      {/* Background image or gradient */}
+      {/* Background */}
       {article.thumbnail ? (
-        <img
-          src={article.thumbnail}
-          alt={article.title}
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="lazy"
-        />
+        <img src={article.thumbnail} alt={article.title}
+          className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />
       )}
 
-      {/* Dark overlay */}
-      <div className={`absolute inset-0 ${ winner && revealed ? 'bg-black/40' : 'bg-black/55' }`} />
+      {/* Overlay */}
+      <div className={`absolute inset-0 ${ winner && revealed ? 'bg-black/40' : 'bg-black/60' }`} />
 
-      {/* Winner glow border */}
+      {/* Winner border */}
       {winner && revealed && (
         <div className="absolute inset-0 border-4 border-yellow-400 pointer-events-none" />
       )}
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 py-6 gap-3">
+      <div className="relative z-10 flex flex-col items-center justify-center h-full px-5 gap-2">
 
-        {/* Winner badge */}
         {winner && revealed && (
-          <span className="text-xs font-bold bg-yellow-400 text-slate-900 px-3 py-1 rounded-full">
+          <span className="text-xs font-bold bg-yellow-400 text-slate-900 px-2.5 py-0.5 rounded-full">
             🏆 Plus drama
           </span>
         )}
 
-        {/* Title */}
-        <h2 className="text-white font-extrabold text-2xl text-center leading-tight drop-shadow-lg">
+        <h2 className="text-white font-extrabold text-xl text-center leading-tight drop-shadow-lg">
           {article.title}
         </h2>
 
-        {/* Description pill — toujours visible */}
         {shortExtract && (
-          <p className="text-white/80 text-xs text-center leading-relaxed
-            bg-black/30 backdrop-blur-sm rounded-xl px-3 py-2 max-w-xs line-clamp-2">
+          <p className="text-white/80 text-xs text-center leading-relaxed bg-black/30 backdrop-blur-sm rounded-xl px-3 py-1.5 max-w-xs line-clamp-2">
             {shortExtract}
           </p>
         )}
 
-        {/* Pre-reveal CTA */}
         {!revealed && (
-          <span className="text-white/60 text-sm border border-white/30 rounded-full px-4 py-1 mt-1">
+          <span className="text-white/50 text-xs border border-white/20 rounded-full px-3 py-1">
             Voter ↑
           </span>
         )}
 
-        {/* Post-reveal score */}
         {revealed && (
-          <div className="flex flex-col items-center gap-2 fade-in w-full max-w-xs">
-            <span className={`font-extrabold text-5xl drop-shadow-lg ${colorText}`}>
+          <div className="flex flex-col items-center gap-1.5 fade-in w-full max-w-xs">
+            <span className={`font-extrabold text-4xl drop-shadow-lg ${colorText}`}>
               {score}%
             </span>
-            <p className={`text-sm font-semibold ${colorText}`}>{getDramaLabel(score)}</p>
-
-            {/* Bar */}
-            <div className="w-full h-2 rounded-full bg-white/20">
-              <div
-                className={`h-2 rounded-full fill-bar ${colorBar}`}
-                style={{ width: `${score}%` }}
-              />
+            <p className={`text-xs font-semibold ${colorText}`}>{getDramaLabel(score)}</p>
+            <div className="w-full h-1.5 rounded-full bg-white/20">
+              <div className={`h-1.5 rounded-full fill-bar ${colorBar}`} style={{ width: `${score}%` }} />
             </div>
-
-            {/* Stats inline */}
-            <div className="flex gap-3 text-white/70 text-xs flex-wrap justify-center">
-              <span>✏️ {stats.editCount} édits</span>
-              <span>👥 {stats.uniqueEditors} éditeurs</span>
+            <div className="flex gap-2 text-white/60 text-xs flex-wrap justify-center">
+              <span>✏️ {stats.editCount}</span>
+              <span>👥 {stats.uniqueEditors}</span>
               <span>↩️ {stats.reversionRate}%</span>
               <span>⚡ {stats.recentEdits}/30j</span>
             </div>
