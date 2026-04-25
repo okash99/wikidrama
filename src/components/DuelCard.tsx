@@ -10,7 +10,7 @@ interface Props {
   position: 'top' | 'bottom'
 }
 
-export default function DuelCard({ data, revealed, selected, winner, onClick, position }: Props) {
+export default function DuelCard({ data, revealed, selected, winner, onClick }: Props) {
   const { article, stats } = data
   const score = computeDramaScore(stats)
   const colorText = getDramaColor(score)
@@ -20,6 +20,11 @@ export default function DuelCard({ data, revealed, selected, winner, onClick, po
   const shortExtract = article.extract
     ? article.extract.split('.')[0] + '.'
     : null
+
+  // Affiche "500+" si XTools a échoué mais qu'on sait qu'on est capé
+  const editDisplay = stats.cappedAt500
+    ? '500+'
+    : stats.editCount.toLocaleString()
 
   return (
     <button
@@ -81,7 +86,7 @@ export default function DuelCard({ data, revealed, selected, winner, onClick, po
               <div className={`h-1.5 rounded-full fill-bar ${colorBar}`} style={{ width: `${score}%` }} />
             </div>
             <div className="flex gap-2 text-white/60 text-xs flex-wrap justify-center">
-              <span>✏️ {stats.editCount}</span>
+              <span>✏️ {editDisplay}</span>
               <span>👥 {stats.uniqueEditors}</span>
               <span>↩️ {stats.reversionRate}%</span>
               <span>⚡ {stats.recentEdits}/30j</span>
