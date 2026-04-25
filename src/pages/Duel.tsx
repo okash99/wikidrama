@@ -51,6 +51,7 @@ export default function Duel() {
   }
 
   const winner = getWinner()
+  const guessedRight = selected === winner
 
   // --- Category picker ---
   if (phase === 'pick-category') {
@@ -92,82 +93,80 @@ export default function Duel() {
     )
   }
 
-  // Hauteur de chaque carte : plein écran en vote, fixé en reveal pour laisser place aux boutons
-  const cardHeight = phase === 'reveal' ? 'h-[36vh]' : 'h-[calc(50vh-18px)]'
-
   return (
-    <main className="flex flex-col h-screen overflow-hidden">
+    <main className="flex flex-col h-screen overflow-hidden bg-slate-950">
 
-      {/* Split screen */}
-      <div className="relative flex flex-col flex-1 overflow-hidden">
+      {/* Split screen : prend tout l'espace dispo au-dessus de la barre */}
+      {articles && (
+        <div className="flex flex-col flex-1 overflow-hidden relative">
 
-        {/* Back */}
-        <button
-          onClick={() => navigate('/')}
-          className="absolute top-3 left-3 z-30 text-white/60 text-sm bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full"
-        >
-          ←
-        </button>
+          {/* Back button */}
+          <button
+            onClick={() => navigate('/')}
+            className="absolute top-3 left-3 z-30 text-white/60 text-sm bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full"
+          >
+            ←
+          </button>
 
-        {/* Result banner */}
-        {phase === 'reveal' && (
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 fade-in">
-            <span className={`text-sm font-bold px-4 py-1.5 rounded-full backdrop-blur-sm
-              ${ selected === winner ? 'bg-green-500/80 text-white' : 'bg-red-500/80 text-white' }`}
-            >
-              {selected === winner ? '✅ Bien joué !' : '❌ Raté !'}
+          {/* Card Top */}
+          <div className="flex-1 overflow-hidden">
+            <DuelCard
+              data={articles[0]}
+              revealed={phase === 'reveal'}
+              selected={selected === 0}
+              winner={phase === 'reveal' && winner === 0}
+              onClick={() => handleVote(0)}
+              position="top"
+            />
+          </div>
+
+          {/* VS badge */}
+          <div className="relative z-20 flex items-center justify-center h-0 flex-shrink-0">
+            <span className="bg-slate-950 border-2 border-slate-600 text-white font-extrabold text-xs w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
+              VS
             </span>
           </div>
+
+          {/* Card Bottom */}
+          <div className="flex-1 overflow-hidden">
+            <DuelCard
+              data={articles[1]}
+              revealed={phase === 'reveal'}
+              selected={selected === 1}
+              winner={phase === 'reveal' && winner === 1}
+              onClick={() => handleVote(1)}
+              position="bottom"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Barre du bas — toujours visible, contenu selon la phase */}
+      <div className="flex-shrink-0 bg-slate-950 border-t border-slate-800 px-3 py-2.5">
+        {phase === 'vote' && (
+          <p className="text-center text-slate-500 text-xs py-1">
+            👆 Tape sur l’article le plus controversé
+          </p>
         )}
-
-        {articles && (
-          <div className="flex flex-col flex-1">
-            {/* Card top */}
-            <div className={`${cardHeight} transition-all duration-300 flex-shrink-0`}>
-              <DuelCard
-                data={articles[0]}
-                revealed={phase === 'reveal'}
-                selected={selected === 0}
-                winner={phase === 'reveal' && winner === 0}
-                onClick={() => handleVote(0)}
-                position="top"
-              />
-            </div>
-
-            {/* VS */}
-            <div className="relative z-20 flex items-center justify-center h-0 flex-shrink-0">
-              <span className="bg-slate-950 border-2 border-slate-600 text-white font-extrabold text-xs w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
-                VS
-              </span>
-            </div>
-
-            {/* Card bottom */}
-            <div className={`${cardHeight} transition-all duration-300 flex-shrink-0`}>
-              <DuelCard
-                data={articles[1]}
-                revealed={phase === 'reveal'}
-                selected={selected === 1}
-                winner={phase === 'reveal' && winner === 1}
-                onClick={() => handleVote(1)}
-                position="bottom"
-              />
+        {phase === 'reveal' && articles && (
+          <div className="flex flex-col gap-2 fade-in">
+            {/* Résultat */}
+            <p className={`text-center text-sm font-bold ${ guessedRight ? 'text-green-400' : 'text-red-400' }`}>
+              {guessedRight ? '✅ Bien joué ! Tu avais le bon flair.' : '❌ Raté ! L’autre était plus drama.'}
+            </p>
+            {/* Boutons */}
+            <div className="flex gap-2">
+              <ShareButton articles={articles} winner={winner} selected={selected} />
+              <button
+                onClick={() => mode === 'thematic' ? loadDuel(category) : loadDuel()}
+                className="flex-shrink-0 py-2.5 px-5 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm whitespace-nowrap"
+              >
+                🔄 Rejouer
+              </button>
             </div>
           </div>
         )}
       </div>
-
-      {/* Actions post-reveal — taille compacte, hors du split */}
-      {phase === 'reveal' && articles && (
-        <div className="flex-shrink-0 flex flex-row gap-2 px-3 py-3 bg-slate-950 border-t border-slate-800 fade-in">
-          <ShareButton articles={articles} winner={winner} selected={selected} />
-          <button
-            onClick={() => mode === 'thematic' ? loadDuel(category) : loadDuel()}
-            className="flex-shrink-0 py-2.5 px-5 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm whitespace-nowrap"
-          >
-            🔄 Rejouer
-          </button>
-        </div>
-      )}
 
     </main>
   )
