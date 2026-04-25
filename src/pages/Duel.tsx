@@ -5,6 +5,7 @@ import { computeDramaScore } from '../utils/dramaScore'
 import DuelCard from '../components/DuelCard'
 import CategoryPicker from '../components/CategoryPicker'
 import LoadingDuel from '../components/LoadingDuel'
+import ShareButton from '../components/ShareButton'
 
 type Phase = 'pick-category' | 'loading' | 'vote' | 'reveal'
 
@@ -31,7 +32,7 @@ export default function Duel() {
       const [a, b] = await Promise.all([fetcher(), fetcher()])
       setArticles([a, b])
       setPhase('vote')
-    } catch (e) {
+    } catch {
       setError('Impossible de charger les articles. Vérifie ta connexion.')
       setPhase('vote')
     }
@@ -53,6 +54,8 @@ export default function Duel() {
     const s1 = computeDramaScore(articles[1].stats)
     return s0 >= s1 ? 0 : 1
   }
+
+  const winner = getWinner()
 
   return (
     <main className="flex flex-col flex-1 px-4 py-6 gap-5">
@@ -92,7 +95,7 @@ export default function Duel() {
           <p className="text-center text-slate-400 text-sm">
             {phase === 'vote'
               ? '👆 Lequel est le plus controversé ?'
-              : selected === getWinner()
+              : selected === winner
               ? '✅ Bien joué ! Tu avais le bon flair.'
               : '❌ Raté ! L\'autre était plus drama.'}
           </p>
@@ -104,24 +107,29 @@ export default function Duel() {
                 data={data}
                 revealed={phase === 'reveal'}
                 selected={selected === i}
-                winner={phase === 'reveal' && getWinner() === i}
+                winner={phase === 'reveal' && winner === i}
                 onClick={() => handleVote(i as 0 | 1)}
               />
             ))}
           </div>
 
-          {/* Rejouer */}
+          {/* Share + Rejouer */}
           {phase === 'reveal' && (
-            <button
-              onClick={() =>
-                mode === 'thematic'
-                  ? loadDuel(category)
-                  : loadDuel()
-              }
-              className="w-full py-4 rounded-2xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-lg mt-2"
-            >
-              🔄 Rejouer
-            </button>
+            <div className="flex flex-col gap-3 mt-2">
+              <ShareButton
+                articles={articles}
+                winner={winner}
+                selected={selected}
+              />
+              <button
+                onClick={() =>
+                  mode === 'thematic' ? loadDuel(category) : loadDuel()
+                }
+                className="w-full py-4 rounded-2xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-lg"
+              >
+                🔄 Rejouer
+              </button>
+            </div>
           )}
         </>
       )}

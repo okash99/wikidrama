@@ -23,9 +23,9 @@ npm run dev
 
 - [x] Sprint 1 — Setup (Vite + React + Tailwind)
 - [x] Sprint 2 — API Wikipedia + DuelCard + Cache + Stats
-- [ ] Sprint 3 — Drama Score Engine affiné
-- [ ] Sprint 4 — UI Duel polish
-- [ ] Sprint 5 — Share & Polish
+- [x] Sprint 3 — ShareButton (Wordle-style avec stats enrichies)
+- [ ] Sprint 4 — UI Polish & mobile finitions
+- [ ] Sprint 5 — Déploiement Cloudflare Pages
 
 ## 📋 V2 (Wishlist)
 
