@@ -7,111 +7,95 @@ interface Props {
   selected: boolean
   winner: boolean
   onClick: () => void
+  position: 'top' | 'bottom'
 }
 
-export default function DuelCard({ data, revealed, selected, winner, onClick }: Props) {
+export default function DuelCard({ data, revealed, selected, winner, onClick, position }: Props) {
   const { article, stats } = data
   const score = computeDramaScore(stats)
   const colorText = getDramaColor(score)
   const colorBar = getDramaBarColor(score)
 
+  const isLoser = revealed && selected && !winner
+
   return (
     <button
       onClick={onClick}
       disabled={revealed}
-      className={`w-full text-left rounded-2xl border transition-all overflow-hidden
-        ${ revealed ? 'cursor-default' : 'active:scale-95 hover:border-slate-500' }
-        ${
-          winner && revealed
-            ? 'border-yellow-400 bg-slate-800 shadow-lg shadow-yellow-400/10'
-            : selected && !winner
-            ? 'border-slate-600 bg-slate-900 opacity-60'
-            : 'border-slate-700 bg-slate-900'
-        }
+      className={`relative w-full flex-1 overflow-hidden transition-all
+        ${ position === 'top' ? '' : '' }
+        ${ isLoser ? 'opacity-50' : 'opacity-100' }
+        ${ !revealed ? 'active:brightness-110' : '' }
       `}
     >
-      {/* Thumbnail */}
+      {/* Background image or gradient */}
       {article.thumbnail ? (
-        <div className="w-full h-36 overflow-hidden">
-          <img
-            src={article.thumbnail}
-            alt={article.title}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
+        <img
+          src={article.thumbnail}
+          alt={article.title}
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+        />
       ) : (
-        <div className="w-full h-16 bg-slate-800 flex items-center justify-center">
-          <span className="text-3xl opacity-30">📝</span>
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />
       )}
 
-      <div className="p-4 flex flex-col gap-3">
+      {/* Dark overlay */}
+      <div className={`absolute inset-0 ${ winner && revealed ? 'bg-black/40' : 'bg-black/55' }`} />
+
+      {/* Winner glow border */}
+      {winner && revealed && (
+        <div className="absolute inset-0 border-4 border-yellow-400 pointer-events-none" />
+      )}
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 py-6 gap-3">
+
         {/* Winner badge */}
         {winner && revealed && (
-          <span className="self-start text-xs font-bold bg-yellow-400 text-slate-900 px-2 py-0.5 rounded-full">
+          <span className="text-xs font-bold bg-yellow-400 text-slate-900 px-3 py-1 rounded-full">
             🏆 Plus drama
           </span>
         )}
 
         {/* Title */}
-        <h2 className="font-bold text-lg leading-tight">
+        <h2 className="text-white font-extrabold text-2xl text-center leading-tight drop-shadow-lg">
           {article.title}
         </h2>
 
-        {/* Extract */}
-        <p className="text-slate-400 text-sm line-clamp-2 leading-relaxed">
-          {article.extract || 'Aucun extrait disponible.'}
-        </p>
-
         {/* Pre-reveal CTA */}
         {!revealed && (
-          <div className="flex items-center justify-center py-2 rounded-xl border border-slate-700 border-dashed">
-            <span className="text-slate-500 text-sm">👆 Voter pour celui-ci</span>
-          </div>
+          <span className="text-white/60 text-sm border border-white/30 rounded-full px-4 py-1">
+            Voter ↑
+          </span>
         )}
 
-        {/* Post-reveal stats */}
+        {/* Post-reveal score */}
         {revealed && (
-          <div className="flex flex-col gap-2 fade-in">
-            {/* Score */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-slate-500 uppercase tracking-wide">Drama Score</span>
-              <span className={`font-extrabold text-2xl ${colorText}`}>{score}%</span>
-            </div>
+          <div className="flex flex-col items-center gap-2 fade-in w-full max-w-xs">
+            <span className={`font-extrabold text-5xl drop-shadow-lg ${colorText}`}>
+              {score}%
+            </span>
+            <p className={`text-sm font-semibold ${colorText}`}>{getDramaLabel(score)}</p>
 
             {/* Bar */}
-            <div className="w-full h-2 rounded-full bg-slate-700 overflow-hidden">
+            <div className="w-full h-2 rounded-full bg-white/20">
               <div
                 className={`h-2 rounded-full fill-bar ${colorBar}`}
                 style={{ width: `${score}%` }}
               />
             </div>
 
-            <p className={`text-sm font-semibold ${colorText}`}>{getDramaLabel(score)}</p>
-
-            {/* Stats grid */}
-            <div className="grid grid-cols-2 gap-2 mt-1">
-              <StatBadge icon="✏️" label="Éditions totales" value={stats.editCount} />
-              <StatBadge icon="👥" label="Éditeurs uniques" value={stats.uniqueEditors} />
-              <StatBadge icon="⚡" label="Édits (30 jours)" value={stats.recentEdits} />
-              <StatBadge icon="↩️" label="Taux reversion" value={`${stats.reversionRate}%`} />
+            {/* Stats inline */}
+            <div className="flex gap-3 text-white/70 text-xs flex-wrap justify-center">
+              <span>✏️ {stats.editCount} édits</span>
+              <span>👥 {stats.uniqueEditors} éditeurs</span>
+              <span>↩️ {stats.reversionRate}%</span>
+              <span>⚡ {stats.recentEdits}/30j</span>
             </div>
           </div>
         )}
       </div>
     </button>
-  )
-}
-
-function StatBadge({ icon, label, value }: { icon: string; label: string; value: number | string }) {
-  return (
-    <div className="flex items-center gap-2 bg-slate-800 rounded-xl px-3 py-2">
-      <span className="text-base">{icon}</span>
-      <div className="min-w-0">
-        <p className="text-xs text-slate-500 truncate">{label}</p>
-        <p className="text-sm font-bold">{value}</p>
-      </div>
-    </div>
   )
 }
