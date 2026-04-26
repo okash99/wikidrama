@@ -1,31 +1,35 @@
 import type { ArticleStats } from '../api/wikipedia'
 
+// Plafonds calibrés sur les vrais chiffres XTools
 const MAX_REFS = {
-  editCount: 500,
-  uniqueEditors: 200,
-  recentEdits: 50,
+  editCount: 10000,    // Donald Trump ~52k, articles moyens ~500-2000
+  uniqueEditors: 1000, // grands articles ~500-2000 éditeurs
+  recentEdits: 100,    // articles chauds ~50-200 édits/30j
 }
 
 const WEIGHTS = {
-  editCount: 0.30,
-  reversionRate: 0.40,
-  uniqueEditors: 0.20,
-  recentVelocity: 0.10,
+  editCount:      0.40, // principal différenciateur
+  reversionRate:  0.25, // signal fort quand présent
+  uniqueEditors:  0.25, // largeur de la controverse
+  recentVelocity: 0.10, // actualité récente
 }
 
 export function computeDramaScore(stats: ArticleStats): number {
-  const normEdits = Math.min(stats.editCount / MAX_REFS.editCount, 1)
-  const normEditors = Math.min(stats.uniqueEditors / MAX_REFS.uniqueEditors, 1)
-  const normRecent = Math.min(stats.recentEdits / MAX_REFS.recentEdits, 1)
-  const normRevert = Math.min(stats.reversionRate / 100, 1)
+  const normEdits    = Math.min(stats.editCount   / MAX_REFS.editCount,   1)
+  const normEditors  = Math.min(stats.uniqueEditors / MAX_REFS.uniqueEditors, 1)
+  const normRecent   = Math.min(stats.recentEdits / MAX_REFS.recentEdits,  1)
+  const normRevert   = Math.min(stats.reversionRate / 100, 1)
 
-  const score =
-    normEdits * WEIGHTS.editCount +
-    normRevert * WEIGHTS.reversionRate +
+  const raw =
+    normEdits   * WEIGHTS.editCount +
+    normRevert  * WEIGHTS.reversionRate +
     normEditors * WEIGHTS.uniqueEditors +
-    normRecent * WEIGHTS.recentVelocity
+    normRecent  * WEIGHTS.recentVelocity
 
-  return Math.round(score * 100)
+  // Courbe exponentielle pour étaler la distribution (moins de scores autour de 50%)
+  const curved = Math.pow(raw, 0.7)
+
+  return Math.round(curved * 100)
 }
 
 export function getDramaColor(score: number): string {
