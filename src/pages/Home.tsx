@@ -1,27 +1,28 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { E } from '../utils/emojis'
 
 const MODES = [
   {
     id: 'random',
-    label: '\u26a1 Duel Random',
-    desc: 'Deux articles Wikipedia tir\u00e9s au hasard. Devine lequel a g\u00e9n\u00e9r\u00e9 le plus de controverses, de r\u00e9versions et de guerres d\u2019\u00e9dition.',
+    label: () => `${E.chaos} Duel Random`,
+    desc: () => `Deux articles Wikipedia tires au hasard. Devine lequel a genere le plus de controverses, de reversions et de guerres d'edition.`,
     className: 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20',
     path: '/duel?mode=random',
     special: false,
   },
   {
     id: 'thematic',
-    label: '\ud83d\uddc2\ufe0f Duel Th\u00e9matique',
-    desc: 'Choisis une th\u00e9matique (Politique, Sport, Science\u2026) et affronte deux articles du m\u00eame univers. Plus facile de comparer \u2014 plus difficile de se tromper.',
+    label: () => `${E.thematic} ${E.duelThematic}`,
+    desc: () => `Choisis une thematique (Politique, Sport, Science...) et affronte deux articles du meme univers. Plus facile de comparer, plus difficile de se tromper.`,
     className: 'bg-slate-800 hover:bg-slate-700 border border-slate-700',
     path: '/duel?mode=thematic',
     special: false,
   },
   {
     id: 'wikiwars',
-    label: '\ud83d\udcca WikiWars',
-    desc: 'Oublie le drama \u2014 qui a \u00e9t\u00e9 le plus LU ? Devine quel article a cumul\u00e9 le plus de vues Wikipedia sur les 12 derniers mois.',
+    label: () => `${E.pvIcon} WikiWars`,
+    desc: () => `Oublie le drama. Qui a ete le plus LU ? Devine quel article a cumule le plus de vues Wikipedia sur les 12 derniers mois.`,
     className: 'bg-gradient-to-r from-purple-900 to-slate-800 hover:from-purple-800 hover:to-slate-700 border border-purple-700 shadow-lg shadow-purple-500/10',
     path: '/wikiwars',
     special: true,
@@ -36,27 +37,24 @@ export default function Home() {
     <main className="flex flex-col items-center justify-between flex-1 px-6 py-12">
       <div />
 
-      {/* Hero */}
       <div className="flex flex-col items-center gap-8 w-full">
         <div className="text-center fade-in">
-          <div className="text-6xl mb-4">\u2694\ufe0f</div>
+          <div className="text-6xl mb-4">{E.swords}</div>
           <h1 className="text-5xl font-extrabold tracking-tight">
             Wiki<span className="text-red-500">Drama</span>
           </h1>
           <p className="mt-3 text-slate-400 text-base leading-relaxed max-w-xs mx-auto">
-            Deux articles Wikipedia. Un seul peut \u00eatre le plus controvers\u00e9.
+            {E.homeTagline}
           </p>
         </div>
 
-        {/* Mode buttons */}
         <div className="w-full flex flex-col gap-3 fade-in">
           {MODES.map((mode) => (
             <div key={mode.id} className="relative">
-              {/* Badge Special */}
               {mode.special && (
                 <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
                   <span className="bg-purple-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full tracking-wide uppercase">
-                    \u2728 Special Mode
+                    {E.wwStar} {E.wwSpecial}
                   </span>
                 </div>
               )}
@@ -68,25 +66,21 @@ export default function Home() {
                 onFocus={() => setHovered(mode.id)}
                 onBlur={() => setHovered(null)}
                 onTouchStart={() => setHovered(prev => prev === mode.id ? null : mode.id)}
-                className={`relative w-full py-5 rounded-2xl active:scale-95 transition-all font-bold text-xl overflow-hidden ${
-                  mode.className
-                }`}
+                className={`relative w-full py-5 rounded-2xl active:scale-95 transition-all font-bold text-xl overflow-hidden ${mode.className}`}
               >
-                {/* Label */}
                 <span className={`block transition-all duration-200 ${
                   hovered === mode.id ? 'opacity-0 -translate-y-1' : 'opacity-100 translate-y-0'
                 }`}>
-                  {mode.label}
+                  {mode.label()}
                 </span>
 
-                {/* Description overlay */}
                 <span className={`absolute inset-0 flex items-center justify-center px-5 transition-all duration-200 ${
                   hovered === mode.id
                     ? 'opacity-100 translate-y-0 bg-black/50 backdrop-blur-sm'
                     : 'opacity-0 translate-y-2 pointer-events-none'
                 }`}>
                   <span className="text-white/90 text-xs font-normal leading-relaxed text-center">
-                    {mode.desc}
+                    {mode.desc()}
                   </span>
                 </span>
               </button>
@@ -94,10 +88,9 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Drama Score mention */}
         <div className="w-full fade-in bg-slate-900 border border-slate-800 rounded-2xl px-5 py-4 flex flex-col gap-1.5">
           <p className="text-xs text-slate-400 leading-relaxed text-center">
-            Score calcul\u00e9 sur <span className="text-white font-semibold">6 m\u00e9triques Wikipedia</span> :\n            {' '}edits, r\u00e9versions, \u00e9diteurs uniques, taux anon, watchers, taux mineur.
+            {E.dramaScoreCaption}
           </p>
           <p className="text-xs text-slate-600 text-center font-mono">
             score = f(edits, rev, editors, anon, watch, minor)
@@ -105,7 +98,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Footer links */}
       <div className="flex flex-col items-center gap-3">
         <div className="flex items-center gap-5">
           <a
@@ -119,7 +111,7 @@ export default function Home() {
             </svg>
             GitHub
           </a>
-          <span className="text-slate-700">\u00b7</span>
+          <span className="text-slate-700">·</span>
           <a
             href="#"
             className="flex items-center gap-1.5 text-slate-500 hover:text-white transition-colors text-xs"
@@ -130,9 +122,7 @@ export default function Home() {
             Play Store
           </a>
         </div>
-        <p className="text-slate-700 text-xs text-center">
-          Propuls\u00e9 par l'API Wikipedia \u00b7 Aucun compte requis
-        </p>
+        <p className="text-slate-600 text-xs text-center">{E.footerCaption}</p>
       </div>
     </main>
   )
