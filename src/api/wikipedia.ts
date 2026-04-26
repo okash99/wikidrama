@@ -6,7 +6,7 @@ const ACTION_URL = 'https://en.wikipedia.org/w/api.php'
 const XTOOLS_URL = 'https://xtools.wmcloud.org/api/page/articleinfo/en.wikipedia.org'
 const CACHE_TTL = 1000 * 60 * 30
 const DRAMA_SCORE_THRESHOLD = 15
-const CACHE_VERSION = 'v9'
+const CACHE_VERSION = 'v10'
 
 const FETCH_TIMEOUT_MS = 8000
 const XTOOLS_TIMEOUT_MS = 6000
@@ -246,11 +246,8 @@ async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
         }
       }
       const stats = await fetchArticleStats(article.title)
-      // Applique le seuil drama dans tous les cas (titre explicite inclus)
       if (computeDramaScore(stats) < DRAMA_SCORE_THRESHOLD) {
         if (title) {
-          // Article de pool forcé sous le seuil : on le retourne quand même
-          // (mieux qu'un fallback aléatoire) mais on logge le cas
           console.warn(`[WikiDrama] Article "${title}" score below threshold, returning anyway`)
           return { article, stats }
         }
@@ -279,8 +276,6 @@ export async function fetchArticleFromCategory(category: string): Promise<Articl
       if (await isProtected(t)) return await fetchValidatedArticle(t)
     } catch { continue }
   }
-  // Fallback: tire un article aléatoire de la catégorie via fetchValidatedArticle
-  // sans title forcé, pour que le seuil DRAMA_SCORE_THRESHOLD s'applique normalement
   const randomFromPool = pool[Math.floor(Math.random() * pool.length)]
   return fetchValidatedArticle(randomFromPool)
 }
