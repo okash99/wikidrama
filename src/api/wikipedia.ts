@@ -1,4 +1,4 @@
-import { DRAMA_POOL_FLAT, DRAMA_POOL, DRAMA_CATEGORIES, LEGENDARY_POOL } from '../data/drama-articles'
+import { DRAMA_POOL_FLAT, DRAMA_POOL, DRAMA_CATEGORIES, LEGENDARY_POOL, ENORMOUS_POOL } from '../data/drama-articles'
 import { computeDramaScore } from '../utils/dramaScore'
 
 const BASE_URL = 'https://en.wikipedia.org/api/rest_v1'
@@ -8,8 +8,9 @@ const CACHE_TTL = 1000 * 60 * 30
 const DRAMA_SCORE_THRESHOLD = 15
 
 // Probabilités de tirage
-const DRAW_LEGENDARY  = 0.10 // 10% — rare drop 💎
-const DRAW_WHITELIST  = 0.70 // 70% — pool drama classique
+const DRAW_LEGENDARY = 0.10 // 10% 💎 rare
+const DRAW_ENORMOUS  = 0.20 // 20% 🌟
+const DRAW_WHITELIST = 0.50 // 50% pool classique
 // 20% restant — Wikipedia random pur
 
 export interface WikiArticle {
@@ -133,10 +134,11 @@ async function isProtected(title: string): Promise<boolean> {
   } catch { return false }
 }
 
-function pickSource(): 'legendary' | 'whitelist' | 'random' {
+function pickSource(): 'legendary' | 'enormous' | 'whitelist' | 'random' {
   const r = Math.random()
   if (r < DRAW_LEGENDARY) return 'legendary'
-  if (r < DRAW_LEGENDARY + DRAW_WHITELIST) return 'whitelist'
+  if (r < DRAW_LEGENDARY + DRAW_ENORMOUS) return 'enormous'
+  if (r < DRAW_LEGENDARY + DRAW_ENORMOUS + DRAW_WHITELIST) return 'whitelist'
   return 'random'
 }
 
@@ -150,11 +152,11 @@ async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
       } else {
         const source = pickSource()
         if (source === 'legendary') {
-          const t = LEGENDARY_POOL[Math.floor(Math.random() * LEGENDARY_POOL.length)]
-          article = await fetchSummary(t)
+          article = await fetchSummary(LEGENDARY_POOL[Math.floor(Math.random() * LEGENDARY_POOL.length)])
+        } else if (source === 'enormous') {
+          article = await fetchSummary(ENORMOUS_POOL[Math.floor(Math.random() * ENORMOUS_POOL.length)])
         } else if (source === 'whitelist') {
-          const t = DRAMA_POOL_FLAT[Math.floor(Math.random() * DRAMA_POOL_FLAT.length)]
-          article = await fetchSummary(t)
+          article = await fetchSummary(DRAMA_POOL_FLAT[Math.floor(Math.random() * DRAMA_POOL_FLAT.length)])
         } else {
           article = await fetchRandomSummary()
         }

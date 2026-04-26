@@ -1,5 +1,5 @@
 import type { ArticleData } from '../api/wikipedia'
-import { computeDramaScore, getDramaColor, getDramaBarColor, getDramaLabel, isLegendary } from '../utils/dramaScore'
+import { computeDramaScore, getDramaColor, getDramaBarColor, getDramaLabel, isLegendary, isEnormous } from '../utils/dramaScore'
 
 interface Props {
   data: ArticleData
@@ -17,6 +17,7 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
   const colorBar = getDramaBarColor(score)
   const isLoser = revealed && !winner
   const legendary = isLegendary(score)
+  const enormous = isEnormous(score)
 
   const shortExtract = article.extract
     ? article.extract.split('.').slice(0, 2).join('.') + '.'
@@ -42,30 +43,35 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
       {/* Overlay */}
       <div className={`absolute inset-0 ${
         legendary && revealed ? 'bg-purple-950/50' :
-        winner && revealed    ? 'bg-black/40' : 'bg-black/60'
+        enormous  && revealed ? 'bg-yellow-950/40' :
+        winner    && revealed ? 'bg-black/40' : 'bg-black/60'
       }`} />
 
-      {/* Legendary shimmer border */}
+      {/* Legendary shimmer */}
       {legendary && revealed && (
         <div className="absolute inset-0 pointer-events-none legendary-shimmer" />
       )}
 
-      {/* Winner border (non-legendary) */}
-      {winner && revealed && !legendary && (
+      {/* Enormous gold shimmer */}
+      {enormous && revealed && (
+        <div className="absolute inset-0 pointer-events-none enormous-shimmer" />
+      )}
+
+      {/* Normal winner border */}
+      {winner && revealed && !legendary && !enormous && (
         <div className="absolute inset-0 border-4 border-yellow-400 pointer-events-none" />
       )}
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-5 gap-2">
 
-        {/* Badge winner */}
         {winner && revealed && (
           <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-            legendary
-              ? 'bg-purple-500 text-white legendary-badge-glow'
-              : 'bg-yellow-400 text-slate-900'
+            legendary ? 'bg-purple-500 text-white legendary-badge-glow' :
+            enormous  ? 'bg-yellow-400 text-slate-900 enormous-badge-glow' :
+            'bg-yellow-400 text-slate-900'
           }`}>
-            {legendary ? '💎 Légendaire' : '🏆 Plus drama'}
+            {legendary ? '💎 Légendaire' : enormous ? '🌟 Énorme Drama' : '🏆 Plus drama'}
           </div>
         )}
 
@@ -80,15 +86,13 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
         )}
 
         {!revealed && (
-          <span className="text-white/50 text-xs border border-white/20 rounded-full px-3 py-1">
-            Voter ↑
-          </span>
+          <span className="text-white/50 text-xs border border-white/20 rounded-full px-3 py-1">Voter ↑</span>
         )}
 
         {revealed && (
           <div className="flex flex-col items-center gap-1.5 fade-in w-full max-w-xs">
             <span className={`font-extrabold text-4xl drop-shadow-lg ${colorText} ${
-              legendary ? 'legendary-text-glow' : ''
+              legendary ? 'legendary-text-glow' : enormous ? 'enormous-text-glow' : ''
             }`}>
               {score}%
             </span>

@@ -4,11 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  -webkit-tap-highlight-color: transparent;
-  box-sizing: border-box;
-}
-
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
 body {
@@ -18,16 +14,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-#root {
-  @apply max-w-md mx-auto min-h-screen flex flex-col;
-}
+#root { @apply max-w-md mx-auto min-h-screen flex flex-col; }
 
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
 @keyframes slideUp {
   from { transform: translateY(100%); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+  to   { transform: translateY(0); opacity: 1; }
 }
 .slide-up { animation: slideUp 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards; }
 
@@ -40,35 +34,48 @@ body {
 @keyframes fillBar { from { width: 0%; } }
 .fill-bar { animation: fillBar 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
-/* ——— LEGENDARY effects ——— */
-
+/* ── LEGENDARY (violet) ── */
 @keyframes shimmer {
-  0%   { box-shadow: 0 0 8px 2px rgba(168, 85, 247, 0.6),  inset 0 0 8px rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.8); }
-  50%  { box-shadow: 0 0 24px 8px rgba(168, 85, 247, 1),   inset 0 0 16px rgba(168, 85, 247, 0.4); border-color: rgba(216, 180, 254, 1); }
-  100% { box-shadow: 0 0 8px 2px rgba(168, 85, 247, 0.6),  inset 0 0 8px rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.8); }
+  0%   { box-shadow: 0 0 8px 2px rgba(168,85,247,0.6), inset 0 0 8px rgba(168,85,247,0.2); border-color: rgba(168,85,247,0.8); }
+  50%  { box-shadow: 0 0 24px 8px rgba(168,85,247,1),  inset 0 0 16px rgba(168,85,247,0.4); border-color: rgba(216,180,254,1); }
+  100% { box-shadow: 0 0 8px 2px rgba(168,85,247,0.6), inset 0 0 8px rgba(168,85,247,0.2); border-color: rgba(168,85,247,0.8); }
 }
-
 .legendary-shimmer {
-  border: 3px solid rgba(168, 85, 247, 0.8);
+  border: 3px solid rgba(168,85,247,0.8);
   animation: shimmer 1.8s ease-in-out infinite;
 }
 
 @keyframes badgeGlow {
-  0%   { box-shadow: 0 0 6px 2px rgba(168, 85, 247, 0.8); }
-  50%  { box-shadow: 0 0 16px 6px rgba(168, 85, 247, 1); }
-  100% { box-shadow: 0 0 6px 2px rgba(168, 85, 247, 0.8); }
+  0%,100% { box-shadow: 0 0 6px 2px rgba(168,85,247,0.8); }
+  50%     { box-shadow: 0 0 16px 6px rgba(168,85,247,1); }
 }
-
-.legendary-badge-glow {
-  animation: badgeGlow 1.8s ease-in-out infinite;
-}
+.legendary-badge-glow { animation: badgeGlow 1.8s ease-in-out infinite; }
 
 @keyframes textGlow {
-  0%   { text-shadow: 0 0 8px rgba(192, 132, 252, 0.6); }
-  50%  { text-shadow: 0 0 20px rgba(192, 132, 252, 1), 0 0 40px rgba(168, 85, 247, 0.5); }
-  100% { text-shadow: 0 0 8px rgba(192, 132, 252, 0.6); }
+  0%,100% { text-shadow: 0 0 8px rgba(192,132,252,0.6); }
+  50%     { text-shadow: 0 0 20px rgba(192,132,252,1), 0 0 40px rgba(168,85,247,0.5); }
+}
+.legendary-text-glow { animation: textGlow 1.8s ease-in-out infinite; }
+
+/* ── ENORMOUS (or) ── */
+@keyframes goldShimmer {
+  0%   { box-shadow: 0 0 8px 2px rgba(234,179,8,0.6), inset 0 0 8px rgba(234,179,8,0.2); border-color: rgba(234,179,8,0.8); }
+  50%  { box-shadow: 0 0 24px 8px rgba(234,179,8,1),  inset 0 0 16px rgba(234,179,8,0.4); border-color: rgba(253,224,71,1); }
+  100% { box-shadow: 0 0 8px 2px rgba(234,179,8,0.6), inset 0 0 8px rgba(234,179,8,0.2); border-color: rgba(234,179,8,0.8); }
+}
+.enormous-shimmer {
+  border: 3px solid rgba(234,179,8,0.8);
+  animation: goldShimmer 1.8s ease-in-out infinite;
 }
 
-.legendary-text-glow {
-  animation: textGlow 1.8s ease-in-out infinite;
+@keyframes goldBadgeGlow {
+  0%,100% { box-shadow: 0 0 6px 2px rgba(234,179,8,0.8); }
+  50%     { box-shadow: 0 0 16px 6px rgba(234,179,8,1); }
 }
+.enormous-badge-glow { animation: goldBadgeGlow 1.8s ease-in-out infinite; }
+
+@keyframes goldTextGlow {
+  0%,100% { text-shadow: 0 0 8px rgba(253,224,71,0.6); }
+  50%     { text-shadow: 0 0 20px rgba(253,224,71,1), 0 0 40px rgba(234,179,8,0.5); }
+}
+.enormous-text-glow { animation: goldTextGlow 1.8s ease-in-out infinite; }

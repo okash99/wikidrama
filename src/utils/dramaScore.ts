@@ -29,36 +29,55 @@ export function computeDramaScore(stats: ArticleStats): number {
   return Math.round(curved * 100)
 }
 
+export type DramaTier = 'legendary' | 'enormous' | 'chaos' | 'agitated' | 'disputed' | 'calm' | 'none'
+
+export function getDramaTier(score: number): DramaTier {
+  if (score >= 90) return 'legendary'
+  if (score >= 75) return 'enormous'
+  if (score >= 60) return 'chaos'
+  if (score >= 45) return 'agitated'
+  if (score >= 30) return 'disputed'
+  if (score >= 15) return 'calm'
+  return 'none'
+}
+
 export function getDramaColor(score: number): string {
-  if (score >= 90) return 'text-purple-400'
-  if (score >= 75) return 'text-red-500'
-  if (score >= 60) return 'text-orange-500'
-  if (score >= 45) return 'text-amber-500'
-  if (score >= 30) return 'text-yellow-400'
-  if (score >= 15) return 'text-green-400'
+  const tier = getDramaTier(score)
+  if (tier === 'legendary') return 'text-purple-400'
+  if (tier === 'enormous')  return 'text-yellow-300'
+  if (tier === 'chaos')     return 'text-red-500'
+  if (tier === 'agitated')  return 'text-amber-500'
+  if (tier === 'disputed')  return 'text-yellow-400'
+  if (tier === 'calm')      return 'text-green-400'
   return 'text-slate-400'
 }
 
 export function getDramaBarColor(score: number): string {
-  if (score >= 90) return 'bg-purple-500'
-  if (score >= 75) return 'bg-red-500'
-  if (score >= 60) return 'bg-orange-500'
-  if (score >= 45) return 'bg-amber-500'
-  if (score >= 30) return 'bg-yellow-400'
-  if (score >= 15) return 'bg-green-400'
+  const tier = getDramaTier(score)
+  if (tier === 'legendary') return 'bg-purple-500'
+  if (tier === 'enormous')  return 'bg-yellow-400'
+  if (tier === 'chaos')     return 'bg-red-500'
+  if (tier === 'agitated')  return 'bg-amber-500'
+  if (tier === 'disputed')  return 'bg-yellow-400'
+  if (tier === 'calm')      return 'bg-green-400'
   return 'bg-slate-500'
 }
 
 export function getDramaLabel(score: number): string {
-  if (score >= 90) return '💎 Légendaire'
-  if (score >= 75) return '🔥 Chaos total'
-  if (score >= 60) return '⚡ Très controversé'
-  if (score >= 45) return '🌶️ Agité'
-  if (score >= 30) return '😤 Disputé'
-  if (score >= 15) return '😐 Calme'
+  const tier = getDramaTier(score)
+  if (tier === 'legendary') return '💎 Légendaire'
+  if (tier === 'enormous')  return '🌟Énorme Drama'
+  if (tier === 'chaos')     return '🔥 Chaos total'
+  if (tier === 'agitated')  return '🌶️ Agité'
+  if (tier === 'disputed')  return '😤 Disputé'
+  if (tier === 'calm')      return '😐 Calme'
   return '😴 Aucun drama'
 }
 
 export function isLegendary(score: number): boolean {
   return score >= 90
+}
+
+export function isEnormous(score: number): boolean {
+  return score >= 75 && score < 90
 }

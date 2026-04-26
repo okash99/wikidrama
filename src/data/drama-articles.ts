@@ -7,6 +7,33 @@ export const LEGENDARY_POOL: string[] = [
   'God', 'Palestine',
 ]
 
+export const ENORMOUS_POOL: string[] = [
+  'Adolf Hitler', 'Joseph Stalin', 'Mao Zedong',
+  'Vladimir Putin', 'Che Guevara', 'Fidel Castro',
+  'September 11 attacks', 'Iraq War', 'Vietnam War',
+  'Holocaust', 'Slavery in the United States',
+  'Apartheid', 'Rwandan genocide', 'Armenian Genocide',
+  'Hiroshima and Nagasaki atomic bombings',
+  'Tiananmen Square protests',
+  'Catholic Church sexual abuse cases',
+  'Scientology', 'Westboro Baptist Church',
+  'Vaccine controversies', 'COVID-19 misinformation',
+  'Climate change denial', 'Anti-vaccination movement',
+  'Moon landing conspiracy theories', 'Flat Earth',
+  'Michael Jackson', 'Harvey Weinstein', 'Bill Cosby',
+  'R. Kelly', 'OJ Simpson', 'Lance Armstrong',
+  'FIFA corruption scandal', 'Russian doping scandal',
+  'Facebook–Cambridge Analytica data scandal',
+  'Theranos', 'FTX', 'WikiLeaks',
+  'Edward Snowden', 'Julian Assange',
+  'QAnon', 'Pizzagate conspiracy theory',
+  'MeToo movement', 'Cancel culture',
+  'Israeli–Palestinian conflict',
+  'Annexation of Crimea', 'Syrian civil war',
+  'Eugenics', 'Watergate scandal',
+  'Assassination of John F. Kennedy',
+]
+
 export const DRAMA_POOL: Record<string, string[]> = {
   Politique: [
     'Donald Trump', 'Vladimir Putin', 'Adolf Hitler', 'Joseph Stalin',
@@ -44,8 +71,7 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Steroids in baseball', 'Doping in football',
     'LeBron James', 'Kobe Bryant', 'Michael Jordan',
     'Formula One', 'Hand of God goal', 'Zidane headbutt incident',
-    'NFL protests', 'Colin Kaepernick',
-    'Racism in football',
+    'NFL protests', 'Colin Kaepernick', 'Racism in football',
   ],
   'Pop Culture': [
     'Michael Jackson', 'Elvis Presley', 'Madonna',
@@ -100,8 +126,7 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Manifest Destiny', 'Imperialism', 'Opium Wars',
     'Reparations for slavery', 'Confederate monuments',
     'Lost Cause of the Confederacy',
-    'Jack the Ripper',
-    'Assassination of John F. Kennedy',
+    'Jack the Ripper', 'Assassination of John F. Kennedy',
   ],
   Religion: [
     'Islam', 'Islamophobia', 'Jihad',
