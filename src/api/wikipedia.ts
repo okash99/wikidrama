@@ -1,4 +1,4 @@
-import { DRAMA_POOL_FLAT, DRAMA_POOL, DRAMA_CATEGORIES } from '../data/drama-articles'
+import { DRAMA_POOL_FLAT, DRAMA_POOL, DRAMA_CATEGORIES, LEGENDARY_POOL } from '../data/drama-articles'
 import { computeDramaScore } from '../utils/dramaScore'
 
 const BASE_URL = 'https://en.wikipedia.org/api/rest_v1'
@@ -6,6 +6,11 @@ const ACTION_URL = 'https://en.wikipedia.org/w/api.php'
 const XTOOLS_URL = 'https://xtools.wmcloud.org/api/page/articleinfo/en.wikipedia.org'
 const CACHE_TTL = 1000 * 60 * 30
 const DRAMA_SCORE_THRESHOLD = 15
+
+// Probabilités de tirage
+const DRAW_LEGENDARY  = 0.10 // 10% — rare drop 💎
+const DRAW_WHITELIST  = 0.70 // 70% — pool drama classique
+// 20% restant — Wikipedia random pur
 
 export interface WikiArticle {
   title: string
@@ -69,7 +74,6 @@ async function fetchRandomSummary(): Promise<WikiArticle> {
   }
 }
 
-// XTools : edit count réel uniquement
 async function fetchXToolsEditCount(title: string): Promise<number | null> {
   try {
     const res = await fetch(`${XTOOLS_URL}/${encodeURIComponent(title)}`)
@@ -84,17 +88,12 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   const cached = cacheGet<ArticleStats>(cacheKey)
   if (cached) return cached
 
-  // Appels en parallèle : XTools (editCount) + Wikipedia (qualité des révisions)
   const [xtoolsCount, wikiData] = await Promise.all([
     fetchXToolsEditCount(title),
     fetch(`${ACTION_URL}?${new URLSearchParams({
-      action: 'query',
-      prop: 'revisions',
-      titles: title,
-      rvprop: 'timestamp|user|comment',
-      rvlimit: '500',
-      format: 'json',
-      origin: '*',
+      action: 'query', prop: 'revisions', titles: title,
+      rvprop: 'timestamp|user|comment', rvlimit: '500',
+      format: 'json', origin: '*',
     })}`).then(r => r.json()),
   ])
 
@@ -112,12 +111,9 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
     return c.includes('revert') || c.includes('undo') || c.includes('undid')
   }).length
   const reversionRate = revisions.length > 0
-    ? Math.round((reverts / revisions.length) * 100)
-    : 0
+    ? Math.round((reverts / revisions.length) * 100) : 0
 
-  // XTools pour editCount réel, fallback sur Wikipedia si échec
   const editCount = xtoolsCount ?? revisions.length
-
   const stats: ArticleStats = { editCount, uniqueEditors, recentEdits, reversionRate }
   cacheSet(cacheKey, stats)
   return stats
@@ -137,6 +133,13 @@ async function isProtected(title: string): Promise<boolean> {
   } catch { return false }
 }
 
+function pickSource(): 'legendary' | 'whitelist' | 'random' {
+  const r = Math.random()
+  if (r < DRAW_LEGENDARY) return 'legendary'
+  if (r < DRAW_LEGENDARY + DRAW_WHITELIST) return 'whitelist'
+  return 'random'
+}
+
 async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
   const MAX_ATTEMPTS = 3
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
@@ -145,10 +148,16 @@ async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
       if (title) {
         article = await fetchSummary(title)
       } else {
-        const useWhitelist = Math.random() < 0.7
-        article = useWhitelist
-          ? await fetchSummary(DRAMA_POOL_FLAT[Math.floor(Math.random() * DRAMA_POOL_FLAT.length)])
-          : await fetchRandomSummary()
+        const source = pickSource()
+        if (source === 'legendary') {
+          const t = LEGENDARY_POOL[Math.floor(Math.random() * LEGENDARY_POOL.length)]
+          article = await fetchSummary(t)
+        } else if (source === 'whitelist') {
+          const t = DRAMA_POOL_FLAT[Math.floor(Math.random() * DRAMA_POOL_FLAT.length)]
+          article = await fetchSummary(t)
+        } else {
+          article = await fetchRandomSummary()
+        }
       }
       const stats = await fetchArticleStats(article.title)
       if (computeDramaScore(stats) < DRAMA_SCORE_THRESHOLD && !title) continue
