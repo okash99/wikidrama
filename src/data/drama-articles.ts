@@ -54,6 +54,20 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Julian Assange', 'Edward Snowden', 'WikiLeaks',
     'QAnon', 'Deep state', 'Pizzagate conspiracy theory',
     'Great Replacement', 'White nationalism', 'Antifa',
+    // Nouveaux — internationaux
+    'Boris Johnson', 'Jair Bolsonaro', 'Marine Le Pen', 'Viktor Orbán',
+    'Nicolás Maduro', 'Recep Tayyip Erdoğan', 'Benjamin Netanyahu',
+    'Tony Blair', 'Dick Cheney', 'Henry Kissinger',
+    'Citizens United v. FEC', 'Gerrymandering',
+    'Electoral College (United States)', 'Voter suppression',
+    'January 6 United States Capitol attack',
+    'Augusto Pinochet', 'Robert Mugabe', 'Bashar al-Assad',
+    'Kim Jong-un', 'Alexander Lukashenko',
+    // Nouveaux — 🇫🇷 France
+    'Jean-Marie Le Pen', 'Jean-Luc Mélenchon', 'Nicolas Sarkozy',
+    'François Hollande', 'Éric Zemmour',
+    'Manuel Valls', 'Ségolène Royal',
+    'Georges Marchais', 'Jacques Chirac',
   ],
   Sport: [
     'Lance Armstrong', 'Oscar Pistorius', 'OJ Simpson',
@@ -72,6 +86,19 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'LeBron James', 'Kobe Bryant', 'Michael Jordan',
     'Formula One', 'Hand of God goal', 'Zidane headbutt incident',
     'NFL protests', 'Colin Kaepernick', 'Racism in football',
+    // Nouveaux — internationaux
+    'Maria Sharapova', 'Alberto Contador', 'Sepp Blatter',
+    'Luis Rubiales', 'Pelé', 'Richie Incognito',
+    'Doping in athletics', 'Match fixing in cricket',
+    'Astros sign-stealing scandal',
+    'Anthony Joshua', 'Tyson Fury', 'Novak Djokovic',
+    'Nick Kyrgios', 'Naomi Osaka',
+    'Racism in cricket', 'Hooliganism', 'Football hooliganism',
+    'Greg Norman', 'LIV Golf', 'Saudi Arabia sportswashing',
+    // Nouveaux — 🇫🇷 France
+    'Karim Benzema', 'Nicolas Anelka', 'Éric Cantona',
+    'Knysna incident', 'French football team racism affair',
+    'Tony Parker', 'Yannick Noah',
   ],
   'Pop Culture': [
     'Michael Jackson', 'Elvis Presley', 'Madonna',
@@ -92,6 +119,20 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Netflix', 'TikTok', 'Facebook',
     'Mark Zuckerberg', 'Elon Musk', 'Jeff Bezos', 'Steve Jobs',
     'Bitcoin', 'GameStop short squeeze', 'NFT',
+    // Nouveaux — internationaux
+    'Ezra Miller', 'James Charles', 'Logan Paul', 'Jake Paul',
+    'Trisha Paytas', 'Shane Dawson', 'PewDiePie',
+    'Pepsi advertisement controversy', 'Armie Hammer',
+    'Marilyn Monroe', 'Amy Winehouse', 'Pete Doherty',
+    'Russell Brand', 'Rolf Harris', 'Gary Glitter',
+    'Aziz Ansari', 'Tavis Smiley', 'Jeffrey Epstein',
+    'Ghislaine Maxwell', 'Prince Andrew',
+    // Nouveaux — 🇫🇷 France
+    'Gérard Depardieu', 'Luc Besson', 'Bertrand Cantat',
+    'Dominique Strauss-Kahn',
+    'Nabilla Benattia', 'Booba', 'Rohff',
+    'Dieudonné', 'Alain Soral',
+    'Michel Polnareff',
   ],
   Science: [
     'Evolution', 'Creationism', 'Intelligent design',
@@ -109,6 +150,16 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Astrology', 'Water fluoridation controversy',
     '5G conspiracy theories', 'Moon landing conspiracy theories',
     'Area 51', 'Roswell UFO incident', 'Cold fusion',
+    // Nouveaux
+    'Golden rice', 'CRISPR', 'Neuralink',
+    'Geoengineering', 'Low-carbohydrate diet',
+    'Organic food', 'Genetically modified organism',
+    'Electroconvulsive therapy', 'Lobotomy',
+    'Tuskegee Syphilis Study', 'Stanford prison experiment',
+    'Milgram experiment', 'Conversion therapy',
+    'Dietary supplement', 'Detox diet',
+    'Chemtrail conspiracy theory', 'Wi-Fi health concerns',
+    'Fluoride controversy', 'Electromagnetic hypersensitivity',
   ],
   Histoire: [
     'Holocaust', 'Slavery in the United States',
@@ -127,6 +178,16 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Reparations for slavery', 'Confederate monuments',
     'Lost Cause of the Confederacy',
     'Jack the Ripper', 'Assassination of John F. Kennedy',
+    // Nouveaux
+    'Cecil Rhodes', 'Winston Churchill', 'Thomas Jefferson',
+    'Andrew Jackson', 'Rhodes Must Fall',
+    'Haitian Revolution', 'Boer War', 'Scramble for Africa',
+    'Decolonization', 'Vichy France',
+    'Algerian War', 'Unit 731', 'Comfort women',
+    'Operation Paperclip', 'MKUltra',
+    // 🇫🇷 France
+    'Philippe Pétain', 'Charles de Gaulle',
+    'Collaboration in France during World War II',
   ],
   Religion: [
     'Islam', 'Islamophobia', 'Jihad',
@@ -139,6 +200,18 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Protestant Reformation', 'Religious violence',
     'Charlie Hebdo shooting', 'Satanic panic',
     'God', 'Jesus', 'Muhammad', 'Bible',
+    // Nouveaux
+    'Mormonism', 'Opus Dei', 'Prosperity gospel',
+    'Faith healing', 'Circumcision and religion',
+    'Female genital mutilation', 'Religious conversion',
+    'Apostasy in Islam', 'Televangelism',
+    'Human sacrifice', 'Child marriage',
+    'Branch Davidians', 'Aum Shinrikyo',
+    'The Family International', 'NXIVM',
+    'Rajneesh movement', 'Fundamentalism',
+    'Christian nationalism', 'Islamism',
+    // 🇫🇷 France
+    'Laïcité', 'Charlie Hebdo',
   ],
   Tech: [
     'Elon Musk', 'Twitter', 'X Corp.',
@@ -152,6 +225,17 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Deepfake', 'Artificial intelligence', 'OpenAI', 'ChatGPT',
     'Palantir Technologies', 'TikTok', 'ByteDance',
     'Huawei', 'NSO Group',
+    // Nouveaux
+    'Cambridge Analytica', 'Gig economy',
+    'Content moderation', 'Algorithmic bias', 'Clearview AI',
+    'Stable Diffusion', 'Sam Altman', 'Self-driving car',
+    'Surveillance capitalism', 'Amazon Ring',
+    'Facial recognition', 'Social credit system',
+    'Right to be forgotten',
+    'Apple vs. FBI encryption dispute',
+    'Microsoft antitrust case', 'Google antitrust cases',
+    'Uber data breach', 'Yahoo data breaches',
+    'WeWork', 'Adam Neumann',
   ],
 }
 
