@@ -5,16 +5,21 @@
 @tailwind utilities;
 
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; background: #000; }
 
 body {
-  @apply bg-slate-950 text-white min-h-screen;
+  background: #000 !important;
+  color: #fff;
+  min-height: 100vh;
   font-family: 'Inter', system-ui, sans-serif;
   overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
 }
 
-#root { @apply max-w-md mx-auto min-h-screen flex flex-col; }
+#root {
+  @apply max-w-md mx-auto min-h-screen flex flex-col;
+  background: #000;
+}
 
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
@@ -34,16 +39,13 @@ body {
 @keyframes fillBar { from { width: 0%; } }
 .fill-bar { animation: fillBar 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
-/* ── LEGENDARY (bleu diamant) ── */
+/* LEGENDARY */
 @keyframes shimmer {
   0%   { box-shadow: 0 0 8px 2px rgba(56,189,248,0.6), inset 0 0 8px rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.8); }
   50%  { box-shadow: 0 0 28px 10px rgba(56,189,248,0.9), inset 0 0 18px rgba(56,189,248,0.3); border-color: rgba(186,230,253,1); }
   100% { box-shadow: 0 0 8px 2px rgba(56,189,248,0.6), inset 0 0 8px rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.8); }
 }
-.legendary-shimmer {
-  border: 3px solid rgba(56,189,248,0.8);
-  animation: shimmer 1.8s ease-in-out infinite;
-}
+.legendary-shimmer { border: 3px solid rgba(56,189,248,0.8); animation: shimmer 1.8s ease-in-out infinite; }
 
 @keyframes badgeGlow {
   0%,100% { box-shadow: 0 0 6px 2px rgba(56,189,248,0.8); }
@@ -57,16 +59,13 @@ body {
 }
 .legendary-text-glow { animation: textGlow 1.8s ease-in-out infinite; }
 
-/* ── ENORMOUS (or) ── */
+/* ENORMOUS */
 @keyframes goldShimmer {
   0%   { box-shadow: 0 0 8px 2px rgba(234,179,8,0.6), inset 0 0 8px rgba(234,179,8,0.2); border-color: rgba(234,179,8,0.8); }
-  50%  { box-shadow: 0 0 24px 8px rgba(234,179,8,1),  inset 0 0 16px rgba(234,179,8,0.4); border-color: rgba(253,224,71,1); }
+  50%  { box-shadow: 0 0 24px 8px rgba(234,179,8,1), inset 0 0 16px rgba(234,179,8,0.4); border-color: rgba(253,224,71,1); }
   100% { box-shadow: 0 0 8px 2px rgba(234,179,8,0.6), inset 0 0 8px rgba(234,179,8,0.2); border-color: rgba(234,179,8,0.8); }
 }
-.enormous-shimmer {
-  border: 3px solid rgba(234,179,8,0.8);
-  animation: goldShimmer 1.8s ease-in-out infinite;
-}
+.enormous-shimmer { border: 3px solid rgba(234,179,8,0.8); animation: goldShimmer 1.8s ease-in-out infinite; }
 
 @keyframes goldBadgeGlow {
   0%,100% { box-shadow: 0 0 6px 2px rgba(234,179,8,0.8); }
