@@ -9,6 +9,10 @@ import ShareButton from '../components/ShareButton'
 type Phase = 'pick-category' | 'loading' | 'vote' | 'reveal'
 type WinnerState = 0 | 1 | 'tie'
 
+function isOffline(): boolean {
+  return typeof navigator !== 'undefined' && !navigator.onLine
+}
+
 export default function Duel() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -24,7 +28,6 @@ export default function Duel() {
   async function fetchDistinctPair(cat?: string): Promise<[ArticleData, ArticleData]> {
     const fetcher = cat ? () => fetchArticleFromCategory(cat) : fetchArticleData
     const [a, b] = await Promise.all([fetcher(), fetcher()])
-    // If same article was drawn twice, re-fetch the second one (max 2 extra attempts)
     if (a.article.pageId === b.article.pageId) {
       for (let i = 0; i < 2; i++) {
         const replacement = await fetcher()
@@ -35,6 +38,12 @@ export default function Duel() {
   }
 
   const loadDuel = useCallback(async (cat?: string) => {
+    // Détecter offline avant même de lancer le fetch
+    if (isOffline()) {
+      setError('offline')
+      setPhase('vote')
+      return
+    }
     setPhase('loading')
     setSelected(null)
     setArticles(null)
@@ -43,8 +52,13 @@ export default function Duel() {
       const pair = await fetchDistinctPair(cat)
       setArticles(pair)
       setPhase('vote')
-    } catch {
-      setError('Impossible de charger les articles.')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('AbortError') || isOffline()) {
+        setError('offline')
+      } else {
+        setError('generic')
+      }
       setPhase('vote')
     }
   }, [])
@@ -69,14 +83,12 @@ export default function Duel() {
 
   const winner = getWinner()
   const isTie = winner === 'tie'
-
-  // On a tie, both answers are "correct"
   const guessedRight = isTie || selected === winner
 
   function getResultMessage(): string {
-    if (isTie) return "🤝 Égalité ! Les deux articles sont aussi drama l'un que l'autre."
-    if (guessedRight) return '✅ Bien joué ! Tu avais le bon flair.'
-    return '❌ Raté ! L\'autre était plus drama.'
+    if (isTie) return "\ud83e\udd1d \u00c9galit\u00e9\u00a0! Les deux articles sont aussi drama l'un que l'autre."
+    if (guessedRight) return '\u2705 Bien jou\u00e9\u00a0! Tu avais le bon flair.'
+    return '\u274c Rat\u00e9\u00a0! L\'autre \u00e9tait plus drama.'
   }
 
   function getResultColor(): string {
@@ -90,8 +102,8 @@ export default function Duel() {
     return (
       <main className="flex flex-col flex-1 px-4 py-6 gap-5">
         <div className="flex items-center justify-between">
-          <button onClick={() => navigate('/')} className="text-slate-500 text-sm">← Accueil</button>
-          <h1 className="font-bold text-base">🗂️ Duel Thématique</h1>
+          <button onClick={() => navigate('/')} className="text-slate-500 text-sm">\u2190 Accueil</button>
+          <h1 className="font-bold text-base">\ud83d\uddc2\ufe0f Duel Th\u00e9matique</h1>
           <div className="w-16" />
         </div>
         <CategoryPicker selected={category} onChange={setCategory} />
@@ -99,7 +111,7 @@ export default function Duel() {
           onClick={() => loadDuel(category)}
           className="w-full py-4 rounded-2xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-lg mt-auto"
         >
-          ⚔️ Lancer le duel
+          \u2694\ufe0f Lancer le duel
         </button>
       </main>
     )
@@ -109,7 +121,7 @@ export default function Duel() {
   if (phase === 'loading') {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-4">
-        <div className="text-4xl animate-pulse">⚔️</div>
+        <div className="text-4xl animate-pulse">\u2694\ufe0f</div>
         <p className="text-slate-400 text-sm">Chargement du duel...</p>
       </main>
     )
@@ -117,10 +129,29 @@ export default function Duel() {
 
   // --- Error ---
   if (error) {
+    const isOfflineError = error === 'offline'
     return (
-      <main className="flex flex-col flex-1 items-center justify-center gap-4 px-6">
-        <p className="text-red-400 text-sm text-center">{error}</p>
-        <button onClick={() => loadDuel()} className="text-slate-400 underline text-sm">Réessayer</button>
+      <main className="flex flex-col flex-1 items-center justify-center gap-5 px-6 text-center">
+        <span className="text-5xl">{isOfflineError ? '\ud83d\udce1' : '\ud83d\ude45'}</span>
+        <div className="flex flex-col gap-1">
+          <p className="text-white font-bold">
+            {isOfflineError ? 'Pas de connexion' : 'Chargement impossible'}
+          </p>
+          <p className="text-slate-400 text-sm">
+            {isOfflineError
+              ? 'V\u00e9rifie ta connexion puis r\u00e9essaie.'
+              : 'Wikipedia ou XTools ne r\u00e9pond pas. R\u00e9essaie dans quelques secondes.'}
+          </p>
+        </div>
+        <button
+          onClick={() => loadDuel(mode === 'thematic' ? category : undefined)}
+          className="py-2.5 px-6 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm"
+        >
+          \ud83d\udd04 R\u00e9essayer
+        </button>
+        <button onClick={() => navigate('/')} className="text-slate-500 text-xs underline">
+          Retour \u00e0 l'accueil
+        </button>
       </main>
     )
   }
@@ -131,15 +162,13 @@ export default function Duel() {
       {articles && (
         <div className="flex flex-col flex-1 overflow-hidden relative">
 
-          {/* Back button */}
           <button
             onClick={() => navigate('/')}
             className="absolute top-3 left-3 z-30 text-white/60 text-sm bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full"
           >
-            ←
+            \u2190
           </button>
 
-          {/* Card Top */}
           <div className="flex-1 overflow-hidden">
             <DuelCard
               data={articles[0]}
@@ -151,14 +180,12 @@ export default function Duel() {
             />
           </div>
 
-          {/* VS badge */}
           <div className="relative z-20 flex items-center justify-center h-0 flex-shrink-0">
             <span className="bg-slate-950 border-2 border-slate-600 text-white font-extrabold text-xs w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
               VS
             </span>
           </div>
 
-          {/* Card Bottom */}
           <div className="flex-1 overflow-hidden">
             <DuelCard
               data={articles[1]}
@@ -172,11 +199,10 @@ export default function Duel() {
         </div>
       )}
 
-      {/* Barre du bas */}
       <div className="flex-shrink-0 bg-slate-950 border-t border-slate-800 px-3 py-2.5">
         {phase === 'vote' && (
           <p className="text-center text-slate-500 text-xs py-1">
-            👆 Tape sur l'article le plus controversé
+            \ud83d\udc46 Tape sur l'article le plus controvers\u00e9
           </p>
         )}
         {phase === 'reveal' && articles && (
@@ -190,7 +216,7 @@ export default function Duel() {
                 onClick={() => mode === 'thematic' ? loadDuel(category) : loadDuel()}
                 className="flex-shrink-0 py-2.5 px-5 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm whitespace-nowrap"
               >
-                🔄 Rejouer
+                \ud83d\udd04 Rejouer
               </button>
             </div>
           </div>
