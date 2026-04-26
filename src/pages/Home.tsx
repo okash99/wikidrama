@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { E } from '../utils/emojis'
+import WikiGlobe from '../components/WikiGlobe'
 
 const MODES = [
   {
@@ -29,15 +30,6 @@ const MODES = [
   },
 ]
 
-// Logo Wikipedia puzzle globe SVG inline (negatif blanc)
-function WikiGlobe({ size = 80 }: { size?: number }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width={size} height={size} aria-hidden="true">
-      <path fill="white" d="M512 42.667C253.493 42.667 42.667 253.493 42.667 512S253.493 981.333 512 981.333 981.333 770.507 981.333 512 770.507 42.667 512 42.667zm0 85.333c82.24 0 158.4 24.747 222.293 67.2l-28.16 48.747a362.453 362.453 0 0 0-194.133-55.893c-200.533 0-362.667 162.133-362.667 362.667 0 200.533 162.133 362.666 362.667 362.666 200.533 0 362.666-162.133 362.666-362.666a361.6 361.6 0 0 0-55.893-194.133l48.747-28.16A444.16 444.16 0 0 1 938.667 512c0 235.307-190.827 426.667-426.667 426.667C276.693 938.667 85.333 747.307 85.333 512 85.333 276.693 276.693 85.333 512 85.333zM512 256a256 256 0 1 0 0 512 256 256 0 0 0 0-512zm0 85.333a170.667 170.667 0 1 1 0 341.334 170.667 170.667 0 0 1 0-341.334z"/>
-    </svg>
-  )
-}
-
 export default function Home() {
   const navigate = useNavigate()
   const [hovered, setHovered] = useState<string | null>(null)
@@ -48,15 +40,8 @@ export default function Home() {
 
       <div className="flex flex-col items-center gap-8 w-full">
         <div className="text-center fade-in">
-          {/* Logo Wikipedia puzzle globe */}
           <div className="mb-4 flex justify-center">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Wikipedia-logo-v2-en.svg/200px-Wikipedia-logo-v2-en.svg.png"
-              alt="Wikipedia"
-              width={72}
-              height={72}
-              className="invert opacity-90"
-            />
+            <WikiGlobe size={80} />
           </div>
           <h1 className="text-5xl font-extrabold tracking-tight">
             Wiki<span className="text-red-500">Drama</span>
