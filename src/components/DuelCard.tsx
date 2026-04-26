@@ -42,7 +42,7 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
 
       {/* Overlay */}
       <div className={`absolute inset-0 ${
-        legendary && revealed ? 'bg-purple-950/50' :
+        legendary && revealed ? 'bg-sky-950/50' :
         enormous  && revealed ? 'bg-yellow-950/40' :
         winner    && revealed ? 'bg-black/40' : 'bg-black/60'
       }`} />
@@ -65,9 +65,10 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-5 gap-2">
 
+        {/* Badge winner */}
         {winner && revealed && (
           <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-            legendary ? 'bg-purple-500 text-white legendary-badge-glow' :
+            legendary ? 'bg-sky-500/80 text-white legendary-badge-glow' :
             enormous  ? 'bg-yellow-400 text-slate-900 enormous-badge-glow' :
             'bg-yellow-400 text-slate-900'
           }`}>
@@ -100,7 +101,9 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
             <div className="w-full h-1.5 rounded-full bg-white/20">
               <div className={`h-1.5 rounded-full fill-bar ${colorBar}`} style={{ width: `${score}%` }} />
             </div>
-            <div className="flex gap-2 text-white/60 text-xs flex-wrap justify-center">
+            {/* Stats row avec fond semi-opaque */}
+            <div className="flex gap-2 text-white/80 text-xs flex-wrap justify-center
+              bg-black/40 backdrop-blur-sm rounded-xl px-3 py-1.5 w-full">
               <span>✏️ {stats.editCount.toLocaleString()}</span>
               <span>👥 {stats.uniqueEditors}</span>
               <span>↩️ {stats.reversionRate}%</span>

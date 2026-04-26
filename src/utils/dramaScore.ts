@@ -43,7 +43,7 @@ export function getDramaTier(score: number): DramaTier {
 
 export function getDramaColor(score: number): string {
   const tier = getDramaTier(score)
-  if (tier === 'legendary') return 'text-purple-400'
+  if (tier === 'legendary') return 'text-sky-300'
   if (tier === 'enormous')  return 'text-yellow-300'
   if (tier === 'chaos')     return 'text-red-500'
   if (tier === 'agitated')  return 'text-amber-500'
@@ -54,7 +54,7 @@ export function getDramaColor(score: number): string {
 
 export function getDramaBarColor(score: number): string {
   const tier = getDramaTier(score)
-  if (tier === 'legendary') return 'bg-purple-500'
+  if (tier === 'legendary') return 'bg-sky-400'
   if (tier === 'enormous')  return 'bg-yellow-400'
   if (tier === 'chaos')     return 'bg-red-500'
   if (tier === 'agitated')  return 'bg-amber-500'
@@ -66,7 +66,7 @@ export function getDramaBarColor(score: number): string {
 export function getDramaLabel(score: number): string {
   const tier = getDramaTier(score)
   if (tier === 'legendary') return '💎 Légendaire'
-  if (tier === 'enormous')  return '🌟Énorme Drama'
+  if (tier === 'enormous')  return '🌟 Énorme Drama'
   if (tier === 'chaos')     return '🔥 Chaos total'
   if (tier === 'agitated')  return '🌶️ Agité'
   if (tier === 'disputed')  return '😤 Disputé'
@@ -74,10 +74,5 @@ export function getDramaLabel(score: number): string {
   return '😴 Aucun drama'
 }
 
-export function isLegendary(score: number): boolean {
-  return score >= 90
-}
-
-export function isEnormous(score: number): boolean {
-  return score >= 75 && score < 90
-}
+export function isLegendary(score: number): boolean { return score >= 90 }
+export function isEnormous(score: number): boolean  { return score >= 75 && score < 90 }
