@@ -70,8 +70,8 @@ export const E = {
   // Labels WikiWars UI
   wwMostViewed:      'Le plus vu',
   wwVote:            'Voter',
-  wwInstruction:     "Lequel a été le plus consulté ce mois-ci ?",
-  wwViewsMonth:      'vues en',
+  wwInstruction:     'Lequel a été le plus consulté ces 12 derniers mois ?',
+  wwViews12m:        'vues sur 12 mois',
   wwLoading:         'Chargement WikiWars...',
   wwSpecial:         'Special Mode',
 

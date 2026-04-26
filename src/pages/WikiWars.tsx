@@ -1,43 +1,134 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { fetchSummaryForWikiWars } from '../api/pageviews'
+import { createPortal } from 'react-dom'
+import { fetchSummaryForWikiWars, type PageviewsData } from '../api/pageviews'
 import { getPopularityLabel, getPopularityColor, getPopularityBarColor, formatViews, viewsToScore, getPopularityTier } from '../utils/popularityScore'
 import { E } from '../utils/emojis'
 
 type Phase = 'loading' | 'vote' | 'reveal'
 
-interface CardData {
-  title: string
-  extract: string
-  thumbnail?: string
-  views: number
-  month: string
+function dramaBar(score: number): string {
+  const filled = Math.round(score / 10)
+  return '\u2588'.repeat(filled) + '\u2591'.repeat(10 - filled)
+}
+
+const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
+
+function ShareModal({
+  cards, winner, selected, onClose
+}: {
+  cards: [PageviewsData, PageviewsData]
+  winner: 0 | 1 | 'tie'
+  selected: 0 | 1 | null
+  onClose: () => void
+}) {
+  const [copied, setCopied] = useState(false)
+  const isTie = winner === 'tie'
+  const winnerIdx: 0 | 1  = isTie ? 0 : winner
+  const loserIdx:  0 | 1  = winnerIdx === 0 ? 1 : 0
+  const winnerCard = cards[winnerIdx]
+  const loserCard  = cards[loserIdx]
+  const guessedRight = isTie || selected === winner
+
+  const scoreW = viewsToScore(winnerCard.views)
+  const scoreL = viewsToScore(loserCard.views)
+
+  const shareText = [
+    `${E.pvIcon} WikiWars ${isTie ? E.scales : E.swords}`,
+    '',
+    isTie
+      ? `${E.scales} ${winnerCard.title} = ${loserCard.title}`
+      : `${E.winner} ${winnerCard.title}`,
+    `   ${dramaBar(scoreW)} ${formatViews(winnerCard.views)} vues/12 mois`,
+    ...(!isTie ? [
+      '',
+      `${E.disputed} ${loserCard.title}`,
+      `   ${dramaBar(scoreL)} ${formatViews(loserCard.views)} vues/12 mois`,
+    ] : []),
+    '',
+    guessedRight ? `${E.checkmark} ${E.shareRight}` : `${E.cross} ${E.shareWrong}`,
+    '',
+    `${E.pointRight} wikidrama.pages.dev`,
+  ].join('\n')
+
+  const tweetText = [
+    `${E.pvIcon} WikiWars`,
+    isTie
+      ? `${E.scales} Egalite ! ${winnerCard.title} vs ${loserCard.title}`
+      : `${E.winner} ${winnerCard.title} (${formatViews(winnerCard.views)}) > ${loserCard.title} (${formatViews(loserCard.views)})`,
+    guessedRight ? `${E.checkmark} Je l'avais senti !` : `${E.cross} Je me suis fait avoir...`,
+    'https://wikidrama.pages.dev',
+  ].join('\n')
+
+  async function copyText() {
+    try {
+      await navigator.clipboard.writeText(shareText)
+      setCopied(true)
+      setTimeout(() => { setCopied(false); onClose() }, 2000)
+    } catch { alert(shareText) }
+  }
+
+  async function shareNative() {
+    try { await navigator.share({ title: 'WikiWars', text: shareText }); onClose() }
+    catch { /* cancelled */ }
+  }
+
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
+      <div className="w-full max-w-md bg-slate-900 border border-slate-700 rounded-t-3xl p-5 flex flex-col gap-4 slide-up" onClick={e => e.stopPropagation()}>
+        <div className="w-10 h-1 bg-slate-600 rounded-full mx-auto" />
+        <p className="text-sm font-semibold text-slate-300 text-center">{E.pvIcon} {E.sharePartager}</p>
+
+        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4 max-h-44 overflow-y-auto scrollbar-none">
+          <pre className="text-xs text-slate-300 whitespace-pre-wrap font-mono leading-relaxed">{shareText}</pre>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          {canShare && (
+            <button onClick={shareNative}
+              className="w-full py-3 rounded-xl bg-purple-500 hover:bg-purple-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
+              {E.phone} Partager via...
+            </button>
+          )}
+          <div className="flex gap-2">
+            <button onClick={() => { window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank'); onClose() }}
+              className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
+              {E.whatsapp} WhatsApp
+            </button>
+            <button onClick={() => { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, '_blank'); onClose() }}
+              className="flex-1 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
+              {E.twitter} Twitter
+            </button>
+          </div>
+          <button onClick={copyText}
+            className="w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
+            {copied ? `${E.checkmark} ${E.shareCopied}` : `${E.clipboard} Copier le texte`}
+          </button>
+        </div>
+        <button onClick={onClose} className="text-slate-500 text-sm text-center py-1">{E.shareAnnuler}</button>
+      </div>
+    </div>,
+    document.body
+  )
 }
 
 export default function WikiWars() {
   const navigate = useNavigate()
-  const [phase, setPhase]       = useState<Phase>('loading')
-  const [cards, setCards]       = useState<[CardData, CardData] | null>(null)
-  const [selected, setSelected] = useState<0 | 1 | null>(null)
-  const [error, setError]       = useState(false)
+  const [phase, setPhase]         = useState<Phase>('loading')
+  const [cards, setCards]         = useState<[PageviewsData, PageviewsData] | null>(null)
+  const [selected, setSelected]   = useState<0 | 1 | null>(null)
+  const [error, setError]         = useState(false)
+  const [showShare, setShowShare] = useState(false)
 
   const loadDuel = useCallback(async () => {
     setPhase('loading')
     setSelected(null)
     setCards(null)
     setError(false)
+    setShowShare(false)
     try {
-      const [a, b] = await Promise.all([
-        fetchSummaryForWikiWars(),
-        fetchSummaryForWikiWars(),
-      ])
-      // Assure deux articles distincts
-      if (a.title === b.title) {
-        const c = await fetchSummaryForWikiWars()
-        setCards([a, c])
-      } else {
-        setCards([a, b])
-      }
+      const [a, b] = await Promise.all([fetchSummaryForWikiWars(), fetchSummaryForWikiWars()])
+      setCards(a.title === b.title ? [a, await fetchSummaryForWikiWars()] : [a, b])
       setPhase('vote')
     } catch {
       setError(true)
@@ -59,23 +150,21 @@ export default function WikiWars() {
     return cards[0].views > cards[1].views ? 0 : 1
   }
 
-  const winner      = getWinner()
-  const isTie       = winner === 'tie'
+  const winner       = getWinner()
+  const isTie        = winner === 'tie'
   const guessedRight = isTie || selected === winner
 
-  function getResultMessage(): string {
+  function getResultMessage() {
     if (isTie)        return `${E.handshake} ${E.duelTie}`
     if (guessedRight) return `${E.checkmark} ${E.duelRight}`
     return `${E.cross} ${E.duelWrong}`
   }
-
-  function getResultColor(): string {
+  function getResultColor() {
     if (isTie)        return 'text-yellow-400'
     if (guessedRight) return 'text-green-400'
     return 'text-red-400'
   }
 
-  // Loading
   if (phase === 'loading') {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-4">
@@ -85,20 +174,16 @@ export default function WikiWars() {
     )
   }
 
-  // Erreur
   if (error) {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-5 px-6 text-center">
         <span className="text-5xl">{E.satellite}</span>
         <p className="text-white font-bold">{E.duelErrorTitle}</p>
         <p className="text-slate-400 text-sm">{E.duelErrorMsg}</p>
-        <button onClick={loadDuel}
-          className="py-2.5 px-6 rounded-xl bg-purple-500 hover:bg-purple-600 active:scale-95 transition-all font-bold text-sm">
+        <button onClick={loadDuel} className="py-2.5 px-6 rounded-xl bg-purple-500 hover:bg-purple-600 active:scale-95 transition-all font-bold text-sm">
           {E.reload} {E.duelRetry}
         </button>
-        <button onClick={() => navigate('/')} className="text-slate-500 text-xs underline">
-          {E.duelBackHome}
-        </button>
+        <button onClick={() => navigate('/')} className="text-slate-500 text-xs underline">{E.duelBackHome}</button>
       </main>
     )
   }
@@ -115,10 +200,10 @@ export default function WikiWars() {
           </button>
 
           {[0, 1].map((i) => {
-            const card = cards[i as 0 | 1]
-            const isWinner = phase === 'reveal' && (winner === i || isTie)
-            const isLoser  = phase === 'reveal' && !isWinner
-            const score    = viewsToScore(card.views)
+            const card      = cards[i as 0 | 1]
+            const isWinner  = phase === 'reveal' && (winner === i || isTie)
+            const isLoser   = phase === 'reveal' && !isWinner
+            const score     = viewsToScore(card.views)
             const colorText = getPopularityColor(card.views)
             const colorBar  = getPopularityBarColor(card.views)
             const tier      = getPopularityTier(card.views)
@@ -131,31 +216,28 @@ export default function WikiWars() {
                   onClick={() => handleVote(i as 0 | 1)}
                   disabled={phase === 'reveal'}
                   className={`relative w-full h-full overflow-hidden transition-all
-                    ${ isLoser ? 'opacity-50' : 'opacity-100' }
-                    ${ phase !== 'reveal' ? 'active:brightness-110' : '' }
+                    ${isLoser ? 'opacity-50' : 'opacity-100'}
+                    ${phase !== 'reveal' ? 'active:brightness-110' : ''}
                   `}
                 >
-                  {card.thumbnail ? (
-                    <img src={card.thumbnail} alt={card.title}
-                      className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />
-                  )}
+                  {card.thumbnail
+                    ? <img src={card.thumbnail} alt={card.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+                    : <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />}
 
                   <div className={`absolute inset-0 ${
                     isViral   && isWinner ? 'bg-purple-950/50' :
                     isMondial && isWinner ? 'bg-yellow-950/40' :
-                    isWinner  && phase === 'reveal' ? 'bg-black/40' : 'bg-black/60'
+                    isWinner  ? 'bg-black/40' : 'bg-black/60'
                   }`} />
 
                   {isViral   && isWinner && <div className="absolute inset-0 pointer-events-none legendary-shimmer" />}
                   {isMondial && isWinner && <div className="absolute inset-0 pointer-events-none enormous-shimmer" />}
-                  {isWinner  && phase === 'reveal' && !isViral && !isMondial && (
+                  {isWinner  && !isViral && !isMondial && (
                     <div className="absolute inset-0 border-4 border-purple-400 pointer-events-none" />
                   )}
 
                   <div className="relative z-10 flex flex-col items-center justify-center h-full px-5 gap-2">
-                    {isWinner && phase === 'reveal' && (
+                    {isWinner && (
                       <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
                         isViral   ? 'bg-purple-500/80 text-white legendary-badge-glow' :
                         isMondial ? 'bg-yellow-400 text-slate-900 enormous-badge-glow' :
@@ -188,7 +270,7 @@ export default function WikiWars() {
                         }`}>
                           {formatViews(card.views)}
                         </span>
-                        <p className="text-white/60 text-xs">{E.wwViewsMonth} {card.month}</p>
+                        <p className="text-white/50 text-xs">{E.wwViews12m}</p>
                         <p className={`text-xs font-semibold ${colorText}`}>{getPopularityLabel(card.views)}</p>
                         <div className="w-full h-1.5 rounded-full bg-white/20">
                           <div className={`h-1.5 rounded-full fill-bar ${colorBar}`} style={{ width: `${score}%` }} />
@@ -215,28 +297,37 @@ export default function WikiWars() {
             {E.finger} {E.wwInstruction}
           </p>
         )}
-        {phase === 'reveal' && (
+        {phase === 'reveal' && cards && (
           <div className="flex flex-col gap-2 fade-in">
             <p className={`text-center text-sm font-bold ${getResultColor()}`}>
               {getResultMessage()}
             </p>
-            <div className="flex gap-2 justify-center">
+            <div className="flex gap-2">
               <button
-                onClick={loadDuel}
-                className="py-2.5 px-8 rounded-xl bg-purple-500 hover:bg-purple-600 active:scale-95 transition-all font-bold text-sm"
+                onClick={() => setShowShare(true)}
+                className="flex-1 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-bold text-sm flex items-center justify-center gap-1.5"
               >
-                {E.reload} Rejouer
+                Partager
               </button>
               <button
-                onClick={() => navigate('/')}
-                className="py-2.5 px-5 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-bold text-sm"
+                onClick={loadDuel}
+                className="flex-shrink-0 py-2.5 px-5 rounded-xl bg-purple-500 hover:bg-purple-600 active:scale-95 transition-all font-bold text-sm whitespace-nowrap"
               >
-                {E.arrowLeft} Accueil
+                {E.reload} Rejouer
               </button>
             </div>
           </div>
         )}
       </div>
+
+      {showShare && cards && (
+        <ShareModal
+          cards={cards}
+          winner={winner}
+          selected={selected}
+          onClose={() => setShowShare(false)}
+        />
+      )}
     </main>
   )
 }
