@@ -36,7 +36,6 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
         ${ !revealed ? 'active:brightness-110' : '' }
       `}
     >
-      {/* Background */}
       {article.thumbnail ? (
         <img src={article.thumbnail} alt={article.title}
           className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
@@ -44,32 +43,24 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
         <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />
       )}
 
-      {/* Overlay */}
       <div className={`absolute inset-0 ${
         legendary && revealed ? 'bg-sky-950/50' :
         enormous  && revealed ? 'bg-yellow-950/40' :
         winner    && revealed ? 'bg-black/40' : 'bg-black/60'
       }`} />
 
-      {/* Legendary shimmer */}
       {legendary && revealed && (
         <div className="absolute inset-0 pointer-events-none legendary-shimmer" />
       )}
-
-      {/* Enormous gold shimmer */}
       {enormous && revealed && (
         <div className="absolute inset-0 pointer-events-none enormous-shimmer" />
       )}
-
-      {/* Normal winner border */}
       {winner && revealed && !legendary && !enormous && (
         <div className="absolute inset-0 border-4 border-yellow-400 pointer-events-none" />
       )}
 
-      {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-5 gap-2">
 
-        {/* Badge winner */}
         {winner && revealed && (
           <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
             legendary ? 'bg-sky-500/80 text-white legendary-badge-glow' :
@@ -105,8 +96,6 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
             <div className="w-full h-1.5 rounded-full bg-white/20">
               <div className={`h-1.5 rounded-full fill-bar ${colorBar}`} style={{ width: `${score}%` }} />
             </div>
-
-            {/* Stats grid — 2 colonnes, 3 lignes */}
             <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-white/80 text-xs
               bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2 w-full">
               <span>✏️ {fmt(stats.editCount)} edits</span>
