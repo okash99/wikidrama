@@ -5,7 +5,6 @@ export default function Home() {
 
   return (
     <main className="flex flex-col items-center justify-between flex-1 px-6 py-12">
-      {/* Top spacer */}
       <div />
 
       {/* Hero */}
@@ -36,25 +35,51 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Mini explication */}
-        <div className="w-full grid grid-cols-3 gap-3 fade-in">
-          {[
-            { icon: '🔥', label: 'Drama Score' },
-            { icon: '✏️', label: 'Vrai éditions' },
-            { icon: '📤', label: 'Partage facile' },
-          ].map(({ icon, label }) => (
-            <div key={label} className="flex flex-col items-center gap-1 bg-slate-900 rounded-xl py-3 px-2 border border-slate-800">
-              <span className="text-2xl">{icon}</span>
-              <span className="text-xs text-slate-400 text-center">{label}</span>
-            </div>
-          ))}
+        {/* Drama Score mention */}
+        <div className="w-full fade-in bg-slate-900 border border-slate-800 rounded-2xl px-5 py-4 flex flex-col gap-1.5">
+          <p className="text-xs text-slate-400 leading-relaxed text-center">
+            Score calculé sur <span className="text-white font-semibold">6 métriques Wikipedia</span> :
+            {' '}edits, réversions, éditeurs uniques, taux anon, watchers, taux mineur.
+          </p>
+          <p className="text-xs text-slate-600 text-center font-mono">
+            score = f(edits, rev, editors, anon, watch, minor)
+          </p>
         </div>
       </div>
 
-      {/* Footer */}
-      <p className="text-slate-600 text-xs text-center">
-        Propulsé par l'API Wikipedia · Aucun compte requis
-      </p>
+      {/* Footer links */}
+      <div className="flex flex-col items-center gap-3">
+        <div className="flex items-center gap-5">
+          {/* GitHub */}
+          <a
+            href="https://github.com/okash99/wikidrama"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-slate-500 hover:text-white transition-colors text-xs"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            GitHub
+          </a>
+
+          <span className="text-slate-700">·</span>
+
+          {/* Play Store */}
+          <a
+            href="#"
+            className="flex items-center gap-1.5 text-slate-500 hover:text-white transition-colors text-xs"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3.18 23.76c.3.18.66.18.96 0l12.54-7.24-2.88-2.88-10.62 10.12zm-1.14-20.4C1.8 3.6 1.5 3.9 1.5 4.26v15.48c0 .36.3.66.54.9l.12.12L11.04 12v-.24L2.16 3.24l-.12.12zM20.34 10.5l-2.58-1.5-3.24 3.24 3.24 3.24 2.58-1.5c.72-.42.72-1.14 0-1.5zM4.14.24L16.68 7.48l-2.88 2.88L3.18.24c.3-.18.66-.18.96 0z"/>
+            </svg>
+            Play Store
+          </a>
+        </div>
+        <p className="text-slate-700 text-xs text-center">
+          Propulsé par l'API Wikipedia · Aucun compte requis
+        </p>
+      </div>
     </main>
   )
 }
