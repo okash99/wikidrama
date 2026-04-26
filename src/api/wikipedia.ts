@@ -29,9 +29,9 @@ export interface ArticleStats {
   uniqueEditors: number
   recentEdits: number
   reversionRate: number
-  anonRate: number      // ratio edits anonymes (0-1)
-  watchers: number      // nb de surveillants Wikipedia
-  minorRate: number     // ratio edits mineurs (0-1)
+  anonRate: number
+  watchers: number
+  minorRate: number
 }
 
 export interface ArticleData {
@@ -41,7 +41,7 @@ export interface ArticleData {
 
 export { DRAMA_CATEGORIES as CATEGORIES }
 
-// ─── Cache ───────────────────────────────────────────────────────────────────────────────
+// ─── Cache ─────────────────────────────────────────────────────────────────────────────────────
 
 function cacheGet<T>(key: string): T | null {
   try {
@@ -58,7 +58,7 @@ function cacheSet(key: string, data: unknown): void {
   catch { /* silent — storage full */ }
 }
 
-// ─── Fetch helper with timeout ────────────────────────────────────────────────────────────────
+// ─── Fetch helper with timeout ────────────────────────────────────────────────────────────────────
 
 async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
   const controller = new AbortController()
@@ -71,7 +71,7 @@ async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Respons
   }
 }
 
-// ─── Wikipedia summary ────────────────────────────────────────────────────────────────────
+// ─── Wikipedia summary ─────────────────────────────────────────────────────────────────────────────
 
 async function fetchSummary(title: string): Promise<WikiArticle> {
   const res = await fetchWithTimeout(
@@ -102,7 +102,7 @@ async function fetchRandomSummary(): Promise<WikiArticle> {
   }
 }
 
-// ─── XTools with retry ────────────────────────────────────────────────────────────────
+// ─── XTools with retry ──────────────────────────────────────────────────────────────────────────
 
 interface XToolsData {
   revisions: number
@@ -144,7 +144,7 @@ async function fetchXToolsData(title: string): Promise<XToolsData | null> {
   return null
 }
 
-// ─── Article stats ────────────────────────────────────────────────────────────────────────────
+// ─── Article stats ────────────────────────────────────────────────────────────────────────────────────
 
 export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   const cacheKey = `wiki_stats_${CACHE_VERSION}_${title}`
@@ -198,7 +198,7 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   return stats
 }
 
-// ─── Protection check ───────────────────────────────────────────────────────────────────────
+// ─── Protection check ─────────────────────────────────────────────────────────────────────────────
 
 async function isProtected(title: string): Promise<boolean> {
   const params = new URLSearchParams({
@@ -214,7 +214,7 @@ async function isProtected(title: string): Promise<boolean> {
   } catch { return false }
 }
 
-// ─── Source picker ───────────────────────────────────────────────────────────────────────────
+// ─── Source picker ─────────────────────────────────────────────────────────────────────────────
 
 function pickSource(): 'legendary' | 'enormous' | 'whitelist' | 'random' {
   const r = Math.random()
@@ -224,7 +224,7 @@ function pickSource(): 'legendary' | 'enormous' | 'whitelist' | 'random' {
   return 'random'
 }
 
-// ─── Validated article fetch ───────────────────────────────────────────────────────────────
+// ─── Validated article fetch ──────────────────────────────────────────────────────────────────────
 
 async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
   const MAX_ATTEMPTS = 3
@@ -246,7 +246,16 @@ async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
         }
       }
       const stats = await fetchArticleStats(article.title)
-      if (computeDramaScore(stats) < DRAMA_SCORE_THRESHOLD && !title) continue
+      // Applique le seuil drama dans tous les cas (titre explicite inclus)
+      if (computeDramaScore(stats) < DRAMA_SCORE_THRESHOLD) {
+        if (title) {
+          // Article de pool forcé sous le seuil : on le retourne quand même
+          // (mieux qu'un fallback aléatoire) mais on logge le cas
+          console.warn(`[WikiDrama] Article "${title}" score below threshold, returning anyway`)
+          return { article, stats }
+        }
+        continue
+      }
       return { article, stats }
     } catch {
       if (attempt === MAX_ATTEMPTS - 1) throw new Error('Failed after retries')
@@ -255,7 +264,7 @@ async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
   throw new Error('No valid article found')
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────────────────────
+// ─── Public API ─────────────────────────────────────────────────────────────────────────────────────
 
 export async function fetchArticleData(): Promise<ArticleData> {
   return fetchValidatedArticle()
@@ -270,5 +279,8 @@ export async function fetchArticleFromCategory(category: string): Promise<Articl
       if (await isProtected(t)) return await fetchValidatedArticle(t)
     } catch { continue }
   }
-  return fetchValidatedArticle(pool[Math.floor(Math.random() * pool.length)])
+  // Fallback: tire un article aléatoire de la catégorie via fetchValidatedArticle
+  // sans title forcé, pour que le seuil DRAMA_SCORE_THRESHOLD s'applique normalement
+  const randomFromPool = pool[Math.floor(Math.random() * pool.length)]
+  return fetchValidatedArticle(randomFromPool)
 }
