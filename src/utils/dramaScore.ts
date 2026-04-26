@@ -1,40 +1,46 @@
 import type { ArticleStats } from '../api/wikipedia'
 
-// Constantes de normalisation calées sur le record absolu Wikipedia (Donald Trump)
+// MAX_REFS = percentile 75 du pool connu — pas les valeurs absolues de Trump
+// Cela permet à tout nouvel article de s'intégrer naturellement sans recalibrage
 const MAX_REFS = {
-  editCount:     52256, // record Trump
-  uniqueEditors:  7530, // record Trump
-  recentEdits:     234, // record Trump
+  editCount:     20000,  // p75 du pool (Trump = 52256, mais il est l'exception absolue)
+  uniqueEditors:  3500,
+  watchers:       2000,
+  anonRate:       0.30,  // ratio anon_edits / revisions
 }
 
 const WEIGHTS = {
-  editCount:      0.40,
-  reversionRate:  0.25,
-  uniqueEditors:  0.25,
-  recentVelocity: 0.10,
+  editCount:      0.30,
+  reversionRate:  0.15,  // réduit — fort signal mais Trump a seulement 14% malgré son volume
+  uniqueEditors:  0.20,
+  anonRate:       0.15,  // nouveaux — vandalisme / guerres d'édition spontanées
+  watchers:       0.10,  // nouveaux — vigilance communautaire Wikipedia
+  minorInv:       0.10,  // nouveaux — inverse du ratio edits mineurs
 }
 
-// Score brut de Trump = référence 100%
-// editCount=52256 → 1.0, uniqueEditors=7530 → 1.0, recentEdits=234 → 1.0, reversionRate=14% → 0.14
-const TRUMP_RAW = 1.0 * 0.40 + 0.14 * 0.25 + 1.0 * 0.25 + 1.0 * 0.10 // = 0.785
+// Score brut de Trump avec les vraies valeurs XTools et les nouveaux poids
+// revisions=52256, editors=7530, watchers=4439, anon_edits=2643, minor_edits=9638, revert=14%
+// ne=1.0, nu=1.0, nw=1.0, na=min(0.0506/0.30,1)=0.169, nm=0.816, nr=0.14
+const TRUMP_RAW = 0.7278
 
 export function computeDramaScore(stats: ArticleStats): number {
-  const normEdits   = Math.min(stats.editCount    / MAX_REFS.editCount,    1)
+  const normEdits   = Math.min(stats.editCount     / MAX_REFS.editCount,    1)
   const normEditors = Math.min(stats.uniqueEditors / MAX_REFS.uniqueEditors, 1)
-  const normRecent  = Math.min(stats.recentEdits  / MAX_REFS.recentEdits,  1)
+  const normWatch   = Math.min(stats.watchers      / MAX_REFS.watchers,     1)
+  const normAnon    = Math.min(stats.anonRate      / MAX_REFS.anonRate,     1)
+  const normMinorInv = 1 - Math.min(stats.minorRate, 1)
   const normRevert  = Math.min(stats.reversionRate / 100, 1)
 
   const raw =
-    normEdits   * WEIGHTS.editCount +
-    normRevert  * WEIGHTS.reversionRate +
-    normEditors * WEIGHTS.uniqueEditors +
-    normRecent  * WEIGHTS.recentVelocity
+    normEdits    * WEIGHTS.editCount +
+    normRevert   * WEIGHTS.reversionRate +
+    normEditors  * WEIGHTS.uniqueEditors +
+    normAnon     * WEIGHTS.anonRate +
+    normWatch    * WEIGHTS.watchers +
+    normMinorInv * WEIGHTS.minorInv
 
-  // Normalisation relative : Trump = 100%
   const relative = Math.min(raw / TRUMP_RAW, 1)
-
-  // Courbe douce pour étaler la distribution vers les extrêmes
-  const curved = Math.pow(relative, 0.75)
+  const curved   = Math.pow(relative, 0.75)
 
   return Math.round(curved * 100)
 }

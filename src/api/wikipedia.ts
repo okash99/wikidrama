@@ -6,7 +6,7 @@ const ACTION_URL = 'https://en.wikipedia.org/w/api.php'
 const XTOOLS_URL = 'https://xtools.wmcloud.org/api/page/articleinfo/en.wikipedia.org'
 const CACHE_TTL = 1000 * 60 * 30
 const DRAMA_SCORE_THRESHOLD = 15
-const CACHE_VERSION = 'v8'
+const CACHE_VERSION = 'v9'
 
 const FETCH_TIMEOUT_MS = 8000
 const XTOOLS_TIMEOUT_MS = 6000
@@ -29,6 +29,9 @@ export interface ArticleStats {
   uniqueEditors: number
   recentEdits: number
   reversionRate: number
+  anonRate: number      // ratio edits anonymes (0-1)
+  watchers: number      // nb de surveillants Wikipedia
+  minorRate: number     // ratio edits mineurs (0-1)
 }
 
 export interface ArticleData {
@@ -38,7 +41,7 @@ export interface ArticleData {
 
 export { DRAMA_CATEGORIES as CATEGORIES }
 
-// ─── Cache ────────────────────────────────────────────────────────────────────
+// ─── Cache ───────────────────────────────────────────────────────────────────────────────
 
 function cacheGet<T>(key: string): T | null {
   try {
@@ -55,7 +58,7 @@ function cacheSet(key: string, data: unknown): void {
   catch { /* silent — storage full */ }
 }
 
-// ─── Fetch helper with timeout ────────────────────────────────────────────────
+// ─── Fetch helper with timeout ────────────────────────────────────────────────────────────────
 
 async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
   const controller = new AbortController()
@@ -68,7 +71,7 @@ async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Respons
   }
 }
 
-// ─── Wikipedia summary ────────────────────────────────────────────────────────
+// ─── Wikipedia summary ────────────────────────────────────────────────────────────────────
 
 async function fetchSummary(title: string): Promise<WikiArticle> {
   const res = await fetchWithTimeout(
@@ -99,9 +102,17 @@ async function fetchRandomSummary(): Promise<WikiArticle> {
   }
 }
 
-// ─── XTools with retry ────────────────────────────────────────────────────────
+// ─── XTools with retry ────────────────────────────────────────────────────────────────
 
-async function fetchXToolsData(title: string): Promise<{ revisions: number; editors: number } | null> {
+interface XToolsData {
+  revisions: number
+  editors: number
+  anon_edits: number
+  minor_edits: number
+  watchers: number
+}
+
+async function fetchXToolsData(title: string): Promise<XToolsData | null> {
   for (let attempt = 0; attempt < XTOOLS_MAX_RETRIES; attempt++) {
     try {
       const res = await fetchWithTimeout(
@@ -109,7 +120,6 @@ async function fetchXToolsData(title: string): Promise<{ revisions: number; edit
         XTOOLS_TIMEOUT_MS
       )
       if (!res.ok) {
-        // 429 rate-limit or 5xx — wait before retry
         if (attempt < XTOOLS_MAX_RETRIES - 1) {
           await new Promise(r => setTimeout(r, 800 * (attempt + 1)))
           continue
@@ -119,12 +129,14 @@ async function fetchXToolsData(title: string): Promise<{ revisions: number; edit
       const data = await res.json()
       if (typeof data.revisions !== 'number') return null
       return {
-        revisions: data.revisions,
-        editors: typeof data.editors === 'number' ? data.editors : 0,
+        revisions:   data.revisions,
+        editors:     typeof data.editors     === 'number' ? data.editors     : 0,
+        anon_edits:  typeof data.anon_edits  === 'number' ? data.anon_edits  : 0,
+        minor_edits: typeof data.minor_edits === 'number' ? data.minor_edits : 0,
+        watchers:    typeof data.watchers    === 'number' ? data.watchers    : 0,
       }
     } catch (err: unknown) {
       const isAbort = err instanceof Error && err.name === 'AbortError'
-      // Timeout or network error — retry once, then give up
       if (isAbort || attempt === XTOOLS_MAX_RETRIES - 1) return null
       await new Promise(r => setTimeout(r, 800 * (attempt + 1)))
     }
@@ -132,7 +144,7 @@ async function fetchXToolsData(title: string): Promise<{ revisions: number; edit
   return null
 }
 
-// ─── Article stats ────────────────────────────────────────────────────────────
+// ─── Article stats ────────────────────────────────────────────────────────────────────────────
 
 export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   const cacheKey = `wiki_stats_${CACHE_VERSION}_${title}`
@@ -168,16 +180,25 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   const reversionRate = revisions.length > 0
     ? Math.round((reverts / revisions.length) * 100) : 0
 
-  // XTools gives the real totals — fallback to Wikipedia sample if unavailable
-  const editCount     = xtools?.revisions ?? revisions.length
-  const uniqueEditors = xtools?.editors   ?? new Set(revisions.map((r: any) => r.user)).size
+  const editCount     = xtools?.revisions   ?? revisions.length
+  const uniqueEditors = xtools?.editors     ?? new Set(revisions.map((r: any) => r.user)).size
+  const anonRate      = xtools && xtools.revisions > 0
+    ? Math.round((xtools.anon_edits / xtools.revisions) * 100) / 100
+    : 0
+  const minorRate     = xtools && xtools.revisions > 0
+    ? Math.round((xtools.minor_edits / xtools.revisions) * 100) / 100
+    : 0
+  const watchers      = xtools?.watchers ?? 0
 
-  const stats: ArticleStats = { editCount, uniqueEditors, recentEdits, reversionRate }
+  const stats: ArticleStats = {
+    editCount, uniqueEditors, recentEdits, reversionRate,
+    anonRate, watchers, minorRate,
+  }
   cacheSet(cacheKey, stats)
   return stats
 }
 
-// ─── Protection check ─────────────────────────────────────────────────────────
+// ─── Protection check ───────────────────────────────────────────────────────────────────────
 
 async function isProtected(title: string): Promise<boolean> {
   const params = new URLSearchParams({
@@ -193,7 +214,7 @@ async function isProtected(title: string): Promise<boolean> {
   } catch { return false }
 }
 
-// ─── Source picker ────────────────────────────────────────────────────────────
+// ─── Source picker ───────────────────────────────────────────────────────────────────────────
 
 function pickSource(): 'legendary' | 'enormous' | 'whitelist' | 'random' {
   const r = Math.random()
@@ -203,7 +224,7 @@ function pickSource(): 'legendary' | 'enormous' | 'whitelist' | 'random' {
   return 'random'
 }
 
-// ─── Validated article fetch ──────────────────────────────────────────────────
+// ─── Validated article fetch ───────────────────────────────────────────────────────────────
 
 async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
   const MAX_ATTEMPTS = 3
@@ -234,7 +255,7 @@ async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
   throw new Error('No valid article found')
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+// ─── Public API ───────────────────────────────────────────────────────────────────────────────
 
 export async function fetchArticleData(): Promise<ArticleData> {
   return fetchValidatedArticle()

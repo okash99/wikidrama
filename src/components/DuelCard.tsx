@@ -10,6 +10,10 @@ interface Props {
   position: 'top' | 'bottom'
 }
 
+function fmt(n: number): string {
+  return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
+}
+
 export default function DuelCard({ data, revealed, selected, winner, onClick }: Props) {
   const { article, stats } = data
   const score = computeDramaScore(stats)
@@ -101,13 +105,16 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
             <div className="w-full h-1.5 rounded-full bg-white/20">
               <div className={`h-1.5 rounded-full fill-bar ${colorBar}`} style={{ width: `${score}%` }} />
             </div>
-            {/* Stats row avec fond semi-opaque */}
-            <div className="flex gap-2 text-white/80 text-xs flex-wrap justify-center
-              bg-black/40 backdrop-blur-sm rounded-xl px-3 py-1.5 w-full">
-              <span>✏️ {stats.editCount.toLocaleString()}</span>
-              <span>👥 {stats.uniqueEditors}</span>
-              <span>↩️ {stats.reversionRate}%</span>
-              <span>⚡ {stats.recentEdits}/30j</span>
+
+            {/* Stats grid — 2 colonnes, 3 lignes */}
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-white/80 text-xs
+              bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2 w-full">
+              <span>✏️ {fmt(stats.editCount)} edits</span>
+              <span>👥 {fmt(stats.uniqueEditors)} éditeurs</span>
+              <span>↩️ {stats.reversionRate}% rev.</span>
+              <span>👻 {Math.round(stats.anonRate * 100)}% anon</span>
+              <span>👁️ {fmt(stats.watchers)} watch</span>
+              <span>✂️ {Math.round(stats.minorRate * 100)}% minor</span>
             </div>
           </div>
         )}
