@@ -3,10 +3,9 @@ import { computeDramaScore } from '../utils/dramaScore'
 
 const BASE_URL = 'https://en.wikipedia.org/api/rest_v1'
 const ACTION_URL = 'https://en.wikipedia.org/w/api.php'
-const XTOOLS_URL = 'https://xtools.wmcloud.org/api/article/articleinfo/en.wikipedia.org'
+const XTOOLS_URL = 'https://xtools.wmcloud.org/api/page/articleinfo/en.wikipedia.org'
 const CACHE_TTL = 1000 * 60 * 30
 const DRAMA_SCORE_THRESHOLD = 15
-const REVISION_CAP = 500 // seuil au-delà duquel on appelle XTools
 
 export interface WikiArticle {
   title: string
@@ -21,7 +20,6 @@ export interface ArticleStats {
   uniqueEditors: number
   recentEdits: number
   reversionRate: number
-  cappedAt500: boolean // indique si le vrai count a été récupéré via XTools
 }
 
 export interface ArticleData {
@@ -31,7 +29,6 @@ export interface ArticleData {
 
 export { DRAMA_CATEGORIES as CATEGORIES }
 
-// --- Cache ---
 function cacheGet<T>(key: string): T | null {
   try {
     const raw = localStorage.getItem(key)
@@ -46,7 +43,6 @@ function cacheSet(key: string, data: unknown): void {
   catch { /* silent */ }
 }
 
-// --- Fetch summary ---
 async function fetchSummary(title: string): Promise<WikiArticle> {
   const res = await fetch(`${BASE_URL}/page/summary/${encodeURIComponent(title)}`)
   if (!res.ok) throw new Error(`Summary failed: ${title}`)
@@ -73,37 +69,36 @@ async function fetchRandomSummary(): Promise<WikiArticle> {
   }
 }
 
-// --- XTools : récupère le vrai nombre d'éditions total ---
+// XTools : edit count réel uniquement
 async function fetchXToolsEditCount(title: string): Promise<number | null> {
   try {
     const res = await fetch(`${XTOOLS_URL}/${encodeURIComponent(title)}`)
     if (!res.ok) return null
     const data = await res.json()
-    return data.revisions ?? null
+    return typeof data.revisions === 'number' ? data.revisions : null
   } catch { return null }
 }
 
-// --- Fetch stats avec fallback XTools si capé ---
 export async function fetchArticleStats(title: string): Promise<ArticleStats> {
-  const cacheKey = `wiki_stats_v2_${title}`
+  const cacheKey = `wiki_stats_v4_${title}`
   const cached = cacheGet<ArticleStats>(cacheKey)
   if (cached) return cached
 
-  const params = new URLSearchParams({
-    action: 'query',
-    prop: 'revisions',
-    titles: title,
-    rvprop: 'ids|timestamp|user|comment',
-    rvlimit: '500',
-    format: 'json',
-    origin: '*',
-  })
+  // Appels en parallèle : XTools (editCount) + Wikipedia (qualité des révisions)
+  const [xtoolsCount, wikiData] = await Promise.all([
+    fetchXToolsEditCount(title),
+    fetch(`${ACTION_URL}?${new URLSearchParams({
+      action: 'query',
+      prop: 'revisions',
+      titles: title,
+      rvprop: 'timestamp|user|comment',
+      rvlimit: '500',
+      format: 'json',
+      origin: '*',
+    })}`).then(r => r.json()),
+  ])
 
-  const res = await fetch(`${ACTION_URL}?${params}`)
-  if (!res.ok) throw new Error('Stats failed')
-  const data = await res.json()
-
-  const pages = data.query?.pages || {}
+  const pages = wikiData.query?.pages || {}
   const page = Object.values(pages)[0] as any
   const revisions: any[] = page?.revisions || []
 
@@ -120,27 +115,14 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
     ? Math.round((reverts / revisions.length) * 100)
     : 0
 
-  // Si on a atteint le plafond de 500, on appelle XTools pour le vrai count
-  const isCapped = revisions.length >= REVISION_CAP
-  let editCount = revisions.length
-  let cappedAt500 = false
+  // XTools pour editCount réel, fallback sur Wikipedia si échec
+  const editCount = xtoolsCount ?? revisions.length
 
-  if (isCapped) {
-    const realCount = await fetchXToolsEditCount(title)
-    if (realCount !== null) {
-      editCount = realCount
-      cappedAt500 = false // on a le vrai chiffre
-    } else {
-      cappedAt500 = true // XTools a échoué, on indique que c'est >= 500
-    }
-  }
-
-  const stats: ArticleStats = { editCount, uniqueEditors, recentEdits, reversionRate, cappedAt500 }
+  const stats: ArticleStats = { editCount, uniqueEditors, recentEdits, reversionRate }
   cacheSet(cacheKey, stats)
   return stats
 }
 
-// --- Protection check ---
 async function isProtected(title: string): Promise<boolean> {
   const params = new URLSearchParams({
     action: 'query', prop: 'info', inprop: 'protection',
@@ -155,7 +137,6 @@ async function isProtected(title: string): Promise<boolean> {
   } catch { return false }
 }
 
-// --- Fetch validé avec les 3 filtres ---
 async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
   const MAX_ATTEMPTS = 3
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
