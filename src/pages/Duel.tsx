@@ -7,7 +7,7 @@ import CategoryPicker from '../components/CategoryPicker'
 import ShareButton from '../components/ShareButton'
 
 type Phase = 'pick-category' | 'loading' | 'vote' | 'reveal'
-type WinnerState = 0 | 1 | 'tie'
+export type WinnerState = 0 | 1 | 'tie'
 
 function isOffline(): boolean {
   return typeof navigator !== 'undefined' && !navigator.onLine
@@ -24,7 +24,7 @@ export default function Duel() {
   const [selected, setSelected] = useState<0 | 1 | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  async function fetchDistinctPair(cat?: string): Promise<[ArticleData, ArticleData]> {
+  const fetchDistinctPair = useCallback(async (cat?: string): Promise<[ArticleData, ArticleData]> => {
     const fetcher = cat ? () => fetchArticleFromCategory(cat) : fetchArticleData
     const [a, b] = await Promise.all([fetcher(), fetcher()])
     if (a.article.pageId === b.article.pageId) {
@@ -34,7 +34,7 @@ export default function Duel() {
       }
     }
     return [a, b]
-  }
+  }, [])
 
   const loadDuel = useCallback(async (cat?: string) => {
     if (isOffline()) {
@@ -59,7 +59,7 @@ export default function Duel() {
       }
       setPhase('vote')
     }
-  }, [])
+  }, [fetchDistinctPair])
 
   useEffect(() => {
     if (mode === 'random') loadDuel()
@@ -84,9 +84,9 @@ export default function Duel() {
   const guessedRight = isTie || selected === winner
 
   function getResultMessage(): string {
-    if (isTie) return "🤝 Égalité ! Les deux articles sont aussi drama l'un que l'autre."
-    if (guessedRight) return '✅ Bien joué ! Tu avais le bon flair.'
-    return '❌ Raté ! L\'autre était plus drama.'
+    if (isTie) return "\u{1F91D} \u00c9galit\u00e9 ! Les deux articles sont aussi drama l'un que l'autre."
+    if (guessedRight) return '\u2705 Bien jou\u00e9 ! Tu avais le bon flair.'
+    return "\u274c Rat\u00e9 ! L'autre \u00e9tait plus drama."
   }
 
   function getResultColor(): string {
@@ -99,8 +99,8 @@ export default function Duel() {
     return (
       <main className="flex flex-col flex-1 px-4 py-6 gap-5">
         <div className="flex items-center justify-between">
-          <button onClick={() => navigate('/')} className="text-slate-500 text-sm">← Accueil</button>
-          <h1 className="font-bold text-base">🗂️ Duel Thématique</h1>
+          <button onClick={() => navigate('/')} className="text-slate-500 text-sm">&#x2190; Accueil</button>
+          <h1 className="font-bold text-base">&#x1F5C2;&#xFE0F; Duel Th\u00e9matique</h1>
           <div className="w-16" />
         </div>
         <CategoryPicker selected={category} onChange={setCategory} />
@@ -108,7 +108,7 @@ export default function Duel() {
           onClick={() => loadDuel(category)}
           className="w-full py-4 rounded-2xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-lg mt-auto"
         >
-          ⚔️ Lancer le duel
+          &#x2694;&#xFE0F; Lancer le duel
         </button>
       </main>
     )
@@ -117,7 +117,7 @@ export default function Duel() {
   if (phase === 'loading') {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-4">
-        <div className="text-4xl animate-pulse">⚔️</div>
+        <div className="text-4xl animate-pulse">&#x2694;&#xFE0F;</div>
         <p className="text-slate-400 text-sm">Chargement du duel...</p>
       </main>
     )
@@ -127,25 +127,25 @@ export default function Duel() {
     const isOfflineError = error === 'offline'
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-5 px-6 text-center">
-        <span className="text-5xl">{isOfflineError ? '📡' : '🙅'}</span>
+        <span className="text-5xl">{isOfflineError ? '\ud83d\udce1' : '\ud83d\ude45'}</span>
         <div className="flex flex-col gap-1">
           <p className="text-white font-bold">
             {isOfflineError ? 'Pas de connexion' : 'Chargement impossible'}
           </p>
           <p className="text-slate-400 text-sm">
             {isOfflineError
-              ? 'Vérifie ta connexion puis réessaie.'
-              : 'Wikipedia ou XTools ne répond pas. Réessaie dans quelques secondes.'}
+              ? 'V\u00e9rifie ta connexion puis r\u00e9essaie.'
+              : 'Wikipedia ou XTools ne r\u00e9pond pas. R\u00e9essaie dans quelques secondes.'}
           </p>
         </div>
         <button
           onClick={() => loadDuel(mode === 'thematic' ? category : undefined)}
           className="py-2.5 px-6 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm"
         >
-          🔄 Réessayer
+          &#x1F504; R\u00e9essayer
         </button>
         <button onClick={() => navigate('/')} className="text-slate-500 text-xs underline">
-          Retour à l'accueil
+          Retour \u00e0 l'accueil
         </button>
       </main>
     )
@@ -159,7 +159,7 @@ export default function Duel() {
             onClick={() => navigate('/')}
             className="absolute top-3 left-3 z-30 text-white/60 text-sm bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full"
           >
-            ←
+            &#x2190;
           </button>
 
           <div className="flex-1 overflow-hidden">
@@ -195,7 +195,7 @@ export default function Duel() {
       <div className="flex-shrink-0 bg-slate-950 border-t border-slate-800 px-3 py-2.5">
         {phase === 'vote' && (
           <p className="text-center text-slate-500 text-xs py-1">
-            👆 Tape sur l'article le plus controversé
+            &#x1F446; Tape sur l'article le plus controvers\u00e9
           </p>
         )}
         {phase === 'reveal' && articles && (
@@ -209,7 +209,7 @@ export default function Duel() {
                 onClick={() => mode === 'thematic' ? loadDuel(category) : loadDuel()}
                 className="flex-shrink-0 py-2.5 px-5 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm whitespace-nowrap"
               >
-                🔄 Rejouer
+                &#x1F504; Rejouer
               </button>
             </div>
           </div>
