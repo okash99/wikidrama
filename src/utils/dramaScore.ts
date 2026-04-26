@@ -16,11 +16,8 @@ const WEIGHTS = {
   minorInv:       0.10,
 }
 
-// TRUMP_RAW calculé avec poids ci-dessus (voir commit précédent)
 const TRUMP_RAW = 0.6919
 
-// Bonus protection : +10 pts si article protégé ET score brut ≥ 20
-// Évite de booster des stubs verrouillés contre le vandalisme
 const PROTECTION_BONUS = 10
 const PROTECTION_MIN_SCORE = 20
 
@@ -87,13 +84,13 @@ export function getDramaBarColor(score: number): string {
 
 export function getDramaLabel(score: number): string {
   const tier = getDramaTier(score)
-  if (tier === 'legendary') return '\ud83d\udc8e L\u00e9gendaire'
-  if (tier === 'enormous')  return '\ud83c\udf1f \u00c9norme Drama'
-  if (tier === 'chaos')     return '\ud83d\udd25 Chaos total'
-  if (tier === 'agitated')  return '\ud83c\udf36\ufe0f Agit\u00e9'
-  if (tier === 'disputed')  return '\ud83d\ude24 Disput\u00e9'
-  if (tier === 'calm')      return '\ud83d\ude10 Calme'
-  return '\ud83d\ude34 Aucun drama'
+  if (tier === 'legendary') return '💎 Légendaire'
+  if (tier === 'enormous')  return '🌟 Énorme Drama'
+  if (tier === 'chaos')     return '🔥 Chaos total'
+  if (tier === 'agitated')  return '🌶️ Agité'
+  if (tier === 'disputed')  return '😤 Disputé'
+  if (tier === 'calm')      return '😐 Calme'
+  return '😴 Aucun drama'
 }
 
 export function isLegendary(score: number): boolean { return score >= 90 }

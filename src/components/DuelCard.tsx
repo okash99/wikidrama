@@ -67,7 +67,7 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
             enormous  ? 'bg-yellow-400 text-slate-900 enormous-badge-glow' :
             'bg-yellow-400 text-slate-900'
           }`}>
-            {legendary ? '\ud83d\udc8e L\u00e9gendaire' : enormous ? '\ud83c\udf1f \u00c9norme Drama' : '\ud83c\udfc6 Plus drama'}
+            {legendary ? '💎 Légendaire' : enormous ? '🌟 Énorme Drama' : '🏆 Plus drama'}
           </div>
         )}
 
@@ -82,7 +82,7 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
         )}
 
         {!revealed && (
-          <span className="text-white/50 text-xs border border-white/20 rounded-full px-3 py-1">Voter \u2191</span>
+          <span className="text-white/50 text-xs border border-white/20 rounded-full px-3 py-1">Voter ↑</span>
         )}
 
         {revealed && (
@@ -94,10 +94,9 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
             </span>
             <p className={`text-xs font-semibold ${colorText}`}>{getDramaLabel(score)}</p>
 
-            {/* Badge protection — visible uniquement après révélation */}
             {stats.protected && (
               <span className="text-orange-400 text-xs font-semibold flex items-center gap-1">
-                \ud83d\udd12 Prot\u00e9g\u00e9 par Wikipedia
+                🔒 Protégé par Wikipedia
               </span>
             )}
 
@@ -106,12 +105,12 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
             </div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-white/80 text-xs
               bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2 w-full">
-              <span>\u270f\ufe0f {fmt(stats.editCount)} edits</span>
-              <span>\ud83d\udc65 {fmt(stats.uniqueEditors)} \u00e9diteurs</span>
-              <span>\u21a9\ufe0f {stats.reversionRate}% rev.</span>
-              <span>\ud83d\udc7b {Math.round(stats.anonRate * 100)}% anon</span>
-              <span>\ud83d\udc41\ufe0f {fmt(stats.watchers)} watch</span>
-              <span>\u2702\ufe0f {Math.round(stats.minorRate * 100)}% minor</span>
+              <span>✏️ {fmt(stats.editCount)} edits</span>
+              <span>👥 {fmt(stats.uniqueEditors)} éditeurs</span>
+              <span>↩️ {stats.reversionRate}% rev.</span>
+              <span>👻 {Math.round(stats.anonRate * 100)}% anon</span>
+              <span>👁️ {fmt(stats.watchers)} watch</span>
+              <span>✂️ {Math.round(stats.minorRate * 100)}% minor</span>
             </div>
           </div>
         )}
