@@ -2,16 +2,17 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import type { ArticleData } from '../api/wikipedia'
 import { computeDramaScore, getDramaLabel } from '../utils/dramaScore'
+import type { WinnerState } from '../pages/Duel'
 
 interface Props {
   articles: [ArticleData, ArticleData]
-  winner: 0 | 1
+  winner: WinnerState
   selected: 0 | 1 | null
 }
 
 function dramaBar(score: number): string {
   const filled = Math.round(score / 10)
-  return '█'.repeat(filled) + '░'.repeat(10 - filled)
+  return '\u2588'.repeat(filled) + '\u2591'.repeat(10 - filled)
 }
 
 const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
@@ -20,7 +21,6 @@ export default function ShareButton({ articles, winner, selected }: Props) {
   const [showModal, setShowModal] = useState(false)
   const [copied, setCopied] = useState(false)
 
-  // Bloque le scroll du body quand le modal est ouvert
   useEffect(() => {
     if (showModal) document.body.style.overflow = 'hidden'
     else document.body.style.overflow = ''
@@ -30,32 +30,62 @@ export default function ShareButton({ articles, winner, selected }: Props) {
   const [a, b] = articles
   const scoreA = computeDramaScore(a.stats)
   const scoreB = computeDramaScore(b.stats)
-  const winnerData = articles[winner]
-  const loserData = articles[winner === 0 ? 1 : 0]
-  const winnerScore = winner === 0 ? scoreA : scoreB
-  const loserScore = winner === 0 ? scoreB : scoreA
-  const guessedRight = selected === winner
+
+  const isTie = winner === 'tie'
+
+  // En cas d'égalité : article A comme "winner" par convention d'affichage
+  const winnerIdx: 0 | 1 = isTie ? 0 : winner
+  const loserIdx: 0 | 1 = winnerIdx === 0 ? 1 : 0
+
+  const winnerData  = articles[winnerIdx]
+  const loserData   = articles[loserIdx]
+  const winnerScore = winnerIdx === 0 ? scoreA : scoreB
+  const loserScore  = winnerIdx === 0 ? scoreB : scoreA
+  const guessedRight = isTie || selected === winner
+
+  const tieHeader = isTie ? '\u2696\ufe0f WikiDrama — \u00c9galit\u00e9 !' : '\u2694\ufe0f WikiDrama — Duel Wikipedia'
 
   const shareText = [
-    '⚔️ WikiDrama — Duel Wikipedia',
+    tieHeader,
     '',
-    `🏆 ${winnerData.article.title}`,
-    `   ${dramaBar(winnerScore)} ${winnerScore}%`,
-    `   ✏️ ${winnerData.stats.editCount} éditions  👥 ${winnerData.stats.uniqueEditors} éditeurs`,
-    `   ↩️ ${winnerData.stats.reversionRate}% reversions  ⚡ ${winnerData.stats.recentEdits} édits/30j`,
-    `   → ${getDramaLabel(winnerScore)}`,
-    '',
-    `😤 ${loserData.article.title}`,
-    `   ${dramaBar(loserScore)} ${loserScore}%`,
-    `   ✏️ ${loserData.stats.editCount} éditions  👥 ${loserData.stats.uniqueEditors} éditeurs`,
-    `   ↩️ ${loserData.stats.reversionRate}% reversions  ⚡ ${loserData.stats.recentEdits} édits/30j`,
-    `   → ${getDramaLabel(loserScore)}`,
+    isTie
+      ? `\u2696\ufe0f ${winnerData.article.title} = ${loserData.article.title}`
+      : `\ud83c\udfc6 ${winnerData.article.title}`,
+    isTie
+      ? `   Les deux \u00e0 ${winnerScore}% — aussi drama l'un que l'autre`
+      : `   ${dramaBar(winnerScore)} ${winnerScore}%`,
+    ...(!isTie ? [
+      `   \u270f\ufe0f ${winnerData.stats.editCount} \u00e9ditions  \ud83d\udc65 ${winnerData.stats.uniqueEditors} \u00e9diteurs`,
+      `   \u21a9\ufe0f ${winnerData.stats.reversionRate}% reversions  \u26a1 ${winnerData.stats.recentEdits} \u00e9dits/30j`,
+      `   \u2192 ${getDramaLabel(winnerScore)}`,
+      '',
+      `\ud83d\ude24 ${loserData.article.title}`,
+      `   ${dramaBar(loserScore)} ${loserScore}%`,
+      `   \u270f\ufe0f ${loserData.stats.editCount} \u00e9ditions  \ud83d\udc65 ${loserData.stats.uniqueEditors} \u00e9diteurs`,
+      `   \u21a9\ufe0f ${loserData.stats.reversionRate}% reversions  \u26a1 ${loserData.stats.recentEdits} \u00e9dits/30j`,
+      `   \u2192 ${getDramaLabel(loserScore)}`,
+    ] : []),
     '',
     guessedRight ? "\u2705 J'avais le bon flair !" : "\u274c Je me suis fait avoir...",
     '',
-    '👉 Tente ta chance sur WikiDrama',
+    '\ud83d\udc49 Tente ta chance sur WikiDrama',
     'https://wikidrama.pages.dev',
   ].join('\n')
+
+  const shortTweetText = isTie
+    ? [
+        '\u2694\ufe0f WikiDrama',
+        `\u2696\ufe0f \u00c9galit\u00e9 ! ${winnerData.article.title} vs ${loserData.article.title} — ${winnerScore}% chacun`,
+        "\u2705 Aucun gagnant, les deux sont legendaires",
+        'https://wikidrama.pages.dev',
+      ].join('\n')
+    : [
+        '\u2694\ufe0f WikiDrama',
+        `\ud83c\udfc6 ${winnerData.article.title} — ${winnerScore}%`,
+        `\ud83d\ude24 ${loserData.article.title} — ${loserScore}%`,
+        guessedRight ? "\u2705 Je l'avais senti !" : "\u274c Je me suis fait avoir...",
+        'https://wikidrama.pages.dev',
+      ].join('\n')
 
   async function copyToClipboard() {
     try {
@@ -71,14 +101,7 @@ export default function ShareButton({ articles, winner, selected }: Props) {
   }
 
   function shareToTwitter() {
-    const shortText = [
-      '⚔️ WikiDrama',
-      `🏆 ${winnerData.article.title} — ${winnerScore}%`,
-      `😤 ${loserData.article.title} — ${loserScore}%`,
-      guessedRight ? "\u2705 Je l'avais senti !" : "\u274c Je me suis fait avoir...",
-      'https://wikidrama.pages.dev',
-    ].join('\n')
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shortText)}`, '_blank')
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shortTweetText)}`, '_blank')
     setShowModal(false)
   }
 
@@ -109,22 +132,22 @@ export default function ShareButton({ articles, winner, selected }: Props) {
           {canShare && (
             <button onClick={shareNative}
               className="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-              📱 Partager via...
+              &#x1F4F1; Partager via...
             </button>
           )}
           <div className="flex gap-2">
             <button onClick={shareToWhatsApp}
               className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-              💬 WhatsApp
+              &#x1F4AC; WhatsApp
             </button>
             <button onClick={shareToTwitter}
               className="flex-1 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-              🐦 Twitter
+              &#x1F426; Twitter
             </button>
           </div>
           <button onClick={copyToClipboard}
             className="w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-            {copied ? '✅ Copié !' : '📋 Copier le texte'}
+            {copied ? '\u2705 Copi\u00e9 !' : '\ud83d\udccb Copier le texte'}
           </button>
         </div>
 
@@ -141,10 +164,9 @@ export default function ShareButton({ articles, winner, selected }: Props) {
         onClick={() => setShowModal(true)}
         className="flex-1 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-bold text-sm flex items-center justify-center gap-1.5"
       >
-        <span>📤</span> Partager
+        <span>&#x1F4E4;</span> Partager
       </button>
 
-      {/* Portal → rendu directement dans document.body, hors de tout overflow-hidden */}
       {createPortal(modal, document.body)}
     </>
   )
