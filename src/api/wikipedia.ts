@@ -6,7 +6,7 @@ const ACTION_URL = 'https://en.wikipedia.org/w/api.php'
 const XTOOLS_URL = 'https://xtools.wmcloud.org/api/page/articleinfo/en.wikipedia.org'
 const CACHE_TTL = 1000 * 60 * 30
 const DRAMA_SCORE_THRESHOLD = 15
-const CACHE_VERSION = 'v5' // bump pour invalider les anciens caches
+const CACHE_VERSION = 'v6'
 
 const DRAW_LEGENDARY = 0.10
 const DRAW_ENORMOUS  = 0.20
@@ -74,12 +74,17 @@ async function fetchRandomSummary(): Promise<WikiArticle> {
   }
 }
 
-async function fetchXToolsEditCount(title: string): Promise<number | null> {
+// XTools : editCount + editors total réels
+async function fetchXToolsData(title: string): Promise<{ revisions: number; editors: number } | null> {
   try {
     const res = await fetch(`${XTOOLS_URL}/${encodeURIComponent(title)}`)
     if (!res.ok) return null
     const data = await res.json()
-    return typeof data.revisions === 'number' ? data.revisions : null
+    if (typeof data.revisions !== 'number') return null
+    return {
+      revisions: data.revisions,
+      editors:   typeof data.editors === 'number' ? data.editors : 0,
+    }
   } catch { return null }
 }
 
@@ -88,11 +93,11 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   const cached = cacheGet<ArticleStats>(cacheKey)
   if (cached) return cached
 
-  const [xtoolsCount, wikiData] = await Promise.all([
-    fetchXToolsEditCount(title),
+  const [xtools, wikiData] = await Promise.all([
+    fetchXToolsData(title),
     fetch(`${ACTION_URL}?${new URLSearchParams({
       action: 'query', prop: 'revisions', titles: title,
-      rvprop: 'timestamp|user|comment', rvlimit: '500',
+      rvprop: 'timestamp|comment', rvlimit: '500',
       format: 'json', origin: '*',
     })}`).then(r => r.json()),
   ])
@@ -104,16 +109,18 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  const recentEdits    = revisions.filter(r => new Date(r.timestamp) > thirtyDaysAgo).length
-  const uniqueEditors  = new Set(revisions.map(r => r.user)).size
-  const reverts        = revisions.filter(r => {
+  const recentEdits   = revisions.filter(r => new Date(r.timestamp) > thirtyDaysAgo).length
+  const reverts       = revisions.filter(r => {
     const c = (r.comment || '').toLowerCase()
     return c.includes('revert') || c.includes('undo') || c.includes('undid')
   }).length
-  const reversionRate  = revisions.length > 0
+  const reversionRate = revisions.length > 0
     ? Math.round((reverts / revisions.length) * 100) : 0
 
-  const editCount = xtoolsCount ?? revisions.length
+  // XTools pour editCount et uniqueEditors réels
+  const editCount    = xtools?.revisions ?? revisions.length
+  const uniqueEditors = xtools?.editors  ?? new Set(revisions.map((r: any) => r.user)).size
+
   const stats: ArticleStats = { editCount, uniqueEditors, recentEdits, reversionRate }
   cacheSet(cacheKey, stats)
   return stats
