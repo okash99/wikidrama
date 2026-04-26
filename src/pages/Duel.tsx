@@ -7,6 +7,7 @@ import CategoryPicker from '../components/CategoryPicker'
 import ShareButton from '../components/ShareButton'
 
 type Phase = 'pick-category' | 'loading' | 'vote' | 'reveal'
+type WinnerState = 0 | 1 | 'tie'
 
 export default function Duel() {
   const [searchParams] = useSearchParams()
@@ -19,15 +20,28 @@ export default function Duel() {
   const [selected, setSelected] = useState<0 | 1 | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  // --- Fetch two DISTINCT articles ---
+  async function fetchDistinctPair(cat?: string): Promise<[ArticleData, ArticleData]> {
+    const fetcher = cat ? () => fetchArticleFromCategory(cat) : fetchArticleData
+    const [a, b] = await Promise.all([fetcher(), fetcher()])
+    // If same article was drawn twice, re-fetch the second one (max 2 extra attempts)
+    if (a.article.pageId === b.article.pageId) {
+      for (let i = 0; i < 2; i++) {
+        const replacement = await fetcher()
+        if (replacement.article.pageId !== a.article.pageId) return [a, replacement]
+      }
+    }
+    return [a, b]
+  }
+
   const loadDuel = useCallback(async (cat?: string) => {
     setPhase('loading')
     setSelected(null)
     setArticles(null)
     setError(null)
     try {
-      const fetcher = cat ? () => fetchArticleFromCategory(cat) : fetchArticleData
-      const [a, b] = await Promise.all([fetcher(), fetcher()])
-      setArticles([a, b])
+      const pair = await fetchDistinctPair(cat)
+      setArticles(pair)
       setPhase('vote')
     } catch {
       setError('Impossible de charger les articles.')
@@ -45,13 +59,31 @@ export default function Duel() {
     setPhase('reveal')
   }
 
-  function getWinner(): 0 | 1 {
+  function getWinner(): WinnerState {
     if (!articles) return 0
-    return computeDramaScore(articles[0].stats) >= computeDramaScore(articles[1].stats) ? 0 : 1
+    const scoreA = computeDramaScore(articles[0].stats)
+    const scoreB = computeDramaScore(articles[1].stats)
+    if (scoreA === scoreB) return 'tie'
+    return scoreA > scoreB ? 0 : 1
   }
 
   const winner = getWinner()
-  const guessedRight = selected === winner
+  const isTie = winner === 'tie'
+
+  // On a tie, both answers are "correct"
+  const guessedRight = isTie || selected === winner
+
+  function getResultMessage(): string {
+    if (isTie) return "🤝 Égalité ! Les deux articles sont aussi drama l'un que l'autre."
+    if (guessedRight) return '✅ Bien joué ! Tu avais le bon flair.'
+    return '❌ Raté ! L\'autre était plus drama.'
+  }
+
+  function getResultColor(): string {
+    if (isTie) return 'text-yellow-400'
+    if (guessedRight) return 'text-green-400'
+    return 'text-red-400'
+  }
 
   // --- Category picker ---
   if (phase === 'pick-category') {
@@ -96,7 +128,6 @@ export default function Duel() {
   return (
     <main className="flex flex-col h-screen overflow-hidden bg-slate-950">
 
-      {/* Split screen : prend tout l'espace dispo au-dessus de la barre */}
       {articles && (
         <div className="flex flex-col flex-1 overflow-hidden relative">
 
@@ -114,7 +145,7 @@ export default function Duel() {
               data={articles[0]}
               revealed={phase === 'reveal'}
               selected={selected === 0}
-              winner={phase === 'reveal' && winner === 0}
+              winner={phase === 'reveal' && (winner === 0 || isTie)}
               onClick={() => handleVote(0)}
               position="top"
             />
@@ -133,7 +164,7 @@ export default function Duel() {
               data={articles[1]}
               revealed={phase === 'reveal'}
               selected={selected === 1}
-              winner={phase === 'reveal' && winner === 1}
+              winner={phase === 'reveal' && (winner === 1 || isTie)}
               onClick={() => handleVote(1)}
               position="bottom"
             />
@@ -141,20 +172,18 @@ export default function Duel() {
         </div>
       )}
 
-      {/* Barre du bas — toujours visible, contenu selon la phase */}
+      {/* Barre du bas */}
       <div className="flex-shrink-0 bg-slate-950 border-t border-slate-800 px-3 py-2.5">
         {phase === 'vote' && (
           <p className="text-center text-slate-500 text-xs py-1">
-            👆 Tape sur l’article le plus controversé
+            👆 Tape sur l'article le plus controversé
           </p>
         )}
         {phase === 'reveal' && articles && (
           <div className="flex flex-col gap-2 fade-in">
-            {/* Résultat */}
-            <p className={`text-center text-sm font-bold ${ guessedRight ? 'text-green-400' : 'text-red-400' }`}>
-              {guessedRight ? '✅ Bien joué ! Tu avais le bon flair.' : '❌ Raté ! L’autre était plus drama.'}
+            <p className={`text-center text-sm font-bold ${getResultColor()}`}>
+              {getResultMessage()}
             </p>
-            {/* Boutons */}
             <div className="flex gap-2">
               <ShareButton articles={articles} winner={winner} selected={selected} />
               <button
