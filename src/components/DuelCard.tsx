@@ -17,14 +17,12 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
   const colorBar = getDramaBarColor(score)
   const isLoser = revealed && !winner
 
+  // 2 phrases max pour la description
   const shortExtract = article.extract
-    ? article.extract.split('.')[0] + '.'
+    ? article.extract.split('.').slice(0, 2).join('.') + '.'
     : null
 
-  // Affiche "500+" si XTools a échoué mais qu'on sait qu'on est capé
-  const editDisplay = stats.cappedAt500
-    ? '500+'
-    : stats.editCount.toLocaleString()
+  const editDisplay = stats.editCount.toLocaleString()
 
   return (
     <button
@@ -64,8 +62,11 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
           {article.title}
         </h2>
 
+        {/* Description élargie — 3 lignes, padding généreux */}
         {shortExtract && (
-          <p className="text-white/80 text-xs text-center leading-relaxed bg-black/30 backdrop-blur-sm rounded-xl px-3 py-1.5 max-w-xs line-clamp-2">
+          <p className="text-white/90 text-xs text-center leading-relaxed
+            bg-black/40 backdrop-blur-sm rounded-2xl
+            px-4 py-3 max-w-sm line-clamp-3 w-full">
             {shortExtract}
           </p>
         )}
