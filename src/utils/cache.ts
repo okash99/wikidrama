@@ -1,5 +1,5 @@
-// Versions actives — toute clé qui ne commence pas par ces préfixes est supprimée
-const ACTIVE_PREFIXES = ['wiki_stats_v8']
+// Versions actives — toute clé wiki_ qui ne commence pas par ces préfixes est supprimée
+const ACTIVE_PREFIXES = ['wiki_stats_v10']
 
 export function clearStaleCache(): void {
   try {
@@ -7,7 +7,6 @@ export function clearStaleCache(): void {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
       if (!key) continue
-      // Ne touche qu'aux clés WikiDrama (préfixe wiki_)
       if (!key.startsWith('wiki_')) continue
       const isActive = ACTIVE_PREFIXES.some(prefix => key.startsWith(prefix))
       if (!isActive) keysToDelete.push(key)
