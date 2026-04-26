@@ -1,6 +1,5 @@
 import type { ArticleStats } from '../api/wikipedia'
 
-// MAX_REFS = percentile 75 du pool connu
 const MAX_REFS = {
   editCount:     20000,
   uniqueEditors:  3500,
@@ -8,8 +7,6 @@ const MAX_REFS = {
   anonRate:       0.30,
 }
 
-// Poids validés : editCount 25%, reversionRate 25%, uniqueEditors 20%,
-// anonRate 15%, watchers 10%, minorInv 10% — total = 1.00
 const WEIGHTS = {
   editCount:      0.25,
   reversionRate:  0.25,
@@ -19,14 +16,13 @@ const WEIGHTS = {
   minorInv:       0.10,
 }
 
-// Score brut de Trump avec les vraies valeurs XTools et les poids ci-dessus
-// revisions=52256 → ne=1.0, editors=7530 → nu=1.0, watchers=4439 → nw=1.0
-// anon_edits=2643/52256 → anonRate=0.0506 → na=min(0.0506/0.30,1)=0.1687
-// minor_edits=9638/52256 → minorRate=0.1844 → minorInv=0.8156
-// reversionRate=14% → nr=0.14
-// raw = 1.0*0.25 + 0.14*0.25 + 1.0*0.20 + 0.1687*0.15 + 1.0*0.10 + 0.8156*0.10
-//     = 0.25 + 0.035 + 0.20 + 0.02530 + 0.10 + 0.08156 = 0.69186
+// TRUMP_RAW calculé avec poids ci-dessus (voir commit précédent)
 const TRUMP_RAW = 0.6919
+
+// Bonus protection : +10 pts si article protégé ET score brut ≥ 20
+// Évite de booster des stubs verrouillés contre le vandalisme
+const PROTECTION_BONUS = 10
+const PROTECTION_MIN_SCORE = 20
 
 export function computeDramaScore(stats: ArticleStats): number {
   const normEdits    = Math.min(stats.editCount     / MAX_REFS.editCount,     1)
@@ -46,8 +42,13 @@ export function computeDramaScore(stats: ArticleStats): number {
 
   const relative = Math.min(raw / TRUMP_RAW, 1)
   const curved   = Math.pow(relative, 0.75)
+  const baseScore = Math.round(curved * 100)
 
-  return Math.round(curved * 100)
+  const protectionBonus = (stats.protected && baseScore >= PROTECTION_MIN_SCORE)
+    ? PROTECTION_BONUS
+    : 0
+
+  return Math.min(baseScore + protectionBonus, 100)
 }
 
 export type DramaTier = 'legendary' | 'enormous' | 'chaos' | 'agitated' | 'disputed' | 'calm' | 'none'

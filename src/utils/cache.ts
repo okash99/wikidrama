@@ -1,5 +1,5 @@
 // Versions actives — toute clé wiki_ qui ne commence pas par ces préfixes est supprimée
-const ACTIVE_PREFIXES = ['wiki_stats_v10']
+const ACTIVE_PREFIXES = ['wiki_stats_v11']
 
 export function clearStaleCache(): void {
   try {

@@ -6,7 +6,7 @@ const ACTION_URL = 'https://en.wikipedia.org/w/api.php'
 const XTOOLS_URL = 'https://xtools.wmcloud.org/api/page/articleinfo/en.wikipedia.org'
 const CACHE_TTL = 1000 * 60 * 30
 const DRAMA_SCORE_THRESHOLD = 15
-const CACHE_VERSION = 'v10'
+const CACHE_VERSION = 'v11'
 
 const FETCH_TIMEOUT_MS = 8000
 const XTOOLS_TIMEOUT_MS = 6000
@@ -32,6 +32,7 @@ export interface ArticleStats {
   anonRate: number
   watchers: number
   minorRate: number
+  protected: boolean
 }
 
 export interface ArticleData {
@@ -144,6 +145,22 @@ async function fetchXToolsData(title: string): Promise<XToolsData | null> {
   return null
 }
 
+// ─── Protection check ─────────────────────────────────────────────────────────────────────────────
+
+async function fetchProtected(title: string): Promise<boolean> {
+  const params = new URLSearchParams({
+    action: 'query', prop: 'info', inprop: 'protection',
+    titles: title, format: 'json', origin: '*',
+  })
+  try {
+    const res = await fetchWithTimeout(`${ACTION_URL}?${params}`, FETCH_TIMEOUT_MS)
+    const data = await res.json()
+    const pages = data.query?.pages || {}
+    const page = Object.values(pages)[0] as any
+    return (page?.protection || []).some((p: any) => p.type === 'edit')
+  } catch { return false }
+}
+
 // ─── Article stats ────────────────────────────────────────────────────────────────────────────────────
 
 export async function fetchArticleStats(title: string): Promise<ArticleStats> {
@@ -157,12 +174,14 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
     format: 'json', origin: '*',
   })}`
 
-  const [xtools, wikiData] = await Promise.all([
+  // Fetch XTools, revisions et protection en parallèle
+  const [xtools, wikiData, isProtectedResult] = await Promise.all([
     fetchXToolsData(title),
     fetchWithTimeout(wikiUrl, FETCH_TIMEOUT_MS).then(r => {
       if (!r.ok) throw new Error('Wiki revisions failed')
       return r.json()
     }),
+    fetchProtected(title),
   ])
 
   const pages = wikiData.query?.pages || {}
@@ -193,25 +212,10 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   const stats: ArticleStats = {
     editCount, uniqueEditors, recentEdits, reversionRate,
     anonRate, watchers, minorRate,
+    protected: isProtectedResult,
   }
   cacheSet(cacheKey, stats)
   return stats
-}
-
-// ─── Protection check ─────────────────────────────────────────────────────────────────────────────
-
-async function isProtected(title: string): Promise<boolean> {
-  const params = new URLSearchParams({
-    action: 'query', prop: 'info', inprop: 'protection',
-    titles: title, format: 'json', origin: '*',
-  })
-  try {
-    const res = await fetchWithTimeout(`${ACTION_URL}?${params}`, FETCH_TIMEOUT_MS)
-    const data = await res.json()
-    const pages = data.query?.pages || {}
-    const page = Object.values(pages)[0] as any
-    return (page?.protection || []).some((p: any) => p.type === 'edit')
-  } catch { return false }
 }
 
 // ─── Source picker ─────────────────────────────────────────────────────────────────────────────
@@ -270,12 +274,7 @@ export async function fetchArticleData(): Promise<ArticleData> {
 export async function fetchArticleFromCategory(category: string): Promise<ArticleData> {
   const pool = DRAMA_POOL[category]
   if (!pool || pool.length === 0) return fetchValidatedArticle()
-  const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 5)
-  for (const t of shuffled) {
-    try {
-      if (await isProtected(t)) return await fetchValidatedArticle(t)
-    } catch { continue }
-  }
-  const randomFromPool = pool[Math.floor(Math.random() * pool.length)]
-  return fetchValidatedArticle(randomFromPool)
+  // Tire directement un article aléatoire du pool thématique
+  const title = pool[Math.floor(Math.random() * pool.length)]
+  return fetchValidatedArticle(title)
 }
