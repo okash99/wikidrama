@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { DRAMA_CATEGORIES, DRAMA_POOL } from '../data/drama-articles'
+import { E } from '../utils/emojis'
 
 interface Props {
   selected: string
@@ -7,13 +8,13 @@ interface Props {
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
-  Politique:     '\uD83C\uDFD7\uFE0F',
-  Sport:         '\u26BD',
-  'Pop Culture': '\uD83C\uDFAC',
-  Science:       '\uD83D\uDD2C',
-  Histoire:      '\uD83D\uDCDC',
-  Religion:      '\u26A0\uFE0F',
-  Tech:          '\uD83D\uDCF1',
+  Politique:     E.catPolitique,
+  Sport:         E.catSport,
+  'Pop Culture': E.catPopCulture,
+  Science:       E.catScience,
+  Histoire:      E.catHistoire,
+  Religion:      E.catReligion,
+  Tech:          E.catTech,
 }
 
 const CATEGORY_HERO: Record<string, string> = {
@@ -69,31 +70,25 @@ export default function CategoryPicker({ selected, onChange }: Props) {
                 : 'ring-0'
             }`}
           >
-            {/* Image de fond — clippee par son propre rounded */}
             <div className="absolute inset-0 rounded-2xl overflow-hidden">
               {thumb ? (
-                <img
-                  src={thumb}
-                  alt={cat}
-                  className="w-full h-full object-cover"
-                />
+                <img src={thumb} alt={cat} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-r from-slate-700 to-slate-800" />
               )}
               <div className={`absolute inset-0 ${ isSelected ? 'bg-red-900/60' : 'bg-black/55' }`} />
             </div>
 
-            {/* Contenu */}
             <div className="relative z-10 flex items-center justify-between h-full px-5">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{CATEGORY_ICONS[cat] || '\uD83D\uDCCC'}</span>
+                <span className="text-2xl">{CATEGORY_ICONS[cat] || E.catDefault}</span>
                 <div>
                   <p className="text-white font-bold text-base leading-tight">{cat}</p>
-                  <p className="text-white/50 text-xs">{articleCount} articles</p>
+                  <p className="text-white/50 text-xs">{articleCount} {E.labelArticles}</p>
                 </div>
               </div>
               {isSelected && (
-                <span className="text-red-400 text-lg">\u2714\uFE0F</span>
+                <span className="text-red-400 text-lg">{E.checkmark}</span>
               )}
             </div>
           </button>

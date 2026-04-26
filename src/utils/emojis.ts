@@ -1,5 +1,5 @@
 export const E = {
-  // --- General emojis (pure ASCII-safe unicode points) ---
+  // --- General ---
   legendary:           '\uD83D\uDC8E',
   enormous:            '\u2B50',
   chaos:               '\uD83D\uDD25',
@@ -33,7 +33,17 @@ export const E = {
   noEntry:             '\uD83D\uDE45',
   arrowLeft:           '\u2190',
 
-  // --- WikiWars emojis ---
+  // --- Category icons ---
+  catPolitique:        '\uD83C\uDFD7\uFE0F',
+  catSport:            '\u26BD',
+  catPopCulture:       '\uD83C\uDFAC',
+  catScience:          '\uD83D\uDD2C',
+  catHistoire:         '\uD83D\uDCDC',
+  catReligion:         '\u26A0\uFE0F',
+  catTech:             '\uD83D\uDCF1',
+  catDefault:          '\uD83D\uDCCC',
+
+  // --- WikiWars ---
   pvIcon:              '\uD83D\uDCCA',
   pvViral:             '\uD83D\uDC8E',
   pvMondial:           '\uD83C\uDF0D',
@@ -43,7 +53,7 @@ export const E = {
   pvObscur:            '\uD83C\uDF11',
   wwStar:              '\u2728',
 
-  // --- Labels Drama tiers ---
+  // --- Drama tier labels ---
   labelLegendary:      'L\u00E9gendaire',
   labelEnormous:       '\u00C9norme Drama',
   labelChaos:          'Chaos total',
@@ -56,7 +66,7 @@ export const E = {
   labelEditors:        '\u00E9diteurs',
   labelArticles:       'articles',
 
-  // --- Labels WikiWars tiers ---
+  // --- WikiWars tier labels ---
   labelViral:          'Viral',
   labelMondial:        'Mondial',
   labelTendance:       'Tendance',
@@ -72,7 +82,7 @@ export const E = {
   wwLoading:           'Chargement WikiWars...',
   wwSpecial:           'Special Mode',
 
-  // --- Home page ---
+  // --- Home ---
   homeTagline:         'Deux articles Wikipedia. Un seul peut \u00EAtre le plus controvers\u00E9.',
   dramaScoreCaption:   'Score calcul\u00E9 sur 6 m\u00E9triques Wikipedia\u00A0: edits, r\u00E9versions, \u00E9diteurs uniques, taux anon, watchers, taux mineur.',
   footerCaption:       'Propuls\u00E9 par l\u2019API Wikipedia\u00A0\u00B7 Aucun compte requis',
