@@ -18,7 +18,6 @@ const WEIGHTS = {
 }
 
 const TRUMP_RAW = 0.6919
-
 const PROTECTION_BONUS = 10
 const PROTECTION_MIN_SCORE = 20
 
@@ -38,13 +37,12 @@ export function computeDramaScore(stats: ArticleStats): number {
     normWatch    * WEIGHTS.watchers +
     normMinorInv * WEIGHTS.minorInv
 
-  const relative = Math.min(raw / TRUMP_RAW, 1)
-  const curved   = Math.pow(relative, 0.75)
+  const relative  = Math.min(raw / TRUMP_RAW, 1)
+  const curved    = Math.pow(relative, 0.75)
   const baseScore = Math.round(curved * 100)
 
   const protectionBonus = (stats.protected && baseScore >= PROTECTION_MIN_SCORE)
-    ? PROTECTION_BONUS
-    : 0
+    ? PROTECTION_BONUS : 0
 
   return Math.min(baseScore + protectionBonus, 100)
 }
@@ -85,13 +83,13 @@ export function getDramaBarColor(score: number): string {
 
 export function getDramaLabel(score: number): string {
   const tier = getDramaTier(score)
-  if (tier === 'legendary') return `${E.legendary} Legendaire`
-  if (tier === 'enormous')  return `${E.enormous} Enorme Drama`
-  if (tier === 'chaos')     return `${E.chaos} Chaos total`
-  if (tier === 'agitated')  return `${E.agitated} Agite`
-  if (tier === 'disputed')  return `${E.disputed} Dispute`
-  if (tier === 'calm')      return `${E.calm} Calme`
-  return `${E.none} Aucun drama`
+  if (tier === 'legendary') return `${E.legendary} ${E.labelLegendary}`
+  if (tier === 'enormous')  return `${E.enormous} ${E.labelEnormous}`
+  if (tier === 'chaos')     return `${E.chaos} ${E.labelChaos}`
+  if (tier === 'agitated')  return `${E.agitated} ${E.labelAgitated}`
+  if (tier === 'disputed')  return `${E.disputed} ${E.labelDisputed}`
+  if (tier === 'calm')      return `${E.calm} ${E.labelCalm}`
+  return `${E.none} ${E.labelNone}`
 }
 
 export function isLegendary(score: number): boolean { return score >= 90 }

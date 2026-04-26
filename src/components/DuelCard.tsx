@@ -19,10 +19,10 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
   const { article, stats } = data
   const score = computeDramaScore(stats)
   const colorText = getDramaColor(score)
-  const colorBar = getDramaBarColor(score)
-  const isLoser = revealed && !winner
+  const colorBar  = getDramaBarColor(score)
+  const isLoser   = revealed && !winner
   const legendary = isLegendary(score)
-  const enormous = isEnormous(score)
+  const enormous  = isEnormous(score)
 
   const shortExtract = article.extract
     ? article.extract.split('.').slice(0, 2).join('.') + '.'
@@ -50,12 +50,8 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
         winner    && revealed ? 'bg-black/40' : 'bg-black/60'
       }`} />
 
-      {legendary && revealed && (
-        <div className="absolute inset-0 pointer-events-none legendary-shimmer" />
-      )}
-      {enormous && revealed && (
-        <div className="absolute inset-0 pointer-events-none enormous-shimmer" />
-      )}
+      {legendary && revealed && <div className="absolute inset-0 pointer-events-none legendary-shimmer" />}
+      {enormous  && revealed && <div className="absolute inset-0 pointer-events-none enormous-shimmer" />}
       {winner && revealed && !legendary && !enormous && (
         <div className="absolute inset-0 border-4 border-yellow-400 pointer-events-none" />
       )}
@@ -68,7 +64,11 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
             enormous  ? 'bg-yellow-400 text-slate-900 enormous-badge-glow' :
             'bg-yellow-400 text-slate-900'
           }`}>
-            {legendary ? `${E.legendary} Legendaire` : enormous ? `${E.enormous} Enorme Drama` : `${E.winner} Plus drama`}
+            {legendary
+              ? `${E.legendary} ${E.labelLegendary}`
+              : enormous
+              ? `${E.enormous} ${E.labelEnormous}`
+              : `${E.winner} ${E.labelWinner}`}
           </div>
         )}
 
@@ -83,7 +83,9 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
         )}
 
         {!revealed && (
-          <span className="text-white/50 text-xs border border-white/20 rounded-full px-3 py-1">{E.vote} Voter</span>
+          <span className="text-white/50 text-xs border border-white/20 rounded-full px-3 py-1">
+            {E.vote} Voter
+          </span>
         )}
 
         {revealed && (
@@ -97,17 +99,16 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
 
             {stats.protected && (
               <span className="text-orange-400 text-xs font-semibold flex items-center gap-1">
-                {E.protected} Protege par Wikipedia
+                {E.protected} {E.labelProtected}
               </span>
             )}
 
             <div className="w-full h-1.5 rounded-full bg-white/20">
               <div className={`h-1.5 rounded-full fill-bar ${colorBar}`} style={{ width: `${score}%` }} />
             </div>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-white/80 text-xs
-              bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2 w-full">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-white/80 text-xs bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2 w-full">
               <span>{E.edit} {fmt(stats.editCount)} edits</span>
-              <span>{E.editors} {fmt(stats.uniqueEditors)} editeurs</span>
+              <span>{E.editors} {fmt(stats.uniqueEditors)} {E.labelEditors}</span>
               <span>{E.revert} {stats.reversionRate}% rev.</span>
               <span>{E.anon} {Math.round(stats.anonRate * 100)}% anon</span>
               <span>{E.watch} {fmt(stats.watchers)} watch</span>
