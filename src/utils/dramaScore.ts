@@ -1,9 +1,10 @@
 import type { ArticleStats } from '../api/wikipedia'
 
+// Constantes de normalisation calées sur le record absolu Wikipedia (Donald Trump)
 const MAX_REFS = {
-  editCount: 10000,
-  uniqueEditors: 1000,
-  recentEdits: 100,
+  editCount:     52256, // record Trump
+  uniqueEditors:  7530, // record Trump
+  recentEdits:     234, // record Trump
 }
 
 const WEIGHTS = {
@@ -12,6 +13,10 @@ const WEIGHTS = {
   uniqueEditors:  0.25,
   recentVelocity: 0.10,
 }
+
+// Score brut de Trump = référence 100%
+// editCount=52256 → 1.0, uniqueEditors=7530 → 1.0, recentEdits=234 → 1.0, reversionRate=14% → 0.14
+const TRUMP_RAW = 1.0 * 0.40 + 0.14 * 0.25 + 1.0 * 0.25 + 1.0 * 0.10 // = 0.785
 
 export function computeDramaScore(stats: ArticleStats): number {
   const normEdits   = Math.min(stats.editCount    / MAX_REFS.editCount,    1)
@@ -25,7 +30,12 @@ export function computeDramaScore(stats: ArticleStats): number {
     normEditors * WEIGHTS.uniqueEditors +
     normRecent  * WEIGHTS.recentVelocity
 
-  const curved = Math.pow(raw, 0.7)
+  // Normalisation relative : Trump = 100%
+  const relative = Math.min(raw / TRUMP_RAW, 1)
+
+  // Courbe douce pour étaler la distribution vers les extrêmes
+  const curved = Math.pow(relative, 0.75)
+
   return Math.round(curved * 100)
 }
 

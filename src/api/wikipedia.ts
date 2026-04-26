@@ -6,7 +6,7 @@ const ACTION_URL = 'https://en.wikipedia.org/w/api.php'
 const XTOOLS_URL = 'https://xtools.wmcloud.org/api/page/articleinfo/en.wikipedia.org'
 const CACHE_TTL = 1000 * 60 * 30
 const DRAMA_SCORE_THRESHOLD = 15
-const CACHE_VERSION = 'v6'
+const CACHE_VERSION = 'v7'
 
 const DRAW_LEGENDARY = 0.10
 const DRAW_ENORMOUS  = 0.20
@@ -74,7 +74,6 @@ async function fetchRandomSummary(): Promise<WikiArticle> {
   }
 }
 
-// XTools : editCount + editors total réels
 async function fetchXToolsData(title: string): Promise<{ revisions: number; editors: number } | null> {
   try {
     const res = await fetch(`${XTOOLS_URL}/${encodeURIComponent(title)}`)
@@ -83,7 +82,7 @@ async function fetchXToolsData(title: string): Promise<{ revisions: number; edit
     if (typeof data.revisions !== 'number') return null
     return {
       revisions: data.revisions,
-      editors:   typeof data.editors === 'number' ? data.editors : 0,
+      editors: typeof data.editors === 'number' ? data.editors : 0,
     }
   } catch { return null }
 }
@@ -117,9 +116,8 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   const reversionRate = revisions.length > 0
     ? Math.round((reverts / revisions.length) * 100) : 0
 
-  // XTools pour editCount et uniqueEditors réels
-  const editCount    = xtools?.revisions ?? revisions.length
-  const uniqueEditors = xtools?.editors  ?? new Set(revisions.map((r: any) => r.user)).size
+  const editCount     = xtools?.revisions ?? revisions.length
+  const uniqueEditors = xtools?.editors   ?? new Set(revisions.map((r: any) => r.user)).size
 
   const stats: ArticleStats = { editCount, uniqueEditors, recentEdits, reversionRate }
   cacheSet(cacheKey, stats)
