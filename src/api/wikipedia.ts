@@ -6,12 +6,11 @@ const ACTION_URL = 'https://en.wikipedia.org/w/api.php'
 const XTOOLS_URL = 'https://xtools.wmcloud.org/api/page/articleinfo/en.wikipedia.org'
 const CACHE_TTL = 1000 * 60 * 30
 const DRAMA_SCORE_THRESHOLD = 15
+const CACHE_VERSION = 'v5' // bump pour invalider les anciens caches
 
-// Probabilités de tirage
-const DRAW_LEGENDARY = 0.10 // 10% 💎 rare
-const DRAW_ENORMOUS  = 0.20 // 20% 🌟
-const DRAW_WHITELIST = 0.50 // 50% pool classique
-// 20% restant — Wikipedia random pur
+const DRAW_LEGENDARY = 0.10
+const DRAW_ENORMOUS  = 0.20
+const DRAW_WHITELIST = 0.50
 
 export interface WikiArticle {
   title: string
@@ -85,7 +84,7 @@ async function fetchXToolsEditCount(title: string): Promise<number | null> {
 }
 
 export async function fetchArticleStats(title: string): Promise<ArticleStats> {
-  const cacheKey = `wiki_stats_v4_${title}`
+  const cacheKey = `wiki_stats_${CACHE_VERSION}_${title}`
   const cached = cacheGet<ArticleStats>(cacheKey)
   if (cached) return cached
 
@@ -105,13 +104,13 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  const recentEdits = revisions.filter(r => new Date(r.timestamp) > thirtyDaysAgo).length
-  const uniqueEditors = new Set(revisions.map(r => r.user)).size
-  const reverts = revisions.filter(r => {
+  const recentEdits    = revisions.filter(r => new Date(r.timestamp) > thirtyDaysAgo).length
+  const uniqueEditors  = new Set(revisions.map(r => r.user)).size
+  const reverts        = revisions.filter(r => {
     const c = (r.comment || '').toLowerCase()
     return c.includes('revert') || c.includes('undo') || c.includes('undid')
   }).length
-  const reversionRate = revisions.length > 0
+  const reversionRate  = revisions.length > 0
     ? Math.round((reverts / revisions.length) * 100) : 0
 
   const editCount = xtoolsCount ?? revisions.length
