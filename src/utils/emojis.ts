@@ -2,7 +2,7 @@
 // NE PAS modifier via l'API GitHub — UTF-8 littéral uniquement
 
 export const E = {
-  // Emojis
+  // Emojis généraux
   legendary:         '💎',
   enormous:          '🌟',
   chaos:             '🔥',
@@ -36,6 +36,16 @@ export const E = {
   noEntry:           '🙅',
   arrowLeft:         '←',
 
+  // WikiWars emojis
+  pvIcon:            '📊',
+  pvViral:           '💎',
+  pvMondial:         '🌍',
+  pvTendance:        '📈',
+  pvPopulaire:       '👀',
+  pvConnu:           '📖',
+  pvObscur:          '🌑',
+  wwStar:            '✨',
+
   // Labels avec accents — dramaScore + DuelCard
   labelLegendary:    'Légendaire',
   labelEnormous:     'Énorme Drama',
@@ -48,6 +58,22 @@ export const E = {
   labelProtected:    'Protégé par Wikipedia',
   labelEditors:      'éditeurs',
   labelArticles:     'articles',
+
+  // Labels WikiWars tiers
+  labelViral:        'Viral',
+  labelMondial:      'Mondial',
+  labelTendance:     'Tendance',
+  labelPopulaire:    'Populaire',
+  labelConnu:        'Connu',
+  labelObscur:       'Obscur',
+
+  // Labels WikiWars UI
+  wwMostViewed:      'Le plus vu',
+  wwVote:            'Voter',
+  wwInstruction:     "Lequel a été le plus consulté ce mois-ci ?",
+  wwViewsMonth:      'vues en',
+  wwLoading:         'Chargement WikiWars...',
+  wwSpecial:         'Special Mode',
 
   // Labels avec accents — ShareButton
   shareTieHeader:    'WikiDrama — Égalité !',
@@ -66,7 +92,7 @@ export const E = {
 
   // Labels avec accents — Duel.tsx
   duelThematic:      'Duel Thématique',
-  duelControverse:   'contoversé',
+  duelControverse:   'controversé',
   duelTapArticle:    "Tape sur l'article le plus controversé",
   duelTie:           "\u00c9galité ! Les deux articles sont aussi drama l'un que l'autre.",
   duelRight:         'Bien joué ! Tu avais le bon flair.',

@@ -33,6 +33,21 @@ export default function Home() {
           >
             🗂️ Duel Thématique
           </button>
+
+          {/* WikiWars — Special Mode */}
+          <div className="relative">
+            <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10">
+              <span className="bg-purple-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full tracking-wide uppercase">
+                ✨ Special Mode
+              </span>
+            </div>
+            <button
+              onClick={() => navigate('/wikiwars')}
+              className="w-full py-5 rounded-2xl bg-gradient-to-r from-purple-900 to-slate-800 hover:from-purple-800 hover:to-slate-700 active:scale-95 transition-all font-bold text-xl border border-purple-700 shadow-lg shadow-purple-500/10"
+            >
+              📊 WikiWars
+            </button>
+          </div>
         </div>
 
         {/* Drama Score mention */}
@@ -50,7 +65,6 @@ export default function Home() {
       {/* Footer links */}
       <div className="flex flex-col items-center gap-3">
         <div className="flex items-center gap-5">
-          {/* GitHub */}
           <a
             href="https://github.com/okash99/wikidrama"
             target="_blank"
@@ -62,16 +76,13 @@ export default function Home() {
             </svg>
             GitHub
           </a>
-
           <span className="text-slate-700">·</span>
-
-          {/* Play Store */}
           <a
             href="#"
             className="flex items-center gap-1.5 text-slate-500 hover:text-white transition-colors text-xs"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3.18 23.76c.3.18.66.18.96 0l12.54-7.24-2.88-2.88-10.62 10.12zm-1.14-20.4C1.8 3.6 1.5 3.9 1.5 4.26v15.48c0 .36.3.66.54.9l.12.12L11.04 12v-.24L2.16 3.24l-.12.12zM20.34 10.5l-2.58-1.5-3.24 3.24 3.24 3.24 2.58-1.5c.72-.42.72-1.14 0-1.5zM4.14.24L16.68 7.48l-2.88 2.88L3.18.24c.3-.18.66-.18.96 0z"/>
+              <path d="M3.18 23.76c.3.18.66.18.96 0l12.54-7.24-2.88-2.88-10.62 10.12zm-1.14-20.4C1.8 3.6 1.5 3.9 1.5 4.26v15.48c0 .36.3.66.54.9l.12.12L11.04 12v-.24L2.16 3.24l-.12.12zM20.34 10.5l-2.58-1.5-3.24 3.24 3.24 3.24 2.58-1.5c.72-.42.72-1.14 0-1.5zM4.14.24L16.68 7.48l-2.88 2.88-12.54-7.24c.3-.18.66-.18.96 0z"/>
             </svg>
             Play Store
           </a>
