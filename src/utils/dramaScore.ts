@@ -1,4 +1,5 @@
 import type { ArticleStats } from '../api/wikipedia'
+import { E } from './emojis'
 
 const MAX_REFS = {
   editCount:     20000,
@@ -84,13 +85,13 @@ export function getDramaBarColor(score: number): string {
 
 export function getDramaLabel(score: number): string {
   const tier = getDramaTier(score)
-  if (tier === 'legendary') return '💎 Légendaire'
-  if (tier === 'enormous')  return '🌟 Énorme Drama'
-  if (tier === 'chaos')     return '🔥 Chaos total'
-  if (tier === 'agitated')  return '🌶️ Agité'
-  if (tier === 'disputed')  return '😤 Disputé'
-  if (tier === 'calm')      return '😐 Calme'
-  return '😴 Aucun drama'
+  if (tier === 'legendary') return `${E.legendary} Legendaire`
+  if (tier === 'enormous')  return `${E.enormous} Enorme Drama`
+  if (tier === 'chaos')     return `${E.chaos} Chaos total`
+  if (tier === 'agitated')  return `${E.agitated} Agite`
+  if (tier === 'disputed')  return `${E.disputed} Dispute`
+  if (tier === 'calm')      return `${E.calm} Calme`
+  return `${E.none} Aucun drama`
 }
 
 export function isLegendary(score: number): boolean { return score >= 90 }
