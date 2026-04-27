@@ -45,7 +45,7 @@ export const E = {
   catYtUS:             '\uD83C\uDDFA\uD83C\uDDF8',
   catDefault:          '\uD83D\uDCCC',
 
-  // --- WikiWars ---
+  // --- WikiWars icons ---
   pvIcon:              '\uD83D\uDCCA',
   pvViral:             '\uD83D\uDC8E',
   pvMondial:           '\uD83C\uDF0D',
@@ -54,69 +54,4 @@ export const E = {
   pvConnu:             '\uD83D\uDCD6',
   pvObscur:            '\uD83C\uDF11',
   wwStar:              '\u2728',
-
-  // --- Drama tier labels ---
-  labelLegendary:      'L\u00E9gendaire',
-  labelEnormous:       '\u00C9norme Drama',
-  labelChaos:          'Chaos total',
-  labelAgitated:       'Agit\u00E9',
-  labelDisputed:       'Disput\u00E9',
-  labelCalm:           'Calme',
-  labelNone:           'Aucun drama',
-  labelWinner:         'Plus drama',
-  labelProtected:      'Prot\u00E9g\u00E9 par Wikipedia',
-  labelEditors:        '\u00E9diteurs',
-  labelArticles:       'articles',
-
-  // --- WikiWars tier labels ---
-  labelViral:          'Viral',
-  labelMondial:        'Mondial',
-  labelTendance:       'Tendance',
-  labelPopulaire:      'Populaire',
-  labelConnu:          'Connu',
-  labelObscur:         'Obscur',
-
-  // --- WikiWars UI ---
-  wwMostViewed:        'Le plus vu',
-  wwVote:              'Voter',
-  wwInstruction:       'Lequel a \u00E9t\u00E9 le plus consult\u00E9 ces 12 derniers mois\u00A0?',
-  wwViews12m:          'vues sur 12 mois',
-  wwLoading:           'Chargement WikiWars...',
-  wwSpecial:           'Special Mode',
-
-  // --- Home ---
-  homeTagline:         'Deux articles Wikipedia. Un seul peut \u00EAtre le plus controvers\u00E9.',
-  dramaScoreCaption:   'DramaScore calcul\u00E9 sur 6 m\u00E9triques Wikipedia',
-  footerCaption:       'Propuls\u00E9 par l\u2019API Wikipedia\u00A0\u00B7 Aucun compte requis',
-
-  // --- Share ---
-  shareTieHeader:      'WikiDrama \u2014 \u00C9galit\u00E9\u00A0!',
-  shareDuelHeader:     'WikiDrama \u2014 Duel Wikipedia',
-  shareTieBoth:        'Les deux \u00E0 %score% \u2014 aussi drama l\u2019un que l\u2019autre',
-  shareEditions:       '\u00E9ditions',
-  shareEditeurs:       '\u00E9diteurs',
-  shareEdits30:        '\u00E9dits/30j',
-  shareRight:          'J\u2019avais le bon flair\u00A0!',
-  shareWrong:          'Je me suis fait avoir...',
-  shareNoWinner:       'Aucun gagnant, les deux sont l\u00E9gendaires',
-  shareFelt:           'Je l\u2019avais senti\u00A0!',
-  sharePartager:       'Partager le duel',
-  shareCopied:         'Copi\u00E9\u00A0!',
-  shareAnnuler:        'Annuler',
-
-  // --- Duel ---
-  duelThematic:        'Duel Th\u00E9matique',
-  duelControverse:     'controvers\u00E9',
-  duelTapArticle:      'Tape sur l\u2019article le plus controvers\u00E9',
-  duelTie:             '\u00C9galit\u00E9\u00A0! Les deux articles sont aussi drama l\u2019un que l\u2019autre.',
-  duelRight:           'Bien jou\u00E9\u00A0! Tu avais le bon flair.',
-  duelWrong:           'Rat\u00E9\u00A0! L\u2019autre \u00E9tait plus drama.',
-  duelOfflineTitle:    'Pas de connexion',
-  duelErrorTitle:      'Chargement impossible',
-  duelOfflineMsg:      'V\u00E9rifie ta connexion puis r\u00E9essaie.',
-  duelErrorMsg:        'Wikipedia ou XTools ne r\u00E9pond pas. R\u00E9essaie dans quelques secondes.',
-  duelRetry:           'R\u00E9essayer',
-  duelBackHome:        'Retour \u00E0 l\u2019accueil',
-  duelLoading:         'Chargement du duel...',
-  duelLaunch:          'Lancer le duel',
 }
