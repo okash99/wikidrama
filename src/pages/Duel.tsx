@@ -79,9 +79,9 @@ export default function Duel() {
   const guessedRight = isTie || selected === winner
 
   function getResultMessage(): string {
-    if (isTie)        return `${E.handshake} ${E.duelTie}`
-    if (guessedRight) return `${E.checkmark} ${E.duelRight}`
-    return `${E.cross} ${E.duelWrong}`
+    if (isTie)        return `${E.handshake} ${t('duelTie')}`
+    if (guessedRight) return `${E.checkmark} ${t('duelRight')}`
+    return `${E.cross} ${t('duelWrong')}`
   }
 
   function getResultColor(): string {
@@ -127,20 +127,20 @@ export default function Duel() {
         <span className="text-5xl">{isOfflineError ? E.satellite : E.noEntry}</span>
         <div className="flex flex-col gap-1">
           <p className="text-white font-bold">
-            {isOfflineError ? E.duelOfflineTitle : E.duelErrorTitle}
+            {t(isOfflineError ? 'duelOfflineTitle' : 'duelErrorTitle')}
           </p>
           <p className="text-slate-400 text-sm">
-            {isOfflineError ? E.duelOfflineMsg : E.duelErrorMsg}
+            {t(isOfflineError ? 'duelOfflineMsg' : 'duelErrorMsg')}
           </p>
         </div>
         <button
           onClick={() => loadDuel(mode === 'thematic' ? category : undefined)}
           className="py-2.5 px-6 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm"
         >
-          {E.reload} {E.duelRetry}
+          {E.reload} {t('duelRetry')}
         </button>
         <button onClick={() => navigate('/')} className="text-slate-500 text-xs underline">
-          {E.duelBackHome}
+          {t('duelBackHome')}
         </button>
       </main>
     )

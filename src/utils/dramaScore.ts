@@ -81,15 +81,35 @@ export function getDramaBarColor(score: number): string {
   return 'bg-slate-500'
 }
 
-export function getDramaLabel(score: number): string {
+/** Returns emoji + i18n key so callers can do: t(getDramaTierKey(score)) */
+export function getDramaTierKey(score: number): string {
   const tier = getDramaTier(score)
-  if (tier === 'legendary') return `${E.legendary} ${E.labelLegendary}`
-  if (tier === 'enormous')  return `${E.enormous} ${E.labelEnormous}`
-  if (tier === 'chaos')     return `${E.chaos} ${E.labelChaos}`
-  if (tier === 'agitated')  return `${E.agitated} ${E.labelAgitated}`
-  if (tier === 'disputed')  return `${E.disputed} ${E.labelDisputed}`
-  if (tier === 'calm')      return `${E.calm} ${E.labelCalm}`
-  return `${E.none} ${E.labelNone}`
+  const map: Record<DramaTier, string> = {
+    legendary: 'tierLegendary',
+    enormous:  'tierEnormous',
+    chaos:     'tierChaos',
+    agitated:  'tierAgitated',
+    disputed:  'tierDisputed',
+    calm:      'tierCalm',
+    none:      'tierNone',
+  }
+  return map[tier]
+}
+
+export function getDramaTierEmoji(score: number): string {
+  const tier = getDramaTier(score)
+  if (tier === 'legendary') return E.legendary
+  if (tier === 'enormous')  return E.enormous
+  if (tier === 'chaos')     return E.chaos
+  if (tier === 'agitated')  return E.agitated
+  if (tier === 'disputed')  return E.disputed
+  if (tier === 'calm')      return E.calm
+  return E.none
+}
+
+/** @deprecated use getDramaTierKey + getDramaTierEmoji with t() instead */
+export function getDramaLabel(score: number): string {
+  return `${getDramaTierEmoji(score)} ${getDramaTierKey(score)}`
 }
 
 export function isLegendary(score: number): boolean { return score >= 90 }

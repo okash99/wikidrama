@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import type { ArticleData } from '../api/wikipedia'
-import { computeDramaScore, getDramaLabel } from '../utils/dramaScore'
+import { computeDramaScore, getDramaTierKey, getDramaTierEmoji } from '../utils/dramaScore'
 import { E } from '../utils/emojis'
 import type { WinnerState } from '../pages/Duel'
 
@@ -19,6 +20,7 @@ function dramaBar(score: number): string {
 const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
 
 export default function ShareButton({ articles, winner, selected }: Props) {
+  const { t } = useTranslation()
   const [showModal, setShowModal] = useState(false)
   const [copied, setCopied]       = useState(false)
 
@@ -42,8 +44,8 @@ export default function ShareButton({ articles, winner, selected }: Props) {
   const guessedRight       = isTie || selected === winner
 
   const tieHeader = isTie
-    ? `${E.scales} ${E.shareTieHeader}`
-    : `${E.swords} ${E.shareDuelHeader}`
+    ? `${E.scales} ${t('shareTieHeader')}`
+    : `${E.swords} ${t('shareDuelHeader')}`
 
   const shareText = [
     tieHeader,
@@ -52,38 +54,38 @@ export default function ShareButton({ articles, winner, selected }: Props) {
       ? `${E.scales} ${winnerData.article.title} = ${loserData.article.title}`
       : `${E.winner} ${winnerData.article.title}`,
     isTie
-      ? `   ${E.shareTieBoth.replace('%score%', String(winnerScore))}`
+      ? `   ${t('shareTieBoth').replace('%score%', String(winnerScore))}`
       : `   ${dramaBar(winnerScore)} ${winnerScore}%`,
     ...(!isTie ? [
-      `   ${E.edit} ${winnerData.stats.editCount} ${E.shareEditions}  ${E.editors} ${winnerData.stats.uniqueEditors} ${E.shareEditeurs}`,
-      `   ${E.revert} ${winnerData.stats.reversionRate}% reversions  ${winnerData.stats.recentEdits} ${E.shareEdits30}`,
-      `   -> ${getDramaLabel(winnerScore)}`,
+      `   ${E.edit} ${winnerData.stats.editCount} ${t('shareEditions')}  ${E.editors} ${winnerData.stats.uniqueEditors} ${t('shareEditeurs')}`,
+      `   ${E.revert} ${winnerData.stats.reversionRate}% reversions  ${winnerData.stats.recentEdits} ${t('shareEdits30')}`,
+      `   -> ${getDramaTierEmoji(winnerScore)} ${t(getDramaTierKey(winnerScore))}`,
       '',
       `${E.disputed} ${loserData.article.title}`,
       `   ${dramaBar(loserScore)} ${loserScore}%`,
-      `   ${E.edit} ${loserData.stats.editCount} ${E.shareEditions}  ${E.editors} ${loserData.stats.uniqueEditors} ${E.shareEditeurs}`,
-      `   ${E.revert} ${loserData.stats.reversionRate}% reversions  ${loserData.stats.recentEdits} ${E.shareEdits30}`,
-      `   -> ${getDramaLabel(loserScore)}`,
+      `   ${E.edit} ${loserData.stats.editCount} ${t('shareEditions')}  ${E.editors} ${loserData.stats.uniqueEditors} ${t('shareEditeurs')}`,
+      `   ${E.revert} ${loserData.stats.reversionRate}% reversions  ${loserData.stats.recentEdits} ${t('shareEdits30')}`,
+      `   -> ${getDramaTierEmoji(loserScore)} ${t(getDramaTierKey(loserScore))}`,
     ] : []),
     '',
-    guessedRight ? `${E.checkmark} ${E.shareRight}` : `${E.cross} ${E.shareWrong}`,
+    guessedRight ? `${E.checkmark} ${t('shareRight')}` : `${E.cross} ${t('shareWrong')}`,
     '',
-    `${E.pointRight} Tente ta chance sur WikiDrama`,
+    `${E.pointRight} ${t('shareTryIt')}`,
     'https://wikidrama.pages.dev',
   ].join('\n')
 
   const shortTweetText = isTie
     ? [
         `${E.swords} WikiDrama`,
-        `${E.scales} ${E.shareTieHeader} ${winnerData.article.title} vs ${loserData.article.title} — ${winnerScore}% chacun`,
-        `${E.checkmark} ${E.shareNoWinner}`,
+        `${E.scales} ${t('shareTieHeader')} ${winnerData.article.title} vs ${loserData.article.title} — ${winnerScore}% chacun`,
+        `${E.checkmark} ${t('shareNoWinner')}`,
         'https://wikidrama.pages.dev',
       ].join('\n')
     : [
         `${E.swords} WikiDrama`,
         `${E.winner} ${winnerData.article.title} — ${winnerScore}%`,
         `${E.disputed} ${loserData.article.title} — ${loserScore}%`,
-        guessedRight ? `${E.checkmark} ${E.shareFelt}` : `${E.cross} ${E.shareWrong}`,
+        guessedRight ? `${E.checkmark} ${t('shareFelt')}` : `${E.cross} ${t('shareWrong')}`,
         'https://wikidrama.pages.dev',
       ].join('\n')
 
@@ -122,7 +124,7 @@ export default function ShareButton({ articles, winner, selected }: Props) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-10 h-1 bg-slate-600 rounded-full mx-auto" />
-        <p className="text-sm font-semibold text-slate-300 text-center">{E.sharePartager}</p>
+        <p className="text-sm font-semibold text-slate-300 text-center">{t('sharePartager')}</p>
 
         <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4 max-h-44 overflow-y-auto scrollbar-none">
           <pre className="text-xs text-slate-300 whitespace-pre-wrap font-mono leading-relaxed">{shareText}</pre>
@@ -132,7 +134,7 @@ export default function ShareButton({ articles, winner, selected }: Props) {
           {canShare && (
             <button onClick={shareNative}
               className="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-              {E.phone} Partager via...
+              {E.phone} {t('shareVia')}
             </button>
           )}
           <div className="flex gap-2">
@@ -147,12 +149,12 @@ export default function ShareButton({ articles, winner, selected }: Props) {
           </div>
           <button onClick={copyToClipboard}
             className="w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-            {copied ? `${E.checkmark} ${E.shareCopied}` : `${E.clipboard} Copier le texte`}
+            {copied ? `${E.checkmark} ${t('shareCopied')}` : `${E.clipboard} ${t('copyText')}`}
           </button>
         </div>
 
         <button onClick={() => setShowModal(false)} className="text-slate-500 text-sm text-center py-1">
-          {E.shareAnnuler}
+          {t('shareAnnuler')}
         </button>
       </div>
     </div>
@@ -164,7 +166,7 @@ export default function ShareButton({ articles, winner, selected }: Props) {
         onClick={() => setShowModal(true)}
         className="flex-1 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-bold text-sm flex items-center justify-center gap-1.5"
       >
-        Partager
+        {t('share')}
       </button>
       {createPortal(modal, document.body)}
     </>
