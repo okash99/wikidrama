@@ -1,8 +1,8 @@
 # ⚔️ WikiDrama
 
-> Deux articles Wikipedia. Un seul peut être le plus controversé — ou le plus lu.
+> Two Wikipedia articles. Only one can be the most controversial — or the most read.
 
-**WikiDrama** est une web app mobile-first qui oppose deux articles Wikipedia en duel. Deux modes principaux : le classique **Drama Score** basé sur les guerres d'édition, et le nouveau mode **WikiWars** basé sur les pageviews réels.
+**WikiDrama** is a mobile-first web app that pits two Wikipedia articles against each other in a duel. Two main modes: the classic **Drama Score** based on edit wars, and the new **WikiWars** mode based on real pageview data.
 
 [![Deploy](https://img.shields.io/badge/Live-wikidrama.pages.dev-red?style=flat-square)](https://wikidrama.pages.dev)
 [![Stack](https://img.shields.io/badge/Stack-React%2018%20%2B%20Vite%20%2B%20Tailwind-blue?style=flat-square)]()
@@ -10,50 +10,50 @@
 
 ---
 
-## 🎮 Modes de jeu
+## 🎮 Game Modes
 
-### ⚡ Duel Random
-Deux articles Wikipedia tirés au hasard depuis un pool de +400 sujets controversés. Devine lequel a généré le plus de guerres d'édition.
+### ⚡ Random Duel
+Two Wikipedia articles drawn at random from a pool of 400+ controversial topics. Guess which one sparked the most edit wars.
 
-### 🗂️ Duel Thématique
-Choisis une thématique parmi 7 catégories (Politique, Sport, Pop Culture, Science, Histoire, Religion, Tech) et affronte deux articles du même univers.
+### 🗂️ Thematic Duel
+Pick a theme from 9 categories (Politics, Sport, Pop Culture, Science, History, Religion, Tech, 🇫🇷 French YouTubers, 🇺🇸 US YouTubers) and face off two articles from the same universe.
 
 ### 📊 WikiWars _(Special Mode)_
-Oublie le drama — qui a été le plus **lu** ? Devine quel article a cumulé le plus de vues Wikipedia sur les **12 derniers mois** (données Wikimedia pageviews API).
+Forget the drama — who got **read** the most? Guess which article racked up the most Wikipedia views over the **last 12 months** (Wikimedia Pageviews API).
 
 ---
 
 ## 🔥 Drama Score
 
-Score calculé sur **6 métriques Wikipedia** :
+Score computed from **6 Wikipedia metrics**:
 
-| Métrique | Source | Poids |
+| Metric | Source | Weight |
 |---|---|---|
-| Nombre total d'éditions | XTools | Haut |
-| Taux de réversions | API Wikipedia | Haut |
-| Éditeurs uniques | XTools | Moyen |
-| Taux d'éditions anonymes | XTools | Moyen |
-| Nombre de watchers | XTools | Moyen |
-| Taux d'éditions mineures | XTools | Bas |
+| Total edit count | XTools | High |
+| Reversion rate | Wikipedia API | High |
+| Unique editors | XTools | Medium |
+| Anonymous edit rate | XTools | Medium |
+| Watcher count | XTools | Medium |
+| Minor edit rate | XTools | Low |
 
 ```
 score = f(edits, rev, editors, anon, watch, minor)
 ```
 
-Tiers : **Légendaire** > **Énorme Drama** > **Chaos total** > **Agité** > **Disputé** > **Calme** > **Aucun drama**
+Tiers: **Legendary** > **Enormous Drama** > **Total Chaos** > **Agitated** > **Disputed** > **Calm** > **No drama**
 
 ---
 
 ## 📊 WikiWars Tiers
 
-| Tier | Vues / 12 mois |
+| Tier | Views / 12 months |
 |---|---|
 | 💎 Viral | > 5M |
-| 🌍 Mondial | 1M – 5M |
-| 📈 Tendance | 500k – 1M |
-| 👀 Populaire | 100k – 500k |
-| 📖 Connu | 20k – 100k |
-| 🌑 Obscur | < 20k |
+| 🌍 Global | 1M – 5M |
+| 📈 Trending | 500k – 1M |
+| 👀 Popular | 100k – 500k |
+| 📖 Known | 20k – 100k |
+| 🌑 Obscure | < 20k |
 
 ---
 
@@ -62,14 +62,14 @@ Tiers : **Légendaire** > **Énorme Drama** > **Chaos total** > **Agité** > **D
 - **React 18** + TypeScript
 - **Vite** (bundler)
 - **Tailwind CSS** (mobile-first)
-- **Wikipedia REST API** — summaries, révisions
-- **Wikimedia Pageviews API** — vues mensuelles (WikiWars)
-- **XTools API** — stats avancées (watchers, anon edits...)
-- **Cloudflare Pages** (déploiement)
+- **Wikipedia REST API** — summaries, revisions (EN + FR)
+- **Wikimedia Pageviews API** — monthly views (WikiWars)
+- **XTools API** — advanced stats (watchers, anon edits…)
+- **Cloudflare Pages** (deployment)
 
 ---
 
-## 📦 Lancer en local
+## 📦 Run locally
 
 ```bash
 git clone https://github.com/okash99/wikidrama
@@ -80,41 +80,43 @@ npm run dev
 
 ---
 
-## ☁️ Déploiement Cloudflare Pages
+## ☁️ Cloudflare Pages Deployment
 
 1. [pages.cloudflare.com](https://pages.cloudflare.com) → **Connect to Git**
-2. Sélectionner `okash99/wikidrama`
-3. Framework preset : **Vite**
-4. Build command : `npm run build`
-5. Output directory : `dist`
+2. Select `okash99/wikidrama`
+3. Framework preset: **Vite**
+4. Build command: `npm run build`
+5. Output directory: `dist`
 
 ---
 
 ## 🖥️ Roadmap
 
 ### V1 — Done
-- [x] Setup Vite + React + Tailwind
-- [x] Wikipedia API + DuelCard + cache localStorage
-- [x] Drama Score (6 métriques)
+- [x] Vite + React + Tailwind setup
+- [x] Wikipedia API + DuelCard + localStorage cache
+- [x] Drama Score (6 metrics)
 - [x] ShareButton (Wordle-style)
-- [x] Déploiement Cloudflare Pages
+- [x] Cloudflare Pages deployment
 
 ### V2 — Done
-- [x] Duel Thématique (7 catégories, +400 articles)
-- [x] WikiWars — mode pageviews 12 mois
-- [x] Hover descriptions sur les boutons de la Home
-- [x] Partage WikiWars (WhatsApp, Twitter, copier)
-- [x] Footer GitHub + Play Store
-- [x] Fix ring CategoryPicker
-- [x] Centralisation emojis/accents dans `E.xxx`
+- [x] Thematic Duel (9 categories, 500+ articles)
+- [x] WikiWars — 12-month pageviews mode
+- [x] Hover descriptions on Home buttons
+- [x] WikiWars sharing (WhatsApp, Twitter, copy)
+- [x] GitHub + Play Store footer
+- [x] CategoryPicker ring fix
+- [x] Emoji/accent centralisation in `E.xxx`
+- [x] 🇫🇷 French YouTubers category (fr.wikipedia.org)
+- [x] 🇺🇸 US YouTubers category
 
 ### V3 — Wishlist
-- [ ] App native React Native / Expo
-- [ ] Mode WikiWars Thématique
-- [ ] Classements & scores sauvegardés
-- [ ] Compte utilisateur
-- [ ] Live Feed des articles en guerre d'édition en ce moment
+- [ ] Native app (React Native / Expo)
+- [ ] Thematic WikiWars mode
+- [ ] Saved scores & leaderboards
+- [ ] User accounts
+- [ ] Live Feed of articles currently in edit wars
 
 ---
 
-*WikiDrama V2 — Propulsé par l'API Wikipedia. Aucun compte requis.*
+*WikiDrama V2 — Powered by the Wikipedia API. No account required.*
