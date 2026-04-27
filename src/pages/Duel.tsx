@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { fetchArticleData, fetchArticleFromCategory, type ArticleData } from '../api/wikipedia'
 import { computeDramaScore } from '../utils/dramaScore'
 import { E } from '../utils/emojis'
@@ -17,6 +18,7 @@ function isOffline(): boolean {
 export default function Duel() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const mode = searchParams.get('mode') || 'random'
 
   const [phase, setPhase]       = useState<Phase>(mode === 'random' ? 'loading' : 'pick-category')
@@ -94,7 +96,7 @@ export default function Duel() {
       <main className="flex flex-col flex-1 px-4 py-6 gap-5">
         <div className="flex items-center justify-between">
           <button onClick={() => navigate('/')} className="text-slate-500 text-sm">
-            {E.arrowLeft} Accueil
+            {E.arrowLeft} {t('backHome')}
           </button>
           <h1 className="font-bold text-base">{E.thematic} {E.duelThematic}</h1>
           <div className="w-16" />
@@ -206,7 +208,7 @@ export default function Duel() {
                 onClick={() => mode === 'thematic' ? loadDuel(category) : loadDuel()}
                 className="flex-shrink-0 py-2.5 px-5 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm whitespace-nowrap"
               >
-                {E.reload} Rejouer
+                {E.reload} {t('replay')}
               </button>
             </div>
           </div>
