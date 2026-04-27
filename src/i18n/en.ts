@@ -24,11 +24,27 @@ export default {
     // Duel
     backHome: 'Home',
     replay: 'Play again',
+    duelLaunch: 'Start the duel',
+    duelLoading: 'Loading duel…',
+    duelTapArticle: 'Tap the most controversial article',
     // WikiWars
     share: 'Share',
     shareVia: 'Share via…',
     copyText: 'Copy text',
     iKnewIt: 'I knew it!',
     gotMe: 'Got me…',
+    wwLoading: 'Loading WikiWars…',
+    wwInstruction: 'Which one was read the most in the last 12 months?',
+    // Categories
+    labelArticles: 'articles',
+    cat_Politique: 'Politics',
+    cat_Sport: 'Sport',
+    cat_PopCulture: 'Pop Culture',
+    cat_Science: 'Science',
+    cat_Histoire: 'History',
+    cat_Religion: 'Religion',
+    cat_Tech: 'Tech',
+    cat_YtFR: 'French YouTubers',
+    cat_YtUS: 'US YouTubers',
   },
 }
