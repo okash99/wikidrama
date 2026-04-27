@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { fetchSummaryForWikiWars, type PageviewsData } from '../api/pageviews'
 import { getPopularityLabel, getPopularityColor, getPopularityBarColor, formatViews, viewsToScore, getPopularityTier } from '../utils/popularityScore'
 import { E } from '../utils/emojis'
@@ -23,6 +24,7 @@ function ShareModal({
   onClose: () => void
 }) {
   const [copied, setCopied] = useState(false)
+  const { t } = useTranslation()
   const isTie = winner === 'tie'
   const winnerIdx: 0 | 1  = isTie ? 0 : winner
   const loserIdx:  0 | 1  = winnerIdx === 0 ? 1 : 0
@@ -46,7 +48,7 @@ function ShareModal({
       `   ${dramaBar(scoreL)} ${formatViews(loserCard.views)} vues/12 mois`,
     ] : []),
     '',
-    guessedRight ? `${E.checkmark} ${E.shareRight}` : `${E.cross} ${E.shareWrong}`,
+    guessedRight ? `${E.checkmark} ${t('iKnewIt')}` : `${E.cross} ${t('gotMe')}`,
     '',
     `${E.pointRight} wikidrama.pages.dev`,
   ].join('\n')
@@ -56,7 +58,7 @@ function ShareModal({
     isTie
       ? `${E.scales} Egalite ! ${winnerCard.title} vs ${loserCard.title}`
       : `${E.winner} ${winnerCard.title} (${formatViews(winnerCard.views)}) > ${loserCard.title} (${formatViews(loserCard.views)})`,
-    guessedRight ? `${E.checkmark} Je l'avais senti !` : `${E.cross} Je me suis fait avoir...`,
+    guessedRight ? `${E.checkmark} ${t('iKnewIt')}` : `${E.cross} ${t('gotMe')}`,
     'https://wikidrama.pages.dev',
   ].join('\n')
 
@@ -87,7 +89,7 @@ function ShareModal({
           {canShare && (
             <button onClick={shareNative}
               className="w-full py-3 rounded-xl bg-purple-500 hover:bg-purple-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-              {E.phone} Partager via...
+              {E.phone} {t('shareVia')}
             </button>
           )}
           <div className="flex gap-2">
@@ -102,7 +104,7 @@ function ShareModal({
           </div>
           <button onClick={copyText}
             className="w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-            {copied ? `${E.checkmark} ${E.shareCopied}` : `${E.clipboard} Copier le texte`}
+            {copied ? `${E.checkmark} ${E.shareCopied}` : `${E.clipboard} ${t('copyText')}`}
           </button>
         </div>
         <button onClick={onClose} className="text-slate-500 text-sm text-center py-1">{E.shareAnnuler}</button>
@@ -114,6 +116,7 @@ function ShareModal({
 
 export default function WikiWars() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [phase, setPhase]         = useState<Phase>('loading')
   const [cards, setCards]         = useState<[PageviewsData, PageviewsData] | null>(null)
   const [selected, setSelected]   = useState<0 | 1 | null>(null)
@@ -307,13 +310,13 @@ export default function WikiWars() {
                 onClick={() => setShowShare(true)}
                 className="flex-1 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-bold text-sm flex items-center justify-center gap-1.5"
               >
-                Partager
+                {t('share')}
               </button>
               <button
                 onClick={loadDuel}
                 className="flex-shrink-0 py-2.5 px-5 rounded-xl bg-purple-500 hover:bg-purple-600 active:scale-95 transition-all font-bold text-sm whitespace-nowrap"
               >
-                {E.reload} Rejouer
+                {E.reload} {t('replay')}
               </button>
             </div>
           </div>
