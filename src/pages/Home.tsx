@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { E } from '../utils/emojis'
-import WikiGlobe from '../components/WikiGlobe'
 
 const MODES = [
   {
@@ -41,7 +40,7 @@ export default function Home() {
       <div className="flex flex-col items-center gap-8 w-full">
         <div className="text-center fade-in">
           <div className="mb-4 flex justify-center">
-            <WikiGlobe size={80} />
+            <h1 className="text-6xl">🌍</h1>
           </div>
           <h1 className="text-5xl font-extrabold tracking-tight">
             Wiki<span className="text-red-500">Drama</span>
