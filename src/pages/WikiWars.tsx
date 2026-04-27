@@ -172,7 +172,7 @@ export default function WikiWars() {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-4">
         <div className="text-4xl animate-pulse">{E.pvIcon}</div>
-        <p className="text-slate-400 text-sm">{E.wwLoading}</p>
+        <p className="text-slate-400 text-sm">{t('wwLoading')}</p>
       </main>
     )
   }
@@ -297,7 +297,7 @@ export default function WikiWars() {
       <div className="flex-shrink-0 bg-slate-950 border-t border-slate-800 px-3 py-2.5">
         {phase === 'vote' && (
           <p className="text-center text-slate-500 text-xs py-1">
-            {E.finger} {E.wwInstruction}
+            {E.finger} {t('wwInstruction')}
           </p>
         )}
         {phase === 'reveal' && cards && (

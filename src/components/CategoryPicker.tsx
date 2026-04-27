@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { DRAMA_CATEGORIES, DRAMA_POOL } from '../data/drama-articles'
 import { E } from '../utils/emojis'
 
@@ -17,6 +18,18 @@ const CATEGORY_ICONS: Record<string, string> = {
   Tech:             E.catTech,
   'YouTubeurs FR':  E.catYtFR,
   'YouTubeurs US':  E.catYtUS,
+}
+
+const CATEGORY_I18N_KEY: Record<string, string> = {
+  Politique:       'cat_Politique',
+  Sport:           'cat_Sport',
+  'Pop Culture':   'cat_PopCulture',
+  Science:         'cat_Science',
+  Histoire:        'cat_Histoire',
+  Religion:        'cat_Religion',
+  Tech:            'cat_Tech',
+  'YouTubeurs FR': 'cat_YtFR',
+  'YouTubeurs US': 'cat_YtUS',
 }
 
 const CATEGORY_HERO: Record<string, string> = {
@@ -49,6 +62,7 @@ async function fetchThumbnail(title: string, lang = 'en'): Promise<string | null
 }
 
 export default function CategoryPicker({ selected, onChange }: Props) {
+  const { t } = useTranslation()
   const [thumbnails, setThumbnails] = useState<ThumbnailMap>({})
 
   useEffect(() => {
@@ -68,6 +82,7 @@ export default function CategoryPicker({ selected, onChange }: Props) {
         const isSelected   = selected === cat
         const thumb        = thumbnails[cat]
         const articleCount = DRAMA_POOL[cat]?.length ?? 0
+        const label        = CATEGORY_I18N_KEY[cat] ? t(CATEGORY_I18N_KEY[cat]) : cat
 
         return (
           <button
@@ -92,8 +107,8 @@ export default function CategoryPicker({ selected, onChange }: Props) {
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{CATEGORY_ICONS[cat] || E.catDefault}</span>
                 <div>
-                  <p className="text-white font-bold text-base leading-tight">{cat}</p>
-                  <p className="text-white/50 text-xs">{articleCount} {E.labelArticles}</p>
+                  <p className="text-white font-bold text-base leading-tight">{label}</p>
+                  <p className="text-white/50 text-xs">{articleCount} {t('labelArticles')}</p>
                 </div>
               </div>
               {isSelected && (

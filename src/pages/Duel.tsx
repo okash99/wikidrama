@@ -90,7 +90,6 @@ export default function Duel() {
     return 'text-red-400'
   }
 
-  // Phase : choix de categorie
   if (phase === 'pick-category') {
     return (
       <main className="flex flex-col flex-1 px-4 py-6 gap-5">
@@ -98,7 +97,7 @@ export default function Duel() {
           <button onClick={() => navigate('/')} className="text-slate-500 text-sm">
             {E.arrowLeft} {t('backHome')}
           </button>
-          <h1 className="font-bold text-base">{E.thematic} {E.duelThematic}</h1>
+          <h1 className="font-bold text-base">{E.thematic} {t('duelThematic')}</h1>
           <div className="w-16" />
         </div>
         <CategoryPicker selected={category} onChange={setCategory} />
@@ -106,23 +105,21 @@ export default function Duel() {
           onClick={() => loadDuel(category)}
           className="w-full py-4 rounded-2xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-lg mt-auto"
         >
-          {E.swords} {E.duelLaunch}
+          {E.swords} {t('duelLaunch')}
         </button>
       </main>
     )
   }
 
-  // Phase : loading
   if (phase === 'loading') {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-4">
         <div className="text-4xl animate-pulse">{E.swords}</div>
-        <p className="text-slate-400 text-sm">{E.duelLoading}</p>
+        <p className="text-slate-400 text-sm">{t('duelLoading')}</p>
       </main>
     )
   }
 
-  // Phase : erreur
   if (error) {
     const isOfflineError = error === 'offline'
     return (
@@ -149,7 +146,6 @@ export default function Duel() {
     )
   }
 
-  // Phase : vote + reveal
   return (
     <main className="flex flex-col h-screen overflow-hidden bg-slate-950">
       {articles && (
@@ -194,7 +190,7 @@ export default function Duel() {
       <div className="flex-shrink-0 bg-slate-950 border-t border-slate-800 px-3 py-2.5">
         {phase === 'vote' && (
           <p className="text-center text-slate-500 text-xs py-1">
-            {E.finger} {E.duelTapArticle}
+            {E.finger} {t('duelTapArticle')}
           </p>
         )}
         {phase === 'reveal' && articles && (
