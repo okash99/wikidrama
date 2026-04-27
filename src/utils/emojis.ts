@@ -86,7 +86,7 @@ export const E = {
 
   // --- Home ---
   homeTagline:         'Deux articles Wikipedia. Un seul peut \u00EAtre le plus controvers\u00E9.',
-  dramaScoreCaption:   'Score calcul\u00E9 sur 6 m\u00E9triques Wikipedia\u00A0: edits, r\u00E9versions, \u00E9diteurs uniques, taux anon, watchers, taux mineur.',
+  dramaScoreCaption:   'DramaScore calcul\u00E9 sur 6 m\u00E9triques Wikipedia',
   footerCaption:       'Propuls\u00E9 par l\u2019API Wikipedia\u00A0\u00B7 Aucun compte requis',
 
   // --- Share ---
