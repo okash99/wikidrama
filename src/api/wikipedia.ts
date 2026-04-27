@@ -1,12 +1,9 @@
-import { DRAMA_POOL_FLAT, DRAMA_POOL, DRAMA_CATEGORIES, LEGENDARY_POOL, ENORMOUS_POOL } from '../data/drama-articles'
+import { DRAMA_POOL_FLAT, DRAMA_POOL, DRAMA_CATEGORIES, LEGENDARY_POOL, ENORMOUS_POOL, CATEGORY_LANG } from '../data/drama-articles'
 import { computeDramaScore } from '../utils/dramaScore'
 
-const BASE_URL = 'https://en.wikipedia.org/api/rest_v1'
-const ACTION_URL = 'https://en.wikipedia.org/w/api.php'
-const XTOOLS_URL = 'https://xtools.wmcloud.org/api/page/articleinfo/en.wikipedia.org'
 const CACHE_TTL = 1000 * 60 * 30
 const DRAMA_SCORE_THRESHOLD = 15
-const CACHE_VERSION = 'v11'
+const CACHE_VERSION = 'v12'
 
 const FETCH_TIMEOUT_MS = 8000
 const XTOOLS_TIMEOUT_MS = 6000
@@ -42,7 +39,22 @@ export interface ArticleData {
 
 export { DRAMA_CATEGORIES as CATEGORIES }
 
-// ─── Cache ─────────────────────────────────────────────────────────────────────────────────────
+// ─── Lang helpers ─────────────────────────────────────────────────────────────
+
+function getLang(category?: string): 'en' | 'fr' {
+  if (!category) return 'en'
+  return CATEGORY_LANG[category] ?? 'en'
+}
+
+function getUrls(lang: 'en' | 'fr') {
+  return {
+    base:   `https://${lang}.wikipedia.org/api/rest_v1`,
+    action: `https://${lang}.wikipedia.org/w/api.php`,
+    xtools: `https://xtools.wmcloud.org/api/page/articleinfo/${lang}.wikipedia.org`,
+  }
+}
+
+// ─── Cache ────────────────────────────────────────────────────────────────────
 
 function cacheGet<T>(key: string): T | null {
   try {
@@ -56,27 +68,27 @@ function cacheGet<T>(key: string): T | null {
 
 function cacheSet(key: string, data: unknown): void {
   try { localStorage.setItem(key, JSON.stringify({ data, ts: Date.now() })) }
-  catch { /* silent — storage full */ }
+  catch { /* silent */ }
 }
 
-// ─── Fetch helper with timeout ────────────────────────────────────────────────────────────────────
+// ─── Fetch helper ─────────────────────────────────────────────────────────────
 
 async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    const res = await fetch(url, { signal: controller.signal })
-    return res
+    return await fetch(url, { signal: controller.signal })
   } finally {
     clearTimeout(timer)
   }
 }
 
-// ─── Wikipedia summary ─────────────────────────────────────────────────────────────────────────────
+// ─── Wikipedia summary ────────────────────────────────────────────────────────
 
-async function fetchSummary(title: string): Promise<WikiArticle> {
+async function fetchSummary(title: string, lang: 'en' | 'fr' = 'en'): Promise<WikiArticle> {
+  const { base } = getUrls(lang)
   const res = await fetchWithTimeout(
-    `${BASE_URL}/page/summary/${encodeURIComponent(title)}`,
+    `${base}/page/summary/${encodeURIComponent(title)}`,
     FETCH_TIMEOUT_MS
   )
   if (!res.ok) throw new Error(`Summary failed: ${title}`)
@@ -91,7 +103,8 @@ async function fetchSummary(title: string): Promise<WikiArticle> {
 }
 
 async function fetchRandomSummary(): Promise<WikiArticle> {
-  const res = await fetchWithTimeout(`${BASE_URL}/page/random/summary`, FETCH_TIMEOUT_MS)
+  const { base } = getUrls('en')
+  const res = await fetchWithTimeout(`${base}/page/random/summary`, FETCH_TIMEOUT_MS)
   if (!res.ok) throw new Error('Random failed')
   const data = await res.json()
   return {
@@ -103,7 +116,7 @@ async function fetchRandomSummary(): Promise<WikiArticle> {
   }
 }
 
-// ─── XTools with retry ──────────────────────────────────────────────────────────────────────────
+// ─── XTools ───────────────────────────────────────────────────────────────────
 
 interface XToolsData {
   revisions: number
@@ -113,11 +126,12 @@ interface XToolsData {
   watchers: number
 }
 
-async function fetchXToolsData(title: string): Promise<XToolsData | null> {
+async function fetchXToolsData(title: string, lang: 'en' | 'fr' = 'en'): Promise<XToolsData | null> {
+  const { xtools } = getUrls(lang)
   for (let attempt = 0; attempt < XTOOLS_MAX_RETRIES; attempt++) {
     try {
       const res = await fetchWithTimeout(
-        `${XTOOLS_URL}/${encodeURIComponent(title)}`,
+        `${xtools}/${encodeURIComponent(title)}`,
         XTOOLS_TIMEOUT_MS
       )
       if (!res.ok) {
@@ -145,48 +159,49 @@ async function fetchXToolsData(title: string): Promise<XToolsData | null> {
   return null
 }
 
-// ─── Protection check ─────────────────────────────────────────────────────────────────────────────
+// ─── Protection check ─────────────────────────────────────────────────────────
 
-async function fetchProtected(title: string): Promise<boolean> {
+async function fetchProtected(title: string, lang: 'en' | 'fr' = 'en'): Promise<boolean> {
+  const { action } = getUrls(lang)
   const params = new URLSearchParams({
     action: 'query', prop: 'info', inprop: 'protection',
     titles: title, format: 'json', origin: '*',
   })
   try {
-    const res = await fetchWithTimeout(`${ACTION_URL}?${params}`, FETCH_TIMEOUT_MS)
+    const res = await fetchWithTimeout(`${action}?${params}`, FETCH_TIMEOUT_MS)
     const data = await res.json()
     const pages = data.query?.pages || {}
-    const page = Object.values(pages)[0] as any
-    return (page?.protection || []).some((p: any) => p.type === 'edit')
+    const page = Object.values(pages)[0] as { protection?: { type: string }[] }
+    return (page?.protection || []).some((p) => p.type === 'edit')
   } catch { return false }
 }
 
-// ─── Article stats ────────────────────────────────────────────────────────────────────────────────────
+// ─── Article stats ────────────────────────────────────────────────────────────
 
-export async function fetchArticleStats(title: string): Promise<ArticleStats> {
-  const cacheKey = `wiki_stats_${CACHE_VERSION}_${title}`
+export async function fetchArticleStats(title: string, lang: 'en' | 'fr' = 'en'): Promise<ArticleStats> {
+  const cacheKey = `wiki_stats_${CACHE_VERSION}_${lang}_${title}`
   const cached = cacheGet<ArticleStats>(cacheKey)
   if (cached) return cached
 
-  const wikiUrl = `${ACTION_URL}?${new URLSearchParams({
+  const { action } = getUrls(lang)
+  const wikiUrl = `${action}?${new URLSearchParams({
     action: 'query', prop: 'revisions', titles: title,
     rvprop: 'timestamp|comment|user', rvlimit: '500',
     format: 'json', origin: '*',
   })}`
 
-  // Fetch XTools, revisions et protection en parallèle
   const [xtools, wikiData, isProtectedResult] = await Promise.all([
-    fetchXToolsData(title),
+    fetchXToolsData(title, lang),
     fetchWithTimeout(wikiUrl, FETCH_TIMEOUT_MS).then(r => {
       if (!r.ok) throw new Error('Wiki revisions failed')
       return r.json()
     }),
-    fetchProtected(title),
+    fetchProtected(title, lang),
   ])
 
   const pages = wikiData.query?.pages || {}
-  const page = Object.values(pages)[0] as any
-  const revisions: any[] = page?.revisions || []
+  const page = Object.values(pages)[0] as { revisions?: { timestamp: string; comment?: string; user?: string }[] }
+  const revisions = page?.revisions || []
 
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
@@ -194,19 +209,17 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   const recentEdits   = revisions.filter(r => new Date(r.timestamp) > thirtyDaysAgo).length
   const reverts       = revisions.filter(r => {
     const c = (r.comment || '').toLowerCase()
-    return c.includes('revert') || c.includes('undo') || c.includes('undid')
+    return c.includes('revert') || c.includes('annul') || c.includes('undo') || c.includes('undid')
   }).length
   const reversionRate = revisions.length > 0
     ? Math.round((reverts / revisions.length) * 100) : 0
 
   const editCount     = xtools?.revisions   ?? revisions.length
-  const uniqueEditors = xtools?.editors     ?? new Set(revisions.map((r: any) => r.user)).size
+  const uniqueEditors = xtools?.editors     ?? new Set(revisions.map(r => r.user)).size
   const anonRate      = xtools && xtools.revisions > 0
-    ? Math.round((xtools.anon_edits / xtools.revisions) * 100) / 100
-    : 0
+    ? Math.round((xtools.anon_edits / xtools.revisions) * 100) / 100 : 0
   const minorRate     = xtools && xtools.revisions > 0
-    ? Math.round((xtools.minor_edits / xtools.revisions) * 100) / 100
-    : 0
+    ? Math.round((xtools.minor_edits / xtools.revisions) * 100) / 100 : 0
   const watchers      = xtools?.watchers ?? 0
 
   const stats: ArticleStats = {
@@ -218,7 +231,7 @@ export async function fetchArticleStats(title: string): Promise<ArticleStats> {
   return stats
 }
 
-// ─── Source picker ─────────────────────────────────────────────────────────────────────────────
+// ─── Source picker ────────────────────────────────────────────────────────────
 
 function pickSource(): 'legendary' | 'enormous' | 'whitelist' | 'random' {
   const r = Math.random()
@@ -228,15 +241,15 @@ function pickSource(): 'legendary' | 'enormous' | 'whitelist' | 'random' {
   return 'random'
 }
 
-// ─── Validated article fetch ──────────────────────────────────────────────────────────────────────
+// ─── Validated article fetch ──────────────────────────────────────────────────
 
-async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
+async function fetchValidatedArticle(title?: string, lang: 'en' | 'fr' = 'en'): Promise<ArticleData> {
   const MAX_ATTEMPTS = 3
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     try {
       let article: WikiArticle
       if (title) {
-        article = await fetchSummary(title)
+        article = await fetchSummary(title, lang)
       } else {
         const source = pickSource()
         if (source === 'legendary') {
@@ -249,10 +262,10 @@ async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
           article = await fetchRandomSummary()
         }
       }
-      const stats = await fetchArticleStats(article.title)
+      const stats = await fetchArticleStats(article.title, lang)
       if (computeDramaScore(stats) < DRAMA_SCORE_THRESHOLD) {
         if (title) {
-          console.warn(`[WikiDrama] Article "${title}" score below threshold, returning anyway`)
+          console.warn(`[WikiDrama] "${title}" score below threshold, returning anyway`)
           return { article, stats }
         }
         continue
@@ -265,7 +278,7 @@ async function fetchValidatedArticle(title?: string): Promise<ArticleData> {
   throw new Error('No valid article found')
 }
 
-// ─── Public API ─────────────────────────────────────────────────────────────────────────────────────
+// ─── Public API ───────────────────────────────────────────────────────────────
 
 export async function fetchArticleData(): Promise<ArticleData> {
   return fetchValidatedArticle()
@@ -274,7 +287,7 @@ export async function fetchArticleData(): Promise<ArticleData> {
 export async function fetchArticleFromCategory(category: string): Promise<ArticleData> {
   const pool = DRAMA_POOL[category]
   if (!pool || pool.length === 0) return fetchValidatedArticle()
-  // Tire directement un article aléatoire du pool thématique
+  const lang = getLang(category)
   const title = pool[Math.floor(Math.random() * pool.length)]
-  return fetchValidatedArticle(title)
+  return fetchValidatedArticle(title, lang)
 }

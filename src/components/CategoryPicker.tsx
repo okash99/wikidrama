@@ -8,31 +8,39 @@ interface Props {
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
-  Politique:     E.catPolitique,
-  Sport:         E.catSport,
-  'Pop Culture': E.catPopCulture,
-  Science:       E.catScience,
-  Histoire:      E.catHistoire,
-  Religion:      E.catReligion,
-  Tech:          E.catTech,
+  Politique:        E.catPolitique,
+  Sport:            E.catSport,
+  'Pop Culture':    E.catPopCulture,
+  Science:          E.catScience,
+  Histoire:         E.catHistoire,
+  Religion:         E.catReligion,
+  Tech:             E.catTech,
+  'YouTubeurs FR':  E.catYtFR,
+  'YouTubeurs US':  E.catYtUS,
 }
 
 const CATEGORY_HERO: Record<string, string> = {
-  Politique:     'Donald Trump',
-  Sport:         'Lance Armstrong',
-  'Pop Culture': 'Michael Jackson',
-  Science:       'Climate change',
-  Histoire:      'Holocaust',
-  Religion:      'Crusades',
-  Tech:          'Elon Musk',
+  Politique:        'Donald Trump',
+  Sport:            'Lance Armstrong',
+  'Pop Culture':    'Michael Jackson',
+  Science:          'Climate change',
+  Histoire:         'Holocaust',
+  Religion:         'Crusades',
+  Tech:             'Elon Musk',
+  'YouTubeurs FR':  'Norman Thavaud',
+  'YouTubeurs US':  'Logan Paul',
+}
+
+const CATEGORY_HERO_LANG: Record<string, string> = {
+  'YouTubeurs FR': 'fr',
 }
 
 type ThumbnailMap = Record<string, string | null>
 
-async function fetchThumbnail(title: string): Promise<string | null> {
+async function fetchThumbnail(title: string, lang = 'en'): Promise<string | null> {
   try {
     const res = await fetch(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
+      `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
     )
     if (!res.ok) return null
     const data = await res.json()
@@ -47,7 +55,8 @@ export default function CategoryPicker({ selected, onChange }: Props) {
     Promise.all(
       DRAMA_CATEGORIES.map(async (cat) => {
         const hero = CATEGORY_HERO[cat]
-        const url = hero ? await fetchThumbnail(hero) : null
+        const lang = CATEGORY_HERO_LANG[cat] ?? 'en'
+        const url = hero ? await fetchThumbnail(hero, lang) : null
         return [cat, url] as [string, string | null]
       })
     ).then((entries) => setThumbnails(Object.fromEntries(entries)))

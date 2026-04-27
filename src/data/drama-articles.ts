@@ -34,6 +34,11 @@ export const ENORMOUS_POOL: string[] = [
   'Assassination of John F. Kennedy',
 ]
 
+// Langue Wikipedia par catégorie (defaut = 'en')
+export const CATEGORY_LANG: Record<string, 'en' | 'fr'> = {
+  'YouTubeurs FR': 'fr',
+}
+
 export const DRAMA_POOL: Record<string, string[]> = {
   Politique: [
     'Donald Trump', 'Vladimir Putin', 'Adolf Hitler', 'Joseph Stalin',
@@ -54,7 +59,6 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Julian Assange', 'Edward Snowden', 'WikiLeaks',
     'QAnon', 'Deep state', 'Pizzagate conspiracy theory',
     'Great Replacement', 'White nationalism', 'Antifa',
-    // Nouveaux — internationaux
     'Boris Johnson', 'Jair Bolsonaro', 'Marine Le Pen', 'Viktor Orbán',
     'Nicolás Maduro', 'Recep Tayyip Erdoğan', 'Benjamin Netanyahu',
     'Tony Blair', 'Dick Cheney', 'Henry Kissinger',
@@ -63,7 +67,6 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'January 6 United States Capitol attack',
     'Augusto Pinochet', 'Robert Mugabe', 'Bashar al-Assad',
     'Kim Jong-un', 'Alexander Lukashenko',
-    // Nouveaux — 🇫🇷 France
     'Jean-Marie Le Pen', 'Jean-Luc Mélenchon', 'Nicolas Sarkozy',
     'François Hollande', 'Éric Zemmour',
     'Manuel Valls', 'Ségolène Royal',
@@ -86,7 +89,6 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'LeBron James', 'Kobe Bryant', 'Michael Jordan',
     'Formula One', 'Hand of God goal', 'Zidane headbutt incident',
     'NFL protests', 'Colin Kaepernick', 'Racism in football',
-    // Nouveaux — internationaux
     'Maria Sharapova', 'Alberto Contador', 'Sepp Blatter',
     'Luis Rubiales', 'Pelé', 'Richie Incognito',
     'Doping in athletics', 'Match fixing in cricket',
@@ -95,7 +97,6 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Nick Kyrgios', 'Naomi Osaka',
     'Racism in cricket', 'Hooliganism', 'Football hooliganism',
     'Greg Norman', 'LIV Golf', 'Saudi Arabia sportswashing',
-    // Nouveaux — 🇫🇷 France
     'Karim Benzema', 'Nicolas Anelka', 'Éric Cantona',
     'Knysna incident', 'French football team racism affair',
     'Tony Parker', 'Yannick Noah',
@@ -119,7 +120,6 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Netflix', 'TikTok', 'Facebook',
     'Mark Zuckerberg', 'Elon Musk', 'Jeff Bezos', 'Steve Jobs',
     'Bitcoin', 'GameStop short squeeze', 'NFT',
-    // Nouveaux — internationaux
     'Ezra Miller', 'James Charles', 'Logan Paul', 'Jake Paul',
     'Trisha Paytas', 'Shane Dawson', 'PewDiePie',
     'Pepsi advertisement controversy', 'Armie Hammer',
@@ -127,7 +127,6 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Russell Brand', 'Rolf Harris', 'Gary Glitter',
     'Aziz Ansari', 'Tavis Smiley', 'Jeffrey Epstein',
     'Ghislaine Maxwell', 'Prince Andrew',
-    // Nouveaux — 🇫🇷 France
     'Gérard Depardieu', 'Luc Besson', 'Bertrand Cantat',
     'Dominique Strauss-Kahn',
     'Nabilla Benattia', 'Booba', 'Rohff',
@@ -150,7 +149,6 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Astrology', 'Water fluoridation controversy',
     '5G conspiracy theories', 'Moon landing conspiracy theories',
     'Area 51', 'Roswell UFO incident', 'Cold fusion',
-    // Nouveaux
     'Golden rice', 'CRISPR', 'Neuralink',
     'Geoengineering', 'Low-carbohydrate diet',
     'Organic food', 'Genetically modified organism',
@@ -178,14 +176,12 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Reparations for slavery', 'Confederate monuments',
     'Lost Cause of the Confederacy',
     'Jack the Ripper', 'Assassination of John F. Kennedy',
-    // Nouveaux
     'Cecil Rhodes', 'Winston Churchill', 'Thomas Jefferson',
     'Andrew Jackson', 'Rhodes Must Fall',
     'Haitian Revolution', 'Boer War', 'Scramble for Africa',
     'Decolonization', 'Vichy France',
     'Algerian War', 'Unit 731', 'Comfort women',
     'Operation Paperclip', 'MKUltra',
-    // 🇫🇷 France
     'Philippe Pétain', 'Charles de Gaulle',
     'Collaboration in France during World War II',
   ],
@@ -200,7 +196,6 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Protestant Reformation', 'Religious violence',
     'Charlie Hebdo shooting', 'Satanic panic',
     'God', 'Jesus', 'Muhammad', 'Bible',
-    // Nouveaux
     'Mormonism', 'Opus Dei', 'Prosperity gospel',
     'Faith healing', 'Circumcision and religion',
     'Female genital mutilation', 'Religious conversion',
@@ -210,7 +205,6 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'The Family International', 'NXIVM',
     'Rajneesh movement', 'Fundamentalism',
     'Christian nationalism', 'Islamism',
-    // 🇫🇷 France
     'Laïcité', 'Charlie Hebdo',
   ],
   Tech: [
@@ -225,7 +219,6 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Deepfake', 'Artificial intelligence', 'OpenAI', 'ChatGPT',
     'Palantir Technologies', 'TikTok', 'ByteDance',
     'Huawei', 'NSO Group',
-    // Nouveaux
     'Cambridge Analytica', 'Gig economy',
     'Content moderation', 'Algorithmic bias', 'Clearview AI',
     'Stable Diffusion', 'Sam Altman', 'Self-driving car',
@@ -236,6 +229,96 @@ export const DRAMA_POOL: Record<string, string[]> = {
     'Microsoft antitrust case', 'Google antitrust cases',
     'Uber data breach', 'Yahoo data breaches',
     'WeWork', 'Adam Neumann',
+  ],
+
+  // ─── Nouveaux themes YouTubeurs ───────────────────────────────────────
+
+  // Titres = noms des articles sur FR.wikipedia.org
+  'YouTubeurs FR': [
+    'Norman Thavaud',
+    'Squeezie',
+    'Cypré',
+    'EnjoyPhoenix',
+    'Léna Situations',
+    'McFly et Carlito',
+    'Inoxtag',
+    'Hugo Décrypte',
+    'Jérôme Jarre',
+    'Rémi Gaillard',
+    'Tibo InShape',
+    'Le Rire Jaune',
+    'Natoo',
+    'Domingo (vidéaste web)',
+    'Gotaga',
+    'ZeratoR',
+    'Ponce (vidéaste web)',
+    'Mister V',
+    'Golden Moustache',
+    'Wankil Studio',
+    'Amixem',
+    'Joueur du grenier',
+    'Nota Bene (YouTubeur)',
+    'e-penser',
+    'Dirty Biology',
+    'Antoine Daniel',
+    'Kemar',
+    'Palmashow',
+    'Axolot',
+    'Suricate (web-série)',
+    'Benzaie',
+    'Bob Lennon',
+    'Karim Debbache',
+    'Luc Peron',
+    'Adrien Ménielle',
+    'Julien Sellier',
+    'Lena Squall',
+    'Booba',
+    'Nabilla Benattia',
+    'Dieudonné',
+  ],
+
+  // Titres = noms des articles sur EN.wikipedia.org
+  'YouTubeurs US': [
+    'Logan Paul',
+    'Jake Paul',
+    'James Charles',
+    'Jeffree Star',
+    'Shane Dawson',
+    'Trisha Paytas',
+    'Onision',
+    'David Dobrik',
+    'Keemstar',
+    'DaddyOFive',
+    'PewDiePie',
+    'KSI',
+    'MrBeast',
+    'Tati Westbrook',
+    'iDubbbz',
+    'h3h3Productions',
+    'Jenna Marbles',
+    'Chris Chan',
+    'Sam Pepper',
+    'Vitaly Zdorovetskiy',
+    'RiceGum',
+    'Ninja (streamer)',
+    'Markiplier',
+    'Jacksepticeye',
+    'Lilly Singh',
+    'Philip DeFranco',
+    'Nostalgia Critic',
+    'Ray William Johnson',
+    'Smosh',
+    'Ryan Higa',
+    'Fred (YouTuber)',
+    'Bhad Bhabie',
+    'SSSniperWolf',
+    'Belle Delphine',
+    'Dream (YouTuber)',
+    'Pokimane',
+    'Austin Jones',
+    'Alex Jones',
+    'Steven Crowder',
+    'Corpse Husband',
   ],
 }
 

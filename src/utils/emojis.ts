@@ -41,6 +41,8 @@ export const E = {
   catHistoire:         '\uD83D\uDCDC',
   catReligion:         '\u26A0\uFE0F',
   catTech:             '\uD83D\uDCF1',
+  catYtFR:             '\uD83C\uDDEB\uD83C\uDDF7',
+  catYtUS:             '\uD83C\uDDFA\uD83C\uDDF8',
   catDefault:          '\uD83D\uDCCC',
 
   // --- WikiWars ---
