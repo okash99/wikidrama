@@ -1,0 +1,23 @@
+export default {
+  translation: {
+    tagline: 'Dos artículos de Wikipedia. Solo uno puede ser el más controvertido.',
+    duelRandom: 'Duelo Aleatorio',
+    duelRandomDesc: 'Dos artículos de Wikipedia al azar. Adivina cuál generó más controversias, reversiones y guerras de edición.',
+    duelThematic: 'Duelo Temático',
+    duelThematicDesc: 'Elige una temática (Política, Deporte, Ciencia...) y enfrenta dos artículos del mismo universo.',
+    wikiWars: 'WikiWars',
+    wikiWarsDesc: 'Olvida el drama. ¿Quién fue más leído? Adivina qué artículo acumuló más visitas en Wikipedia en los últimos 12 meses.',
+    specialMode: 'Modo Especial',
+    dramaScoreCaption: 'DramaScore calculado con 6 métricas de Wikipedia',
+    footerCaption: 'Impulsado por la API de Wikipedia · Sin cuenta requerida',
+    github: 'GitHub',
+    playStore: 'Play Store',
+    settings: 'Ajustes',
+    language: 'Idioma',
+    theme: 'Tema',
+    lightMode: 'Modo claro',
+    comingSoon: 'Próximamente',
+    reportBug: 'Reportar un bug',
+    close: 'Cerrar',
+  },
+}
