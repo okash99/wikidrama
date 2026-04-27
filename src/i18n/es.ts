@@ -1,5 +1,6 @@
 export default {
   translation: {
+    // Home
     tagline: 'Dos artículos de Wikipedia. Solo uno puede ser el más controvertido.',
     duelRandom: 'Duelo Aleatorio',
     duelRandomDesc: 'Dos artículos de Wikipedia al azar. Adivina cuál generó más controversias, reversiones y guerras de edición.',
@@ -12,6 +13,7 @@ export default {
     footerCaption: 'Impulsado por la API de Wikipedia · Sin cuenta requerida',
     github: 'GitHub',
     playStore: 'Play Store',
+    // Settings
     settings: 'Ajustes',
     language: 'Idioma',
     theme: 'Tema',
@@ -19,5 +21,14 @@ export default {
     comingSoon: 'Próximamente',
     reportBug: 'Reportar un bug',
     close: 'Cerrar',
+    // Duel
+    backHome: 'Inicio',
+    replay: 'Jugar de nuevo',
+    // WikiWars
+    share: 'Compartir',
+    shareVia: 'Compartir vía…',
+    copyText: 'Copiar texto',
+    iKnewIt: '¡Lo sabía!',
+    gotMe: 'Me engañaste…',
   },
 }
