@@ -34,7 +34,7 @@ export default function Home() {
   const [hovered, setHovered] = useState<string | null>(null)
 
   return (
-    <main className="flex flex-col items-center justify-between flex-1 px-6 py-12" style={{ background: '#000' }}>
+    <main className="flex flex-col items-center justify-between flex-1 px-6 py-8" style={{ background: '#000' }}>
       <div />
 
       <div className="flex flex-col items-center gap-8 w-full">
@@ -90,7 +90,7 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="w-full fade-in bg-zinc-900 border border-zinc-800 rounded-2xl px-5 py-4 flex flex-col gap-1.5">
+        <div className="w-full fade-in bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-2.5 flex flex-col gap-1">
           <p className="text-xs text-zinc-400 leading-relaxed text-center">
             {E.dramaScoreCaption}
           </p>
