@@ -4,6 +4,8 @@
 
 **WikiDrama** is a mobile-first web app that pits two Wikipedia articles against each other in a duel. Two main modes: the classic **Drama Score** based on edit wars, and the new **WikiWars** mode based on real pageview data.
 
+![WikiDrama Home Screen](public/img/screenshot-home.png)
+
 [![Deploy](https://img.shields.io/badge/Live-wikidrama.pages.dev-red?style=flat-square)](https://wikidrama.pages.dev)
 [![Stack](https://img.shields.io/badge/Stack-React%2018%20%2B%20Vite%20%2B%20Tailwind-blue?style=flat-square)]()
 [![API](https://img.shields.io/badge/API-Wikipedia%20%2B%20Wikimedia-green?style=flat-square)]()
