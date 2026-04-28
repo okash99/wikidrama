@@ -7,6 +7,16 @@ export default {
   theme: {
     extend: {
       colors: {
+        base: 'rgb(var(--c-bg-base) / <alpha-value>)',
+        card: 'rgb(var(--c-bg-card) / <alpha-value>)',
+        panel: 'rgb(var(--c-bg-panel) / <alpha-value>)',
+        btn: 'rgb(var(--c-bg-btn) / <alpha-value>)',
+        'btn-hover': 'rgb(var(--c-bg-btn-hover) / <alpha-value>)',
+        border: 'rgb(var(--c-border) / <alpha-value>)',
+        'border-strong': 'rgb(var(--c-border-strong) / <alpha-value>)',
+        text: 'rgb(var(--c-text) / <alpha-value>)',
+        muted: 'rgb(var(--c-text-muted) / <alpha-value>)',
+        faint: 'rgb(var(--c-text-faint) / <alpha-value>)',
         drama: {
           low: '#22c55e',    // green-500
           mid: '#f59e0b',    // amber-500

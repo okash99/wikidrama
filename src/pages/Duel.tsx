@@ -94,7 +94,7 @@ export default function Duel() {
     return (
       <main className="flex flex-col flex-1 px-4 py-6 gap-5">
         <div className="flex items-center justify-between">
-          <button onClick={() => navigate('/')} className="text-slate-500 text-sm">
+          <button onClick={() => navigate('/')} className="text-muted text-sm">
             {E.arrowLeft} {t('backHome')}
           </button>
           <h1 className="font-bold text-base">{E.thematic} {t('duelThematic')}</h1>
@@ -115,7 +115,7 @@ export default function Duel() {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-4">
         <div className="text-4xl animate-pulse">{E.swords}</div>
-        <p className="text-slate-400 text-sm">{t('duelLoading')}</p>
+        <p className="text-muted text-sm">{t('duelLoading')}</p>
       </main>
     )
   }
@@ -129,7 +129,7 @@ export default function Duel() {
           <p className="text-white font-bold">
             {t(isOfflineError ? 'duelOfflineTitle' : 'duelErrorTitle')}
           </p>
-          <p className="text-slate-400 text-sm">
+          <p className="text-muted text-sm">
             {t(isOfflineError ? 'duelOfflineMsg' : 'duelErrorMsg')}
           </p>
         </div>
@@ -139,7 +139,7 @@ export default function Duel() {
         >
           {E.reload} {t('duelRetry')}
         </button>
-        <button onClick={() => navigate('/')} className="text-slate-500 text-xs underline">
+        <button onClick={() => navigate('/')} className="text-muted text-xs underline">
           {t('duelBackHome')}
         </button>
       </main>
@@ -147,7 +147,7 @@ export default function Duel() {
   }
 
   return (
-    <main className="flex flex-col h-screen overflow-hidden bg-slate-950">
+    <main className="flex flex-col h-screen overflow-hidden bg-base">
       {articles && (
         <div className="flex flex-col flex-1 overflow-hidden relative">
           <button
@@ -169,7 +169,7 @@ export default function Duel() {
           </div>
 
           <div className="relative z-20 flex items-center justify-center h-0 flex-shrink-0">
-            <span className="bg-slate-950 border-2 border-slate-600 text-white font-extrabold text-xs w-8 h-8 rounded-full flex items-center justify-center shadow-lg">
+            <span className="bg-base border border-border-strong text-text font-extrabold text-[10px] w-6 h-6 rounded-full flex items-center justify-center shadow-lg">
               VS
             </span>
           </div>
@@ -187,9 +187,9 @@ export default function Duel() {
         </div>
       )}
 
-      <div className="flex-shrink-0 bg-slate-950 border-t border-slate-800 px-3 py-2.5">
+      <div className="flex-shrink-0 bg-base border-t border-border px-3 py-2.5">
         {phase === 'vote' && (
-          <p className="text-center text-slate-500 text-xs py-1">
+          <p className="text-center text-muted text-xs py-1">
             {E.finger} {t('duelTapArticle')}
           </p>
         )}

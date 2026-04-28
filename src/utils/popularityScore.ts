@@ -11,14 +11,34 @@ export function getPopularityTier(views: number): PopularityTier {
   return 'obscur'
 }
 
-export function getPopularityLabel(views: number): string {
+/** Returns i18n key for the popularity tier label */
+export function getPopularityTierKey(views: number): string {
   const tier = getPopularityTier(views)
-  if (tier === 'viral')     return `${E.pvViral} ${E.labelViral}`
-  if (tier === 'mondial')   return `${E.pvMondial} ${E.labelMondial}`
-  if (tier === 'tendance')  return `${E.pvTendance} ${E.labelTendance}`
-  if (tier === 'populaire') return `${E.pvPopulaire} ${E.labelPopulaire}`
-  if (tier === 'connu')     return `${E.pvConnu} ${E.labelConnu}`
-  return `${E.pvObscur} ${E.labelObscur}`
+  const map: Record<PopularityTier, string> = {
+    viral:     'pvLabelViral',
+    mondial:   'pvLabelMondial',
+    tendance:  'pvLabelTendance',
+    populaire: 'pvLabelPopulaire',
+    connu:     'pvLabelConnu',
+    obscur:    'pvLabelObscur',
+  }
+  return map[tier]
+}
+
+/** Returns emoji for the popularity tier */
+export function getPopularityTierEmoji(views: number): string {
+  const tier = getPopularityTier(views)
+  if (tier === 'viral')     return E.pvViral
+  if (tier === 'mondial')   return E.pvMondial
+  if (tier === 'tendance')  return E.pvTendance
+  if (tier === 'populaire') return E.pvPopulaire
+  if (tier === 'connu')     return E.pvConnu
+  return E.pvObscur
+}
+
+/** @deprecated use getPopularityTierKey + getPopularityTierEmoji with t() instead */
+export function getPopularityLabel(views: number): string {
+  return `${getPopularityTierEmoji(views)} ${getPopularityTierKey(views)}`
 }
 
 export function getPopularityColor(views: number): string {

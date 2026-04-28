@@ -36,6 +36,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     i18n.changeLanguage(lang)
   }, [])
 
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.classList.add('light')
+    } else {
+      document.documentElement.classList.remove('light')
+    }
+  }, [theme])
+
   return (
     <SettingsContext.Provider value={{ lang, setLang, theme, setTheme }}>
       {children}

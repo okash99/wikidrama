@@ -4,12 +4,42 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --c-bg-root: 0 0 0; /* black */
+    --c-bg-base: 2 6 23; /* slate-950 */
+    --c-bg-card: 15 23 42; /* slate-900 */
+    --c-bg-panel: 30 41 59; /* slate-800 */
+    --c-bg-btn: 51 65 85; /* slate-700 */
+    --c-bg-btn-hover: 71 85 105; /* slate-600 */
+    --c-border: 30 41 59; /* slate-800 */
+    --c-border-strong: 51 65 85; /* slate-700 */
+    --c-text: 255 255 255; /* white */
+    --c-text-muted: 148 163 184; /* slate-400 */
+    --c-text-faint: 100 116 139; /* slate-500 */
+  }
+
+  .light {
+    --c-bg-root: 248 250 252; /* slate-50 */
+    --c-bg-base: 241 245 249; /* slate-100 */
+    --c-bg-card: 255 255 255; /* white */
+    --c-bg-panel: 255 255 255; /* white */
+    --c-bg-btn: 241 245 249; /* slate-100 */
+    --c-bg-btn-hover: 226 232 240; /* slate-200 */
+    --c-border: 203 213 225; /* slate-300 */
+    --c-border-strong: 100 116 139; /* slate-500 */
+    --c-text: 15 23 42; /* slate-900 */
+    --c-text-muted: 71 85 105; /* slate-600 */
+    --c-text-faint: 100 116 139; /* slate-500 */
+  }
+}
+
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-html { scroll-behavior: smooth; background: #000; }
+html { scroll-behavior: smooth; background: rgb(var(--c-bg-root)); }
 
 body {
-  background: #000 !important;
-  color: #fff;
+  background: rgb(var(--c-bg-root)) !important;
+  color: rgb(var(--c-text));
   min-height: 100vh;
   font-family: 'Inter', system-ui, sans-serif;
   overscroll-behavior: none;
@@ -18,7 +48,7 @@ body {
 
 #root {
   @apply max-w-md mx-auto min-h-screen flex flex-col;
-  background: #000;
+  background: rgb(var(--c-bg-root));
 }
 
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }

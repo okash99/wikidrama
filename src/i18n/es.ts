@@ -75,6 +75,20 @@ export default {
     shareEditeurs: 'editores',
     shareEdits30: 'edits/30d',
     shareTryIt: 'Prueba tu suerte en WikiDrama',
+    shareViews12m: 'vistas/12 ms',
+    // Stats (DuelCard)
+    statEdits: 'ediciones',
+    statRev: 'rev.',
+    statAnon: 'anón',
+    statWatch: 'seguim.',
+    statMinor: 'menores',
+    // Popularity tiers (WikiWars)
+    pvLabelViral: 'Viral',
+    pvLabelMondial: 'Mundial',
+    pvLabelTendance: 'Tendencia',
+    pvLabelPopulaire: 'Popular',
+    pvLabelConnu: 'Conocido',
+    pvLabelObscur: 'Oscuro',
     // Categories
     labelArticles: 'artículos',
     cat_Politique: 'Política',

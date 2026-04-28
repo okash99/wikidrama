@@ -1,4 +1,4 @@
-# ⚔️ WikiDrama
+# 🌍 WikiDrama
 
 > Two Wikipedia articles. Only one can be the most controversial — or the most read.
 
@@ -10,20 +10,27 @@
 
 ---
 
-## 🎮 Game Modes
-
-### ⚡ Random Duel
-Two Wikipedia articles drawn at random from a pool of 400+ controversial topics. Guess which one sparked the most edit wars.
-
-### 🗂️ Thematic Duel
-Pick a theme from 9 categories (Politics, Sport, Pop Culture, Science, History, Religion, Tech, 🇫🇷 French YouTubers, 🇺🇸 US YouTubers) and face off two articles from the same universe.
-
-### 📊 WikiWars _(Special Mode)_
-Forget the drama — who got **read** the most? Guess which article racked up the most Wikipedia views over the **last 12 months** (Wikimedia Pageviews API).
+## 🎨 New in V3
+- **🌍 Global i18n**: Now supports 🇫🇷 French, 🇺🇸 English, 🇪🇸 Spanish, and 🇩🇪 German.
+- **🌓 Dynamic Themes**: Full Dark/Light mode support with semantic tokens.
+- **✨ Glassmorphism**: High-end translucent UI with real-time blur and RGB-opacity mapping.
 
 ---
 
-## 🔥 Drama Score
+## 🕹️ Game Modes
+
+### 🔥 Random Duel
+Two Wikipedia articles drawn at random from a pool of 400+ controversial topics. Guess which one sparked the most edit wars.
+
+### 📁 Thematic Duel
+Pick a theme from 9 categories (Politics, Sport, Pop Culture, Science, History, Religion, Tech, 🇫🇷 French YouTubers, 🇺🇸 US YouTubers) and face off two articles from the same universe.
+
+### 📊 WikiWars _(Special Mode)_
+Forget the drama — who got **read** the most? Guess which article racked up the most Wikipedia views over the **last 12 months** (Wikimedia Pageview API).
+
+---
+
+## 📈 Drama Score
 
 Score computed from **6 Wikipedia metrics**:
 
@@ -44,23 +51,24 @@ Tiers: **Legendary** > **Enormous Drama** > **Total Chaos** > **Agitated** > **D
 
 ---
 
-## 📊 WikiWars Tiers
+## 🏆 WikiWars Tiers
 
 | Tier | Views / 12 months |
 |---|---|
-| 💎 Viral | > 5M |
-| 🌍 Global | 1M – 5M |
-| 📈 Trending | 500k – 1M |
-| 👀 Popular | 100k – 500k |
+| 👑 Viral | > 5M |
+| 🌎 Global | 1M – 5M |
+| 🚀 Trending | 500k – 1M |
+| 🔥 Popular | 100k – 500k |
 | 📖 Known | 20k – 100k |
 | 🌑 Obscure | < 20k |
 
 ---
 
-## 🚀 Stack
+## 🛠️ Stack
 
 - **React 18** + TypeScript
 - **Vite** (bundler)
+- **i18next** (Internationalization)
 - **Tailwind CSS** (mobile-first)
 - **Wikipedia REST API** — summaries, revisions (EN + FR)
 - **Wikimedia Pageviews API** — monthly views (WikiWars)
@@ -69,7 +77,7 @@ Tiers: **Legendary** > **Enormous Drama** > **Total Chaos** > **Agitated** > **D
 
 ---
 
-## 📦 Run locally
+## 🚀 Run locally
 
 ```bash
 git clone https://github.com/okash99/wikidrama
@@ -80,43 +88,22 @@ npm run dev
 
 ---
 
-## ☁️ Cloudflare Pages Deployment
+## 🔜 Roadmap & Upcoming Fixes
 
-1. [pages.cloudflare.com](https://pages.cloudflare.com) → **Connect to Git**
-2. Select `okash99/wikidrama`
-3. Framework preset: **Vite**
-4. Build command: `npm run build`
-5. Output directory: `dist`
+### 🛠️ High Priority Fixes
+- [ ] **UI Contrast**: Fix "Duel Thématique" font color in dark/light mode for better legibility.
+- [ ] **Badge Overlap**: Fix duplicate rank badges appearing on some cards.
+- [ ] **Protection Badge**: Add distinct border/outline to the "Protected by Wiki" badge.
 
----
-
-## 🖥️ Roadmap
-
-### V1 — Done
-- [x] Vite + React + Tailwind setup
-- [x] Wikipedia API + DuelCard + localStorage cache
-- [x] Drama Score (6 metrics)
-- [x] ShareButton (Wordle-style)
-- [x] Cloudflare Pages deployment
-
-### V2 — Done
-- [x] Thematic Duel (9 categories, 500+ articles)
-- [x] WikiWars — 12-month pageviews mode
-- [x] Hover descriptions on Home buttons
-- [x] WikiWars sharing (WhatsApp, Twitter, copy)
-- [x] GitHub + Play Store footer
-- [x] CategoryPicker ring fix
-- [x] Emoji/accent centralisation in `E.xxx`
-- [x] 🇫🇷 French YouTubers category (fr.wikipedia.org)
-- [x] 🇺🇸 US YouTubers category
-
-### V3 — Wishlist
-- [ ] Native app (React Native / Expo)
-- [ ] Thematic WikiWars mode
-- [ ] Saved scores & leaderboards
-- [ ] User accounts
-- [ ] Live Feed of articles currently in edit wars
+### 🚀 V3 Evolution
+- [x] Full i18n support (FR/EN/ES/DE)
+- [x] Dynamic Theme System (Light/Dark)
+- [x] RGB Opacity & Glassmorphism refactor
+- [ ] **Streak counter** (Paused)
+- [ ] **Thematic WikiWars mode**
+- [ ] User accounts & saved scores
+- [ ] Live Feed of ongoing edit wars
 
 ---
 
-*WikiDrama V2 — Powered by the Wikipedia API. No account required.*
+*WikiDrama V3 — Powered by the Wikipedia API. No account required.*

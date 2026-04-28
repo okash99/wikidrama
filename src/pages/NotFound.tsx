@@ -7,9 +7,9 @@ export default function NotFound() {
     <main className="flex flex-col flex-1 items-center justify-center gap-6 px-6 text-center">
       <span className="text-6xl">🔥</span>
       <div className="flex flex-col gap-1">
-        <p className="text-white font-extrabold text-2xl">404</p>
-        <p className="text-white font-bold text-base">Page introuvable</p>
-        <p className="text-slate-400 text-sm mt-1">
+        <p className="text-text font-extrabold text-2xl">404</p>
+        <p className="text-text font-bold text-base">Page introuvable</p>
+        <p className="text-muted text-sm mt-1">
           Cette page n'existe pas ou le lien est invalide.
         </p>
       </div>

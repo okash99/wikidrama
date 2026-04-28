@@ -85,7 +85,7 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
         )}
 
         {!revealed && (
-          <span className="text-white/50 text-xs border border-white/20 rounded-full px-3 py-1">
+          <span className="text-white/80 font-medium text-xs border-2 border-white/30 bg-black/20 backdrop-blur-sm rounded-full px-3 py-1">
             {E.vote} {t('wwVote')}
           </span>
         )}
@@ -111,12 +111,12 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
               <div className={`h-1.5 rounded-full fill-bar ${colorBar}`} style={{ width: `${score}%` }} />
             </div>
             <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-white/80 text-xs bg-black/40 backdrop-blur-sm rounded-xl px-3 py-2 w-full">
-              <span>{E.edit} {fmt(stats.editCount)} edits</span>
+              <span>{E.edit} {fmt(stats.editCount)} {t('statEdits')}</span>
               <span>{E.editors} {fmt(stats.uniqueEditors)} {t('tierEditors')}</span>
-              <span>{E.revert} {stats.reversionRate}% rev.</span>
-              <span>{E.anon} {Math.round(stats.anonRate * 100)}% anon</span>
-              <span>{E.watch} {fmt(stats.watchers)} watch</span>
-              <span>{E.minor} {Math.round(stats.minorRate * 100)}% minor</span>
+              <span>{E.revert} {stats.reversionRate}% {t('statRev')}</span>
+              <span>{E.anon} {Math.round(stats.anonRate * 100)}% {t('statAnon')}</span>
+              <span>{E.watch} {fmt(stats.watchers)} {t('statWatch')}</span>
+              <span>{E.minor} {Math.round(stats.minorRate * 100)}% {t('statMinor')}</span>
             </div>
           </div>
         )}

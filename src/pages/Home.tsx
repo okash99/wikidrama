@@ -15,7 +15,7 @@ export default function Home() {
       id: 'random',
       label: () => `${E.chaos} ${t('duelRandom')}`,
       desc: () => t('duelRandomDesc'),
-      className: 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20',
+      className: 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20 text-white',
       path: '/duel?mode=random',
       special: false,
     },
@@ -23,7 +23,7 @@ export default function Home() {
       id: 'thematic',
       label: () => `${E.thematic} ${t('duelThematic')}`,
       desc: () => t('duelThematicDesc'),
-      className: 'bg-zinc-900 hover:bg-zinc-800 border border-zinc-700',
+      className: 'bg-card hover:bg-panel border border-border-strong',
       path: '/duel?mode=thematic',
       special: false,
     },
@@ -31,7 +31,7 @@ export default function Home() {
       id: 'wikiwars',
       label: () => `${E.pvIcon} ${t('wikiWars')}`,
       desc: () => t('wikiWarsDesc'),
-      className: 'bg-gradient-to-r from-purple-950 to-zinc-900 hover:from-purple-900 hover:to-zinc-800 border border-purple-800 shadow-lg shadow-purple-500/10',
+      className: 'bg-gradient-to-r from-purple-950 to-purple-900 hover:from-purple-900 hover:to-purple-800 border border-purple-800 shadow-lg shadow-purple-500/10 text-white',
       path: '/wikiwars',
       special: true,
     },
@@ -41,11 +41,11 @@ export default function Home() {
     <>
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
 
-      <main className="relative flex flex-col items-center justify-between flex-1 px-6 py-8" style={{ background: '#000' }}>
+      <main className="relative flex flex-col items-center justify-between flex-1 px-6 py-8">
         {/* Settings button */}
         <button
           onClick={() => setShowSettings(true)}
-          className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors p-1"
+          className="absolute top-4 right-4 text-muted hover:text-text transition-colors p-1"
           aria-label={t('settings')}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
@@ -63,7 +63,7 @@ export default function Home() {
             <h1 className="text-5xl font-extrabold tracking-tight">
               Wiki<span className="text-red-500">Drama</span>
             </h1>
-            <p className="mt-3 text-zinc-400 text-base leading-relaxed max-w-xs mx-auto">
+            <p className="mt-3 text-muted text-base leading-relaxed max-w-xs mx-auto">
               {t('tagline')}
             </p>
           </div>
@@ -108,11 +108,11 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="w-full fade-in bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-2.5 flex flex-col gap-1">
-            <p className="text-xs text-zinc-400 leading-relaxed text-center">
+          <div className="w-full fade-in bg-card/60 backdrop-blur-md border border-border rounded-2xl px-4 py-2.5 flex flex-col gap-1">
+            <p className="text-xs text-muted leading-relaxed text-center">
               {t('dramaScoreCaption')}
             </p>
-            <p className="text-xs text-zinc-600 text-center font-mono">
+            <p className="text-xs text-faint text-center font-mono">
               score = f(edits, rev, editors, anon, watch, minor)
             </p>
           </div>
@@ -124,22 +124,22 @@ export default function Home() {
               href="https://github.com/okash99/wikidrama"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-zinc-500 hover:text-white transition-colors text-xs"
+              className="flex items-center gap-1.5 text-muted hover:text-text transition-colors text-xs"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
               </svg>
               {t('github')}
             </a>
-            <span className="text-zinc-700">·</span>
-            <a href="#" className="flex items-center gap-1.5 text-zinc-500 hover:text-white transition-colors text-xs">
+            <span className="text-faint">·</span>
+            <a href="#" className="flex items-center gap-1.5 text-muted hover:text-text transition-colors text-xs">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3.18 23.76c.3.18.66.18.96 0l12.54-7.24-2.88-2.88-10.62 10.12zm-1.14-20.4C1.8 3.6 1.5 3.9 1.5 4.26v15.48c0 .36.3.66.54.9l.12.12L11.04 12v-.24L2.16 3.24l-.12.12zM20.34 10.5l-2.58-1.5-3.24 3.24 3.24 3.24 2.58-1.5c.72-.42.72-1.14 0-1.5zM4.14.24L16.68 7.48l-2.88 2.88-12.54-7.24c.3-.18.66-.18.96 0z"/>
               </svg>
               {t('playStore')}
             </a>
           </div>
-          <p className="text-zinc-700 text-xs text-center">{t('footerCaption')}</p>
+          <p className="text-faint text-xs text-center">{t('footerCaption')}</p>
         </div>
       </main>
     </>

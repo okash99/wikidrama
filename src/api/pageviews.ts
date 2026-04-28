@@ -1,4 +1,5 @@
 import { DRAMA_POOL_FLAT } from '../data/drama-articles'
+import i18n from '../i18n'
 
 const PAGEVIEWS_URL = 'https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents'
 const SUMMARY_URL   = 'https://en.wikipedia.org/api/rest_v1/page/summary'
@@ -51,7 +52,7 @@ function monthTag(offsetMonths: number): string {
 function monthLabel(offsetMonths: number): string {
   const now = new Date()
   const d   = new Date(now.getFullYear(), now.getMonth() + offsetMonths, 1)
-  return d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+  return d.toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' })
 }
 
 // Fetch pageviews sur 12 mois glissants (somme de tous les items)

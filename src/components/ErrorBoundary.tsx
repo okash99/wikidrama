@@ -32,10 +32,10 @@ export default class ErrorBoundary extends Component<Props, State> {
       <main className="flex flex-col flex-1 items-center justify-center gap-5 px-6 text-center">
         <span className="text-5xl">{this.state.isOffline ? '📡' : '💥'}</span>
         <div className="flex flex-col gap-1">
-          <p className="text-white font-bold text-base">
+          <p className="text-text font-bold text-base">
             {this.state.isOffline ? 'Pas de connexion' : 'Quelque chose a planté'}
           </p>
-          <p className="text-slate-400 text-sm">
+          <p className="text-muted text-sm">
             {this.state.isOffline
               ? 'Vérifie ta connexion puis réessaie.'
               : 'Une erreur inattendue s\'est produite.'}

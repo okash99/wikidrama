@@ -120,14 +120,14 @@ export default function ShareButton({ articles, winner, selected }: Props) {
       onClick={() => setShowModal(false)}
     >
       <div
-        className="w-full max-w-md bg-slate-900 border border-slate-700 rounded-t-3xl p-5 flex flex-col gap-4 slide-up"
+        className="w-full max-w-md bg-panel border border-border-strong rounded-t-3xl p-5 flex flex-col gap-4 slide-up"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="w-10 h-1 bg-slate-600 rounded-full mx-auto" />
-        <p className="text-sm font-semibold text-slate-300 text-center">{t('sharePartager')}</p>
+        <div className="w-10 h-1 bg-border-strong rounded-full mx-auto" />
+        <p className="text-sm font-semibold text-text text-center">{t('sharePartager')}</p>
 
-        <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4 max-h-44 overflow-y-auto scrollbar-none">
-          <pre className="text-xs text-slate-300 whitespace-pre-wrap font-mono leading-relaxed">{shareText}</pre>
+        <div className="bg-card border border-border-strong rounded-2xl p-4 max-h-44 overflow-y-auto scrollbar-none">
+          <pre className="text-xs text-text whitespace-pre-wrap font-mono leading-relaxed">{shareText}</pre>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -148,12 +148,12 @@ export default function ShareButton({ articles, winner, selected }: Props) {
             </button>
           </div>
           <button onClick={copyToClipboard}
-            className="w-full py-3 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
+            className="w-full py-3 rounded-xl bg-btn hover:bg-btn-hover active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
             {copied ? `${E.checkmark} ${t('shareCopied')}` : `${E.clipboard} ${t('copyText')}`}
           </button>
         </div>
 
-        <button onClick={() => setShowModal(false)} className="text-slate-500 text-sm text-center py-1">
+        <button onClick={() => setShowModal(false)} className="text-muted text-sm text-center py-1">
           {t('shareAnnuler')}
         </button>
       </div>
@@ -164,7 +164,7 @@ export default function ShareButton({ articles, winner, selected }: Props) {
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="flex-1 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all font-bold text-sm flex items-center justify-center gap-1.5"
+        className="flex-1 py-2.5 rounded-xl bg-btn hover:bg-btn-hover active:scale-95 transition-all font-bold text-sm flex items-center justify-center gap-1.5"
       >
         {t('share')}
       </button>
