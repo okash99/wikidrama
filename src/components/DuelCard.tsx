@@ -16,7 +16,7 @@ function fmt(n: number): string {
   return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
 }
 
-export default function DuelCard({ data, revealed, selected, winner, onClick }: Props) {
+export default function DuelCard({ data, revealed, winner, onClick }: Props) {
   const { t } = useTranslation()
   const { article, stats } = data
   const score = computeDramaScore(stats)
@@ -66,11 +66,7 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
             enormous  ? 'bg-yellow-400 text-slate-900 enormous-badge-glow' :
             'bg-yellow-400 text-slate-900'
           }`}>
-            {legendary
-              ? `${E.legendary} ${t('tierLegendary')}`
-              : enormous
-              ? `${E.enormous} ${t('tierEnormous')}`
-              : `${E.winner} ${t('tierWinner')}`}
+            {`${E.winner} ${t('tierWinner')}`}
           </div>
         )}
 
@@ -102,7 +98,7 @@ export default function DuelCard({ data, revealed, selected, winner, onClick }: 
             </p>
 
             {stats.protected && (
-              <span className="text-orange-400 text-xs font-semibold flex items-center gap-1">
+              <span className="text-orange-300 text-xs font-semibold flex items-center gap-1 px-3 py-1 rounded-full bg-black/35 backdrop-blur-sm border border-orange-400/35 shadow-[0_0_10px_rgba(251,146,60,0.12)]">
                 {E.protected} {t('tierProtected')}
               </span>
             )}

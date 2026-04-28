@@ -97,7 +97,7 @@ export default function Duel() {
           <button onClick={() => navigate('/')} className="text-muted text-sm">
             {E.arrowLeft} {t('backHome')}
           </button>
-          <h1 className="font-bold text-base">{E.thematic} {t('duelThematic')}</h1>
+          <h1 className="font-bold text-base text-text">{E.thematic} {t('duelThematic')}</h1>
           <div className="w-16" />
         </div>
         <CategoryPicker selected={category} onChange={setCategory} />

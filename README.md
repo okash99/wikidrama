@@ -93,9 +93,9 @@ npm run dev
 ## 🔜 Roadmap & Upcoming Fixes
 
 ### 🛠️ High Priority Fixes
-- [ ] **UI Contrast**: Fix "Duel Thématique" font color in dark/light mode for better legibility.
-- [ ] **Badge Overlap**: Fix duplicate rank badges appearing on some cards.
-- [ ] **Protection Badge**: Add distinct border/outline to the "Protected by Wiki" badge.
+- [x] **UI Contrast**: Fix "Duel Thématique" font color in dark/light mode for better legibility.
+- [x] **Badge Overlap**: Fix duplicate rank badges appearing on some cards.
+- [x] **Protection Badge**: Add distinct border/outline to the "Protected by Wiki" badge.
 
 ### 🚀 V3 Evolution
 - [x] Full i18n support (FR/EN/ES/DE)
