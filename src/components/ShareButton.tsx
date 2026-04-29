@@ -5,6 +5,7 @@ import type { ArticleData } from '../api/wikipedia'
 import { computeDramaScore, getDramaTierKey, getDramaTierEmoji } from '../utils/dramaScore'
 import { E } from '../utils/emojis'
 import type { WinnerState } from '../pages/Duel'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 interface Props {
   articles: [ArticleData, ArticleData]
@@ -23,6 +24,7 @@ export default function ShareButton({ articles, winner, selected }: Props) {
   const { t } = useTranslation()
   const [showModal, setShowModal] = useState(false)
   const [copied, setCopied]       = useState(false)
+  const modalRef = useFocusTrap(showModal, () => setShowModal(false))
 
   useEffect(() => {
     if (showModal) document.body.style.overflow = 'hidden'
@@ -120,11 +122,15 @@ export default function ShareButton({ articles, winner, selected }: Props) {
       onClick={() => setShowModal(false)}
     >
       <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="share-title"
         className="w-full max-w-md bg-panel border border-border-strong rounded-t-3xl p-5 flex flex-col gap-4 slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-10 h-1 bg-border-strong rounded-full mx-auto" />
-        <p className="text-sm font-semibold text-text text-center">{t('sharePartager')}</p>
+        <p id="share-title" className="text-sm font-semibold text-text text-center">{t('sharePartager')}</p>
 
         <div className="bg-card border border-border-strong rounded-2xl p-4 max-h-44 overflow-y-auto scrollbar-none">
           <pre className="text-xs text-text whitespace-pre-wrap font-mono leading-relaxed">{shareText}</pre>

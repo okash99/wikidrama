@@ -6,6 +6,7 @@ import { E } from '../utils/emojis'
 interface Props {
   selected: string
   onChange: (cat: string) => void
+  onPlay?: (cat: string) => void
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -13,7 +14,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   Sport:            E.catSport,
   'Pop Culture':    E.catPopCulture,
   Science:          E.catScience,
-  Histoire:         E.catHistoire,
+  Histoire:        E.catHistoire,
   Religion:         E.catReligion,
   Tech:             E.catTech,
   'YouTubeurs FR':  E.catYtFR,
@@ -61,7 +62,7 @@ async function fetchThumbnail(title: string, lang = 'en'): Promise<string | null
   } catch { return null }
 }
 
-export default function CategoryPicker({ selected, onChange }: Props) {
+export default function CategoryPicker({ selected, onChange, onPlay }: Props) {
   const { t } = useTranslation()
   const [thumbnails, setThumbnails] = useState<ThumbnailMap>({})
 
@@ -87,7 +88,11 @@ export default function CategoryPicker({ selected, onChange }: Props) {
         return (
           <button
             key={cat}
-            onClick={() => onChange(cat)}
+            aria-pressed={isSelected}
+            onClick={() => {
+              onChange(cat)
+              if (onPlay) setTimeout(() => onPlay(cat), 150)
+            }}
             className={`relative w-full h-20 rounded-2xl text-left transition-all active:scale-[0.98] ${
               isSelected
                 ? 'ring-2 ring-red-500 shadow-lg shadow-red-500/20'

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useSettings } from '../context/SettingsContext'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 const LANGUAGES = [
   { code: 'fr', label: 'Fran\u00E7ais', flag: '\uD83C\uDDEB\uD83C\uDDF7' },
@@ -15,6 +16,7 @@ interface SettingsModalProps {
 export default function SettingsModal({ onClose }: SettingsModalProps) {
   const { t } = useTranslation()
   const { lang, setLang, theme, setTheme } = useSettings()
+  const modalRef = useFocusTrap(true, onClose)
 
   return (
     <div
@@ -23,11 +25,15 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
       onClick={onClose}
     >
       <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-title"
         className="relative w-full mx-4 max-w-sm rounded-2xl bg-zinc-900/40 backdrop-blur-2xl border border-zinc-800 flex flex-col gap-4 p-5 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-white font-bold text-base">{'\u2699\uFE0F'} {t('settings')}</h2>
+          <h2 id="settings-title" className="text-white font-bold text-base">{'\u2699\uFE0F'} {t('settings')}</h2>
           <button
             onClick={onClose}
             className="text-zinc-400 hover:text-white transition-colors text-xs font-semibold"
@@ -65,7 +71,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                 theme === 'dark' ? 'bg-zinc-800 text-white shadow-sm font-bold border border-zinc-700' : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              <span>{'\uD83C\uDF19'}</span> Dark
+              <span>{'\uD83C\uDF19'}</span> {t('themeDark')}
             </button>
             <button
               onClick={() => setTheme('light')}
@@ -73,7 +79,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                 theme === 'light' ? 'bg-zinc-800 text-white shadow-sm font-bold border border-zinc-700' : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              <span>{'\u2600\uFE0F'}</span> Light
+              <span>{'\u2600\uFE0F'}</span> {t('themeLight')}
             </button>
           </div>
         </div>

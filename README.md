@@ -101,6 +101,7 @@ npm run dev
 - [x] Full i18n support (FR/EN/ES/DE)
 - [x] Dynamic Theme System (Light/Dark)
 - [x] RGB Opacity & Glassmorphism refactor
+- [x] **UX & Accessibility Audit Phase 3 Fixes**: Mobile viewports, 3D flip cards, ARIA labels, semantic roles, and focus traps.
 - [ ] **Streak counter** (Paused)
 - [ ] **Thematic WikiWars mode**
 - [ ] User accounts & saved scores

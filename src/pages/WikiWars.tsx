@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { fetchSummaryForWikiWars, type PageviewsData } from '../api/pageviews'
 import { getPopularityTierKey, getPopularityTierEmoji, getPopularityColor, getPopularityBarColor, formatViews, viewsToScore, getPopularityTier } from '../utils/popularityScore'
 import { E } from '../utils/emojis'
+import { useFocusTrap } from '../hooks/useFocusTrap'
 
 type Phase = 'loading' | 'vote' | 'reveal'
 
@@ -25,6 +26,7 @@ function ShareModal({
 }) {
   const [copied, setCopied] = useState(false)
   const { t } = useTranslation()
+  const modalRef = useFocusTrap(true, onClose)
   const isTie = winner === 'tie'
   const winnerIdx: 0 | 1  = isTie ? 0 : winner
   const loserIdx:  0 | 1  = winnerIdx === 0 ? 1 : 0
@@ -35,30 +37,38 @@ function ShareModal({
   const scoreW = viewsToScore(winnerCard.views)
   const scoreL = viewsToScore(loserCard.views)
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
   const shareText = [
-    `${E.pvIcon} WikiWars ${isTie ? E.scales : E.swords}`,
+    `${E.pvIcon} ${isTie ? t('wwShareTieHeader') : t('wwShareHeader')}`,
     '',
     isTie
       ? `${E.scales} ${winnerCard.title} = ${loserCard.title}`
       : `${E.winner} ${winnerCard.title}`,
-    `   ${dramaBar(scoreW)} ${formatViews(winnerCard.views)} ${t('shareViews12m')}`,
+    isTie
+      ? `   ${t('wwShareTieBoth').replace('%views%', formatViews(winnerCard.views))}`
+      : `   ${dramaBar(scoreW)} ${formatViews(winnerCard.views)} ${t('shareViews12m')}`,
     ...(!isTie ? [
       '',
-      `${E.disputed} ${loserCard.title}`,
+      `${E.pointRight} ${loserCard.title}`,
       `   ${dramaBar(scoreL)} ${formatViews(loserCard.views)} ${t('shareViews12m')}`,
     ] : []),
     '',
-    guessedRight ? `${E.checkmark} ${t('iKnewIt')}` : `${E.cross} ${t('gotMe')}`,
+    guessedRight ? `${E.checkmark} ${t('wwShareRight')}` : `${E.cross} ${t('wwShareWrong')}`,
     '',
-    `${E.pointRight} wikidrama.pages.dev`,
+    `${E.pointRight} ${t('wwShareTryIt')}`,
+    'https://wikidrama.pages.dev',
   ].join('\n')
 
   const tweetText = [
     `${E.pvIcon} WikiWars`,
     isTie
-      ? `${E.scales} ${t('shareTieHeader')} ${winnerCard.title} vs ${loserCard.title}`
+      ? `${E.scales} ${t('wwShareTieHeader')} ${winnerCard.title} vs ${loserCard.title}`
       : `${E.winner} ${winnerCard.title} (${formatViews(winnerCard.views)}) > ${loserCard.title} (${formatViews(loserCard.views)})`,
-    guessedRight ? `${E.checkmark} ${t('iKnewIt')}` : `${E.cross} ${t('gotMe')}`,
+    guessedRight ? `${E.checkmark} ${t('wwShareRight')}` : `${E.cross} ${t('wwShareWrong')}`,
     'https://wikidrama.pages.dev',
   ].join('\n')
 
@@ -77,9 +87,16 @@ function ShareModal({
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
-      <div className="w-full max-w-md bg-panel border border-border-strong rounded-t-3xl p-5 flex flex-col gap-4 slide-up" onClick={e => e.stopPropagation()}>
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ww-share-title"
+        className="w-full max-w-md bg-panel border border-border-strong rounded-t-3xl p-5 flex flex-col gap-4 slide-up"
+        onClick={e => e.stopPropagation()}
+      >
         <div className="w-10 h-1 bg-border-strong rounded-full mx-auto" />
-        <p className="text-sm font-semibold text-text text-center">{E.pvIcon} {t('sharePartager')}</p>
+        <p id="ww-share-title" className="text-sm font-semibold text-text text-center">{E.pvIcon} {t('wwShareTitle')}</p>
 
         <div className="bg-card border border-border-strong rounded-2xl p-4 max-h-44 overflow-y-auto scrollbar-none">
           <pre className="text-xs text-text whitespace-pre-wrap font-mono leading-relaxed">{shareText}</pre>
@@ -158,9 +175,9 @@ export default function WikiWars() {
   const guessedRight = isTie || selected === winner
 
   function getResultMessage() {
-    if (isTie)        return `${E.handshake} ${t('duelTie')}`
-    if (guessedRight) return `${E.checkmark} ${t('duelRight')}`
-    return `${E.cross} ${t('duelWrong')}`
+    if (isTie)        return `${E.handshake} ${t('wwTie')}`
+    if (guessedRight) return `${E.checkmark} ${t('wwRight')}`
+    return `${E.cross} ${t('wwWrong')}`
   }
   function getResultColor() {
     if (isTie)        return 'text-yellow-400'
@@ -192,12 +209,13 @@ export default function WikiWars() {
   }
 
   return (
-    <main className="flex flex-col h-screen overflow-hidden bg-base">
+    <main className="flex flex-col h-dvh overflow-hidden bg-base">
       {cards && (
         <div className="flex flex-col flex-1 overflow-hidden relative">
           <button
             onClick={() => navigate('/')}
             className="absolute top-3 left-3 z-30 text-white/60 text-sm bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full"
+            aria-label={t('backHome')}
           >
             {E.arrowLeft}
           </button>

@@ -100,13 +100,11 @@ export default function Duel() {
           <h1 className="font-bold text-base text-text">{E.thematic} {t('duelThematic')}</h1>
           <div className="w-16" />
         </div>
-        <CategoryPicker selected={category} onChange={setCategory} />
-        <button
-          onClick={() => loadDuel(category)}
-          className="w-full py-4 rounded-2xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-lg mt-auto"
-        >
-          {E.swords} {t('duelLaunch')}
-        </button>
+        <CategoryPicker
+          selected={category}
+          onChange={setCategory}
+          onPlay={(cat) => loadDuel(cat)}
+        />
       </main>
     )
   }
@@ -147,12 +145,13 @@ export default function Duel() {
   }
 
   return (
-    <main className="flex flex-col h-screen overflow-hidden bg-base">
+    <main className="flex flex-col h-dvh overflow-hidden bg-base">
       {articles && (
         <div className="flex flex-col flex-1 overflow-hidden relative">
           <button
             onClick={() => navigate('/')}
             className="absolute top-3 left-3 z-30 text-white/60 text-sm bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full"
+            aria-label={t('backHome')}
           >
             {E.arrowLeft}
           </button>

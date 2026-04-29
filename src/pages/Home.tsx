@@ -7,7 +7,7 @@ import SettingsModal from '../components/SettingsModal'
 export default function Home() {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const [hovered, setHovered] = useState<string | null>(null)
+  const [flipped, setFlipped] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
 
   const MODES = [
@@ -57,7 +57,7 @@ export default function Home() {
         <div className="flex flex-col items-center gap-8 w-full">
           <div className="text-center fade-in">
             <div className="mb-4 flex justify-center">
-              <h1 className="text-6xl">{'\u{1F30D}'}</h1>
+              <h1 className="text-6xl" aria-hidden="true">{'\u{1F30D}'}</h1>
             </div>
             <h1 className="text-5xl font-extrabold tracking-tight">
               Wiki<span className="text-red-500">Drama</span>
@@ -67,46 +67,82 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="w-full flex flex-col gap-3 fade-in">
+          <div className="w-full flex flex-col gap-4 fade-in">
             {MODES.map((mode) => (
-              <div key={mode.id} className="relative">
+              <div key={mode.id} className="relative [perspective:1000px]">
                 {mode.special && (
                   <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
                     <span className="bg-purple-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full tracking-wide uppercase">
-                      {E.wwStar} {t('specialMode')}
+                      <span aria-hidden="true">{E.wwStar}</span> {t('specialMode')}
                     </span>
                   </div>
                 )}
 
-                <button
-                  onClick={() => navigate(mode.path)}
-                  onMouseEnter={() => setHovered(mode.id)}
-                  onMouseLeave={() => setHovered(null)}
-                  onFocus={() => setHovered(mode.id)}
-                  onBlur={() => setHovered(null)}
-                  onTouchStart={() => setHovered((prev) => (prev === mode.id ? null : mode.id))}
-                  className={`relative w-full py-5 rounded-2xl active:scale-95 transition-all font-bold text-xl overflow-hidden ${mode.className}`}
+                <div 
+                  className={`w-full grid transition-all duration-500 [transform-style:preserve-3d] ${
+                    flipped === mode.id ? '[transform:rotateY(180deg)]' : ''
+                  }`}
                 >
-                  <span
-                    className={`block transition-all duration-200 ${
-                      hovered === mode.id ? 'opacity-0 -translate-y-1' : 'opacity-100 translate-y-0'
-                    }`}
-                  >
-                    {mode.label()}
-                  </span>
+                  {/* FACE AVANT */}
+                  <div className={`[grid-area:1/1] relative w-full rounded-2xl flex items-center justify-center [backface-visibility:hidden] ${mode.className}`}>
+                    <button
+                      onClick={() => navigate(mode.path)}
+                      className="w-full py-3 sm:py-3.5 font-bold text-lg sm:text-xl active:scale-95 transition-transform rounded-2xl flex items-center justify-center"
+                    >
+                      {mode.label()}
+                    </button>
 
-                  <span
-                    className={`absolute inset-0 flex items-center justify-center px-5 transition-all duration-200 ${
-                      hovered === mode.id
-                        ? 'opacity-100 translate-y-0 bg-black/50 backdrop-blur-sm'
-                        : 'opacity-0 translate-y-2 pointer-events-none'
-                    }`}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setFlipped(mode.id)
+                      }}
+                      className="absolute top-1/2 -translate-y-1/2 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-black/20 text-white/70 hover:bg-black/40 hover:text-white transition-colors"
+                      aria-label={t('info')}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* FACE ARRIÈRE */}
+                  <div 
+                    className={`[grid-area:1/1] relative w-full rounded-2xl [backface-visibility:hidden] [transform:rotateY(180deg)] p-3 flex flex-col items-center justify-center text-center ${mode.className.replace(/hover:[^\s]+/g, '')}`}
+                    style={{ backgroundBlendMode: 'multiply' }}
                   >
-                    <span className="text-white/90 text-xs font-normal leading-relaxed text-center">
-                      {mode.desc()}
-                    </span>
-                  </span>
-                </button>
+                    <div className="absolute inset-0 bg-black/40 rounded-2xl pointer-events-none"></div>
+                    
+                    <div className="relative z-10 flex flex-col items-center justify-center h-full w-full gap-2">
+                      <p className="text-white/95 text-[11px] sm:text-xs font-medium leading-snug">
+                        {mode.desc()}
+                      </p>
+                      
+                      <div className="flex gap-2 w-full justify-center mt-1">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setFlipped(null); }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors text-[11px] sm:text-xs font-semibold"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                          </svg>
+                          Retour
+                        </button>
+                        <button
+                          onClick={() => navigate(mode.path)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-black hover:bg-gray-100 transition-colors text-[11px] sm:text-xs font-bold shadow-lg"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M5 3l14 9-14 9V3z"/>
+                          </svg>
+                          Jouer
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -135,12 +171,12 @@ export default function Home() {
               {t('github')}
             </a>
             <span className="text-faint">{'\u00B7'}</span>
-            <a href="#" className="flex items-center gap-1.5 text-muted hover:text-text transition-colors text-xs">
+            <span className="flex items-center gap-1.5 text-faint text-xs cursor-not-allowed opacity-50" title={t('comingSoon')}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3.18 23.76c.3.18.66.18.96 0l12.54-7.24-2.88-2.88-10.62 10.12zm-1.14-20.4C1.8 3.6 1.5 3.9 1.5 4.26v15.48c0 .36.3.66.54.9l.12.12L11.04 12v-.24L2.16 3.24l-.12.12zM20.34 10.5l-2.58-1.5-3.24 3.24 3.24 3.24 2.58-1.5c.72-.42.72-1.14 0-1.5zM4.14.24L16.68 7.48l-2.88 2.88-12.54-7.24c.3-.18.66-.18.96 0z" />
               </svg>
               {t('playStore')}
-            </a>
+            </span>
           </div>
           <p className="text-faint text-xs text-center">{t('footerCaption')}</p>
         </div>
