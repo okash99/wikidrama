@@ -22,7 +22,7 @@
 ## 🕹️ Game Modes
 
 ### 🔥 Random Duel
-Two Wikipedia articles drawn at random from a pool of 400+ controversial topics. Guess which one sparked the most edit wars.
+Two Wikipedia articles drawn at random from a pool of 500+ controversial topics. Guess which one sparked the most edit wars.
 
 ### 📁 Thematic Duel
 Pick a theme from 9 categories (Politics, Sport, Pop Culture, Science, History, Religion, Tech, 🇫🇷 French YouTubers, 🇺🇸 US YouTubers) and face off two articles from the same universe.
