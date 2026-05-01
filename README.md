@@ -14,11 +14,13 @@
 
 ## Latest Updates
 
+- **Animated WikiDrama logo** — interactive globe with puzzle pieces, multilingual glyphs, and a dramatize animation on click. Respects `prefers-reduced-motion`.
+- **Full SVG icon system** — all emoji icons replaced with crisp inline SVGs across the entire UI: category picker, settings modal (flags, gear, theme toggles, close button), home mode buttons, and duel headers.
+- **Simplified CategoryPicker** — tap-to-play flow replaces the previous select-then-play pattern for faster navigation.
 - **Live drama ticker** on the home screen with current Wikipedia edit/pageview signals.
 - **Settings source notice** clarifying that interface language does not change the data source: Wikipedia EN remains the source except for FR themes.
 - **FR/EN/ES/DE interface translations** with localized labels for settings, categories, share text, WikiWars, and the live ticker.
 - **Dark/light theme support** through semantic Tailwind tokens.
-- **Polished home controls** with improved settings placement and larger info tap targets.
 - **Focus-trapped modals** for Settings and sharing flows.
 
 ---
@@ -120,6 +122,8 @@ npm run build
 - [x] Mobile viewport and accessibility fixes
 - [x] Live home ticker
 - [x] Settings notice for Wikipedia source behavior
+- [x] SVG icon system (emoji-free UI)
+- [x] Animated interactive logo
 - [ ] Streak counter
 - [ ] Thematic WikiWars mode
 - [ ] User accounts and saved scores

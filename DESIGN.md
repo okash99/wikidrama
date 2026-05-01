@@ -66,13 +66,13 @@
 
 ### 1. Home (`/`)
 - Full black background, centered column
-- WikiGlobe SVG animation (80px) at top
+- `WikiDramaLogo` interactive SVG component (86px) at top — globe with puzzle pieces, multilingual glyphs, dramatize animation on click
 - Title: `WikiDrama` (white + red "Drama")
 - Tagline: `text-zinc-400 text-base`
 - **3 mode buttons** stacked vertically with `gap-3`:
-  - **Duel Random** — `bg-red-500`, rounded-2xl, py-5
-  - **Duel Thématique** — `bg-zinc-900 border border-zinc-700`
-  - **WikiWars** — purple gradient, `border-purple-800`, "✨ Special Mode" badge above
+  - **Duel Random** — `bg-red-500`, rounded-2xl, py-5, shuffle SVG icon badge
+  - **Duel Thématique** — `bg-zinc-900 border border-zinc-700`, folder SVG icon badge
+  - **WikiWars** — purple gradient, `border-purple-800`, chart SVG icon badge, "Special Mode" badge above
 - Hover/touch: label fades out, description fades in (backdrop-blur overlay)
 - Bottom: Drama Score formula card (`bg-zinc-900 border border-zinc-800 rounded-2xl`)
 - Footer: GitHub + Play Store links, zinc-500 text
@@ -106,10 +106,9 @@
   - 👁️ watchers | ✂️ minor %
 
 ### 3. CategoryPicker (inside Duel thematic)
-- Full-width list of category cards
-- Each card: Wikipedia category thumbnail + emoji icon + category name
-- Active/selected state: stronger border highlight
-- Categories: Politique 🏗️, Sport ⚽, Pop Culture 🎬, Science 🔬, Histoire 📜, Religion ⚠️, Tech 📱
+- Full-width list of category cards, tap-to-play (no selection state)
+- Each card: Wikipedia category thumbnail + inline SVG icon + category name + article count
+- Per-category SVG icons: temple (Politique), soccer ball (Sport), clapperboard (Pop Culture), flask (Science), book (Histoire), cross (Religion), smartphone (Tech), play button (YouTubers FR/US)
 
 ### 4. WikiWars (`/wikiwars`)
 - Same split-screen layout as Duel
@@ -153,7 +152,7 @@
 5. **Reveal is the payoff** — the reveal animation is the emotional core. Do not reduce it
 6. **Split-screen duel** — top/bottom halves are the core UX pattern. Do not break into cards side-by-side
 7. **Touch targets** — all interactive elements minimum 44px height
-8. **No heavy animations** — shimmer effects only on Legendary/Enormous. Other tiers: static
+8. **No heavy animations** — shimmer effects only on Legendary/Enormous. Logo dramatize animation is the only other heavy animation, and respects `prefers-reduced-motion`
 9. **Typography contrast** — score text must always be clearly readable over the dark card overlay
 
 ---
