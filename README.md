@@ -1,10 +1,13 @@
-# WikiDrama
+# WikiDrama
 
 > Two Wikipedia articles. Only one can be the most controversial, or the most read.
 
 **WikiDrama** is a mobile-first React app that turns Wikipedia edit wars and pageview data into quick duel games. It includes the classic **Drama Score** mode, a themed duel mode, and **WikiWars**, a special mode based on Wikimedia pageviews.
 
-![WikiDrama Home Screen](public/img/screenshot-home.png)
+<p align="center">
+  <img src="public/img/screenshot-home.png" alt="WikiDrama Home Screen" width="350" />
+  <img src="public/img/screenshot-settings.png" alt="WikiDrama Settings Screen" width="350" />
+</p>
 
 [![Deploy](https://img.shields.io/badge/Live-wikidrama.pages.dev-red?style=flat-square)](https://wikidrama.pages.dev)
 [![Stack](https://img.shields.io/badge/Stack-React%2018%20%2B%20Vite%20%2B%20Tailwind-blue?style=flat-square)]()
