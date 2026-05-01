@@ -60,6 +60,9 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
               </button>
             ))}
           </div>
+          <p className="rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2 text-[11px] font-medium leading-snug text-red-200/80">
+            {t('languageSourceNotice')}
+          </p>
         </div>
 
         <div className="flex flex-col gap-2">

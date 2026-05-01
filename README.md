@@ -1,8 +1,8 @@
-# 🌍 WikiDrama
+# WikiDrama
 
-> Two Wikipedia articles. Only one can be the most controversial — or the most read.
+> Two Wikipedia articles. Only one can be the most controversial, or the most read.
 
-**WikiDrama** is a mobile-first web app that pits two Wikipedia articles against each other in a duel. Two main modes: the classic **Drama Score** based on edit wars, and the new **WikiWars** mode based on real pageview data.
+**WikiDrama** is a mobile-first React app that turns Wikipedia edit wars and pageview data into quick duel games. It includes the classic **Drama Score** mode, a themed duel mode, and **WikiWars**, a special mode based on Wikimedia pageviews.
 
 ![WikiDrama Home Screen](public/img/screenshot-home.png)
 
@@ -12,29 +12,36 @@
 
 ---
 
-## 🎨 New in V3
-- **🌍 Global i18n**: Now supports 🇫🇷 French, 🇺🇸 English, 🇪🇸 Spanish, and 🇩🇪 German.
-- **🌓 Dynamic Themes**: Full Dark/Light mode support with semantic tokens.
-- **✨ Glassmorphism**: High-end translucent UI with real-time blur and RGB-opacity mapping.
+## Latest Updates
+
+- **Live drama ticker** on the home screen with current Wikipedia edit/pageview signals.
+- **Settings source notice** clarifying that interface language does not change the data source: Wikipedia EN remains the source except for FR themes.
+- **FR/EN/ES/DE interface translations** with localized labels for settings, categories, share text, WikiWars, and the live ticker.
+- **Dark/light theme support** through semantic Tailwind tokens.
+- **Polished home controls** with improved settings placement and larger info tap targets.
+- **Focus-trapped modals** for Settings and sharing flows.
 
 ---
 
-## 🕹️ Game Modes
+## Game Modes
 
-### 🔥 Random Duel
-Two Wikipedia articles drawn at random from a pool of 500+ controversial topics. Guess which one sparked the most edit wars.
+### Random Duel
 
-### 📁 Thematic Duel
-Pick a theme from 9 categories (Politics, Sport, Pop Culture, Science, History, Religion, Tech, 🇫🇷 French YouTubers, 🇺🇸 US YouTubers) and face off two articles from the same universe.
+Two Wikipedia articles are drawn at random from a pool of 500+ controversial topics. Guess which one generated the most controversy.
 
-### 📊 WikiWars _(Special Mode)_
-Forget the drama — who got **read** the most? Guess which article racked up the most Wikipedia views over the **last 12 months** (Wikimedia Pageview API).
+### Thematic Duel
+
+Pick a category and compare two articles from the same universe. Categories include Politics, Sport, Pop Culture, Science, History, Religion, Tech, French YouTubers, and US YouTubers.
+
+### WikiWars
+
+Forget the drama: guess which article got the most Wikipedia views over the last 12 months using the Wikimedia Pageviews API.
 
 ---
 
-## 📈 Drama Score
+## Drama Score
 
-Score computed from **6 Wikipedia metrics**:
+Drama Score is computed from six public Wikipedia/XTools metrics:
 
 | Metric | Source | Weight |
 |---|---|---|
@@ -45,41 +52,50 @@ Score computed from **6 Wikipedia metrics**:
 | Watcher count | XTools | Medium |
 | Minor edit rate | XTools | Low |
 
-```
+```txt
 score = f(edits, rev, editors, anon, watch, minor)
 ```
 
-Tiers: **Legendary** > **Enormous Drama** > **Total Chaos** > **Agitated** > **Disputed** > **Calm** > **No drama**
+Tiers: **Legendary** > **Enormous Drama** > **Total Chaos** > **Agitated** > **Disputed** > **Calm** > **No drama**.
 
 ---
 
-## 🏆 WikiWars Tiers
+## WikiWars Tiers
 
 | Tier | Views / 12 months |
 |---|---|
-| 👑 Viral | > 5M |
-| 🌎 Global | 1M – 5M |
-| 🚀 Trending | 500k – 1M |
-| 🔥 Popular | 100k – 500k |
-| 📖 Known | 20k – 100k |
-| 🌑 Obscure | < 20k |
+| Viral | > 5M |
+| Worldwide | 1M-5M |
+| Trending | 500k-1M |
+| Popular | 100k-500k |
+| Known | 20k-100k |
+| Obscure | < 20k |
 
 ---
 
-## 🛠️ Stack
+## Data Sources
 
-- **React 18** + TypeScript
-- **Vite** (bundler)
-- **i18next** (Internationalization)
-- **Tailwind CSS** (mobile-first)
-- **Wikipedia REST API** — summaries, revisions (EN + FR)
-- **Wikimedia Pageviews API** — monthly views (WikiWars)
-- **XTools API** — advanced stats (watchers, anon edits…)
-- **Cloudflare Pages** (deployment)
+- **Wikipedia REST API** for article summaries and revision data.
+- **Wikipedia Action API** for revision and protection checks.
+- **XTools API** for aggregate article stats such as total revisions, editors, anonymous edits, minor edits, and watchers.
+- **Wikimedia Pageviews API** for WikiWars 12-month views and the live ticker top-article signal.
+
+The app is frontend-only and uses public APIs with no account or backend required. Most data comes from Wikipedia EN; FR-themed categories can use Wikipedia FR.
 
 ---
 
-## 🚀 Run locally
+## Stack
+
+- React 18 + TypeScript
+- Vite
+- Tailwind CSS
+- i18next / react-i18next
+- React Router
+- Cloudflare Pages
+
+---
+
+## Run Locally
 
 ```bash
 git clone https://github.com/okash99/wikidrama
@@ -88,25 +104,27 @@ npm install
 npm run dev
 ```
 
----
+Build:
 
-## 🔜 Roadmap & Upcoming Fixes
-
-### 🛠️ High Priority Fixes
-- [x] **UI Contrast**: Fix "Duel Thématique" font color in dark/light mode for better legibility.
-- [x] **Badge Overlap**: Fix duplicate rank badges appearing on some cards.
-- [x] **Protection Badge**: Add distinct border/outline to the "Protected by Wiki" badge.
-
-### 🚀 V3 Evolution
-- [x] Full i18n support (FR/EN/ES/DE)
-- [x] Dynamic Theme System (Light/Dark)
-- [x] RGB Opacity & Glassmorphism refactor
-- [x] **UX & Accessibility Audit Phase 3 Fixes**: Mobile viewports, 3D flip cards, ARIA labels, semantic roles, and focus traps.
-- [ ] **Streak counter** (Paused)
-- [ ] **Thematic WikiWars mode**
-- [ ] User accounts & saved scores
-- [ ] Live Feed of ongoing edit wars
+```bash
+npm run build
+```
 
 ---
 
-*WikiDrama V3 — Powered by the Wikipedia API. No account required.*
+## Roadmap
+
+- [x] FR/EN/ES/DE interface localization
+- [x] Dark/light theme system
+- [x] Glassmorphism UI pass with semantic colors
+- [x] Mobile viewport and accessibility fixes
+- [x] Live home ticker
+- [x] Settings notice for Wikipedia source behavior
+- [ ] Streak counter
+- [ ] Thematic WikiWars mode
+- [ ] User accounts and saved scores
+- [ ] Expanded live feed for ongoing edit wars
+
+---
+
+*WikiDrama V3 - Powered by public Wikipedia, Wikimedia, and XTools APIs.*

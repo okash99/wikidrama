@@ -14,6 +14,7 @@ export default {
     playStore: 'Play Store',
     settings: 'Ajustes',
     language: 'Idioma',
+    languageSourceNotice: 'La fuente sigue siendo Wikipedia EN, salvo temas FR.',
     theme: 'Tema',
     themeDark: 'Oscuro',
     themeLight: 'Claro',
@@ -101,5 +102,9 @@ export default {
     cat_Tech: 'Tecnologia',
     cat_YtFR: 'YouTubers FR',
     cat_YtUS: 'YouTubers US',
+    tickerMonthEdits: '{{live}} [LIVE] "{{article}}" {{editCount}} ediciones este mes en Wikipedia',
+    tickerEnLastHour: '{{live}} [LIVE] Wikipedia EN: {{count}} ediciones en la ultima hora',
+    tickerYesterdayEdits: '{{live}} [LIVE] "{{article}}" {{editCount}} ediciones ayer en Wikipedia',
+    tickerTopArticleViews: '{{live}} [LIVE] Articulo top del dia: "{{title}}" con {{views}} vistas',
   },
 }

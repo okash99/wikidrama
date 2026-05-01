@@ -14,6 +14,7 @@ export default {
     playStore: 'Play Store',
     settings: 'Einstellungen',
     language: 'Sprache',
+    languageSourceNotice: 'Quelle bleibt Wikipedia EN, au\u00dfer FR-Themen.',
     theme: 'Design',
     themeDark: 'Dunkel',
     themeLight: 'Hell',
@@ -101,5 +102,9 @@ export default {
     cat_Tech: 'Technologie',
     cat_YtFR: 'Franz. YouTuber',
     cat_YtUS: 'US-YouTuber',
+    tickerMonthEdits: '{{live}} [LIVE] "{{article}}" {{editCount}} Edits diesen Monat auf Wikipedia',
+    tickerEnLastHour: '{{live}} [LIVE] Wikipedia EN: {{count}} Edits in der letzten Stunde',
+    tickerYesterdayEdits: '{{live}} [LIVE] "{{article}}" {{editCount}} Edits gestern auf Wikipedia',
+    tickerTopArticleViews: '{{live}} [LIVE] Top-Artikel heute: "{{title}}" mit {{views}} Aufrufen',
   },
 }
