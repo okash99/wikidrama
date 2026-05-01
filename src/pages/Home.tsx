@@ -4,6 +4,47 @@ import { useTranslation } from 'react-i18next'
 import { E } from '../utils/emojis'
 import SettingsModal from '../components/SettingsModal'
 import DramaTicker from '../components/DramaTicker'
+import WikiDramaLogo from '../components/WikiDramaLogo'
+
+type ModeId = 'random' | 'thematic' | 'wikiwars'
+
+function ModeIcon({ id }: { id: ModeId }) {
+  if (id === 'random') {
+    return (
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/20">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 4h3v3" />
+          <path d="M3 18h3.5c3.5 0 5-3 6.7-6.7C14.6 8.2 16 4 21 4" />
+          <path d="M18 20h3v-3" />
+          <path d="M3 6h3.5c1.8 0 3.1.8 4.2 2.1" />
+          <path d="M14.2 15.9c1.3 2.1 3 4.1 6.8 4.1" />
+        </svg>
+      </span>
+    )
+  }
+
+  if (id === 'thematic') {
+    return (
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/5 text-red-300 ring-1 ring-white/10">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3.5 6.5a2 2 0 0 1 2-2h4.2l2 2H18a2 2 0 0 1 2 2v1H3.5z" />
+          <path d="M3.5 9.5h17l-1.3 8.1a2 2 0 0 1-2 1.7H6.8a2 2 0 0 1-2-1.7z" />
+        </svg>
+      </span>
+    )
+  }
+
+  return (
+    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/10 text-purple-200 ring-1 ring-purple-200/20">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 19V5" />
+        <path d="M4 19h16" />
+        <path d="M7 15.5l3.4-3.4 3 2.4L19 8.5" />
+        <path d="M16 8.5h3v3" />
+      </svg>
+    </span>
+  )
+}
 
 export default function Home() {
   const navigate = useNavigate()
@@ -14,7 +55,7 @@ export default function Home() {
   const MODES = [
     {
       id: 'random',
-      label: () => `${E.chaos} ${t('duelRandom')}`,
+      label: () => t('duelRandom'),
       desc: () => t('duelRandomDesc'),
       className: 'bg-red-500 hover:bg-red-600 shadow-lg shadow-red-500/20 text-white',
       path: '/duel?mode=random',
@@ -22,7 +63,7 @@ export default function Home() {
     },
     {
       id: 'thematic',
-      label: () => `${E.thematic} ${t('duelThematic')}`,
+      label: () => t('duelThematic'),
       desc: () => t('duelThematicDesc'),
       className: 'bg-card hover:bg-panel border border-border-strong text-text',
       path: '/duel?mode=thematic',
@@ -30,7 +71,7 @@ export default function Home() {
     },
     {
       id: 'wikiwars',
-      label: () => `${E.pvIcon} ${t('wikiWars')}`,
+      label: () => t('wikiWars'),
       desc: () => t('wikiWarsDesc'),
       className: 'bg-gradient-to-r from-purple-950 to-purple-900 hover:from-purple-900 hover:to-purple-800 border border-purple-800 shadow-lg shadow-purple-500/10 text-white',
       path: '/wikiwars',
@@ -57,7 +98,7 @@ export default function Home() {
           <DramaTicker />
           <div className="text-center fade-in">
             <div className="mb-4 flex justify-center">
-              <h1 className="text-6xl" aria-hidden="true">{'\u{1F30D}'}</h1>
+              <WikiDramaLogo label={t('animateLogo')} />
             </div>
             <h1 className="text-5xl font-extrabold tracking-tight">
               Wiki<span className="text-red-500">Drama</span>
@@ -87,8 +128,9 @@ export default function Home() {
                   <div className={`[grid-area:1/1] relative w-full rounded-2xl flex items-center justify-center [backface-visibility:hidden] ${mode.className}`}>
                     <button
                       onClick={() => navigate(mode.path)}
-                      className="w-full py-3 sm:py-3.5 font-bold text-lg sm:text-xl active:scale-95 transition-transform rounded-2xl flex items-center justify-center"
+                      className="w-full py-3 sm:py-3.5 font-bold text-lg sm:text-xl active:scale-95 transition-transform rounded-2xl flex items-center justify-center gap-2.5"
                     >
+                      <ModeIcon id={mode.id as ModeId} />
                       {mode.label()}
                     </button>
 

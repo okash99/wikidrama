@@ -11,6 +11,17 @@ import ShareButton from '../components/ShareButton'
 type Phase = 'pick-category' | 'loading' | 'vote' | 'reveal'
 export type WinnerState = 0 | 1 | 'tie'
 
+function FolderIcon() {
+  return (
+    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-white/5 text-red-300 ring-1 ring-white/10">
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3.5 6.5a2 2 0 0 1 2-2h4.2l2 2H18a2 2 0 0 1 2 2v1H3.5z" />
+        <path d="M3.5 9.5h17l-1.3 8.1a2 2 0 0 1-2 1.7H6.8a2 2 0 0 1-2-1.7z" />
+      </svg>
+    </span>
+  )
+}
+
 function isOffline(): boolean {
   return typeof navigator !== 'undefined' && !navigator.onLine
 }
@@ -97,11 +108,13 @@ export default function Duel() {
           <button onClick={() => navigate('/')} className="text-muted text-sm">
             {E.arrowLeft} {t('backHome')}
           </button>
-          <h1 className="font-bold text-base text-text">{E.thematic} {t('duelThematic')}</h1>
+          <h1 className="flex items-center gap-2 font-bold text-base text-text">
+            <FolderIcon />
+            {t('duelThematic')}
+          </h1>
           <div className="w-16" />
         </div>
         <CategoryPicker
-          selected={category}
           onChange={setCategory}
           onPlay={(cat) => loadDuel(cat)}
         />

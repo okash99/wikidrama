@@ -2,15 +2,90 @@ import { useTranslation } from 'react-i18next'
 import { useSettings } from '../context/SettingsContext'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 
+type LanguageCode = 'fr' | 'en' | 'es' | 'de'
+
 const LANGUAGES = [
-  { code: 'fr', label: 'Fran\u00E7ais', flag: '\uD83C\uDDEB\uD83C\uDDF7' },
-  { code: 'en', label: 'English', flag: '\uD83C\uDDFA\uD83C\uDDF8' },
-  { code: 'es', label: 'Espa\u00F1ol', flag: '\uD83C\uDDEA\uD83C\uDDF8' },
-  { code: 'de', label: 'Deutsch', flag: '\uD83C\uDDE9\uD83C\uDDEA' },
+  { code: 'fr', label: 'Fran\u00E7ais' },
+  { code: 'en', label: 'English' },
+  { code: 'es', label: 'Espa\u00F1ol' },
+  { code: 'de', label: 'Deutsch' },
 ]
 
 interface SettingsModalProps {
   onClose: () => void
+}
+
+function FlagIcon({ code }: { code: LanguageCode }) {
+  return (
+    <span className="flex h-3.5 w-5 shrink-0 overflow-hidden rounded-[3px] border border-white/25 shadow-sm">
+      <svg aria-hidden="true" viewBox="0 0 24 16" className="h-full w-full">
+        {code === 'fr' && (
+          <>
+            <rect width="8" height="16" fill="#1d4ed8" />
+            <rect x="8" width="8" height="16" fill="#ffffff" />
+            <rect x="16" width="8" height="16" fill="#ef4444" />
+          </>
+        )}
+        {code === 'en' && (
+          <>
+            <rect width="24" height="16" fill="#1e3a8a" />
+            <path d="M0 0 24 16M24 0 0 16" stroke="#ffffff" strokeWidth="3.2" />
+            <path d="M0 0 24 16M24 0 0 16" stroke="#dc2626" strokeWidth="1.6" />
+            <path d="M12 0v16M0 8h24" stroke="#ffffff" strokeWidth="5" />
+            <path d="M12 0v16M0 8h24" stroke="#dc2626" strokeWidth="2.6" />
+          </>
+        )}
+        {code === 'es' && (
+          <>
+            <rect width="24" height="16" fill="#dc2626" />
+            <rect y="4" width="24" height="8" fill="#facc15" />
+          </>
+        )}
+        {code === 'de' && (
+          <>
+            <rect width="24" height="5.33" fill="#18181b" />
+            <rect y="5.33" width="24" height="5.34" fill="#dc2626" />
+            <rect y="10.67" width="24" height="5.33" fill="#facc15" />
+          </>
+        )}
+      </svg>
+    </span>
+  )
+}
+
+function GearIcon() {
+  return (
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
+      <path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.02 7.02 0 0 0-1.62-.94l-.36-2.54A.484.484 0 0 0 14 2h-4a.484.484 0 0 0-.48.41l-.36 2.54a7.02 7.02 0 0 0-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.64 8.47a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.47.47 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.36 1.04.67 1.62.94l.36 2.54c.05.24.27.41.48.41h4c.22 0 .43-.17.47-.41l.36-2.54a7.02 7.02 0 0 0 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z" />
+    </svg>
+  )
+}
+
+function ThemeIcon({ variant }: { variant: 'dark' | 'light' }) {
+  if (variant === 'dark') {
+    return (
+      <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+        <path d="M18.5 15.5A7.5 7.5 0 0 1 8.5 5.5a8 8 0 1 0 10 10z" />
+      </svg>
+    )
+  }
+
+  return (
+    <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-yellow-300">
+      <circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+    </svg>
+  )
+}
+
+function CloseIcon() {
+  return (
+    <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-red-400/25 bg-red-500/10 text-red-300 transition-colors group-hover:border-red-300/40 group-hover:bg-red-500/15 group-hover:text-red-200">
+      <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round">
+        <path d="M6 6l12 12M18 6 6 18" />
+      </svg>
+    </span>
+  )
 }
 
 export default function SettingsModal({ onClose }: SettingsModalProps) {
@@ -33,12 +108,16 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h2 id="settings-title" className="text-white font-bold text-base">{'\u2699\uFE0F'} {t('settings')}</h2>
+          <h2 id="settings-title" className="flex items-center gap-2 text-white font-bold text-base">
+            <GearIcon />
+            {t('settings')}
+          </h2>
           <button
             onClick={onClose}
-            className="text-zinc-400 hover:text-white transition-colors text-xs font-semibold"
+            className="group flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
+            aria-label={t('close')}
           >
-            {t('close')} {'\u2715'}
+            <CloseIcon />
           </button>
         </div>
 
@@ -48,20 +127,26 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
             {LANGUAGES.map((l) => (
               <button
                 key={l.code}
-                onClick={() => setLang(l.code as 'fr' | 'en' | 'es' | 'de')}
+                onClick={() => setLang(l.code as LanguageCode)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-xl border transition-all text-sm font-medium ${
                   lang === l.code
                     ? 'bg-red-500 border-red-500 text-white font-bold'
                     : 'bg-zinc-800/80 border-zinc-700 text-zinc-300 hover:border-zinc-500 hover:text-white'
                 }`}
               >
-                <span>{l.flag}</span>
+                <FlagIcon code={l.code as LanguageCode} />
                 {l.label}
               </button>
             ))}
           </div>
-          <p className="rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2 text-[11px] font-medium leading-snug text-red-200/80">
-            {t('languageSourceNotice')}
+          <p className="flex items-start gap-2 rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2 text-[11px] font-medium leading-snug text-red-200/80">
+            <span
+              aria-hidden="true"
+              className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border border-red-300/30 text-[9px] font-bold leading-none text-red-100/80"
+            >
+              !
+            </span>
+            <span>{t('languageSourceNotice')}</span>
           </p>
         </div>
 
@@ -74,7 +159,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                 theme === 'dark' ? 'bg-zinc-800 text-white shadow-sm font-bold border border-zinc-700' : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              <span>{'\uD83C\uDF19'}</span> {t('themeDark')}
+              <ThemeIcon variant="dark" /> {t('themeDark')}
             </button>
             <button
               onClick={() => setTheme('light')}
@@ -82,7 +167,7 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
                 theme === 'light' ? 'bg-zinc-800 text-white shadow-sm font-bold border border-zinc-700' : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              <span>{'\u2600\uFE0F'}</span> {t('themeLight')}
+              <ThemeIcon variant="light" /> {t('themeLight')}
             </button>
           </div>
         </div>

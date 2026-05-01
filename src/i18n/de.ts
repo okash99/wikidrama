@@ -7,6 +7,7 @@ export default {
     duelThematicDesc: 'Wahle ein Thema und vergleiche das Drama zweier Artikel.',
     wikiWars: 'WikiWars',
     wikiWarsDesc: 'Vergiss das Drama. Welcher Artikel wurde in 12 Monaten am meisten gelesen?',
+    animateLogo: 'WikiDrama-Logo animieren',
     specialMode: 'Spezialmodus',
     dramaScoreCaption: 'DramaScore aus 6 Wikipedia-Metriken berechnet',
     footerCaption: 'Betrieben von der Wikipedia-API · Kein Konto erforderlich',
