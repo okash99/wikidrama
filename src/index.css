@@ -117,126 +117,37 @@ body {
 .wikidrama-logo__svg {
   position: relative;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 84px;
   height: 84px;
-  overflow: visible;
   animation: logoIdleBreath 4.6s ease-in-out infinite;
 }
 
-.wikidrama-logo__ground-shadow {
-  fill: rgba(0, 0, 0, 0.34);
-  filter: blur(2px);
+/* The actual <svg> element injected via dangerouslySetInnerHTML */
+.wikidrama-logo__svg > svg {
+  width: 84px;
+  height: 84px;
 }
 
-.wikidrama-logo__globe-surface {
-  fill: url(#wikiDramaGlobeShade);
-  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.28));
-}
-
-.wikidrama-logo__globe-highlight {
-  fill: rgba(255, 255, 255, 0.38);
-  mix-blend-mode: screen;
-  opacity: 0.72;
-}
-
-.wikidrama-logo__puzzle-lines {
-  fill: none;
-  stroke: rgba(55, 65, 81, 0.48);
-  stroke-width: 0.9;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.wikidrama-logo__glyph {
-  fill: rgba(24, 24, 27, 0.78);
-  font-family: Georgia, "Times New Roman", "Noto Serif", serif;
-  font-weight: 700;
-  paint-order: stroke;
-  stroke: rgba(255, 255, 255, 0.18);
-  stroke-width: 0.25px;
-}
-
-.wikidrama-logo__missing-pieces {
-  pointer-events: none;
-}
-
-.wikidrama-logo__piece {
-  fill: url(#wikiDramaRedPiece);
-  filter: drop-shadow(0 2px 4px rgba(127, 29, 29, 0.45));
-  opacity: 0;
-  stroke: rgba(255, 255, 255, 0.3);
-  stroke-width: 0.55;
-  transform-box: fill-box;
+.wikidrama-logo__keyhole {
+  fill: #ffffff;
   transform-origin: center;
+  transition: fill 180ms ease, filter 180ms ease, transform 180ms ease;
 }
 
-.wikidrama-logo__piece--one {
-  --piece-x: -18px;
-  --piece-y: -14px;
-  --piece-rotate: -18deg;
-  --piece-delay: 120ms;
+.wikidrama-logo:hover .wikidrama-logo__keyhole {
+  fill: #ef4444;
 }
 
-.wikidrama-logo__piece--two {
-  --piece-x: 2px;
-  --piece-y: -22px;
-  --piece-rotate: 9deg;
-  --piece-delay: 200ms;
-}
-
-.wikidrama-logo__piece--three {
-  --piece-x: 20px;
-  --piece-y: -11px;
-  --piece-rotate: 17deg;
-  --piece-delay: 280ms;
-}
-
-.wikidrama-logo__piece--four {
-  --piece-x: -24px;
-  --piece-y: 4px;
-  --piece-rotate: -12deg;
-  --piece-delay: 360ms;
-}
-
-.wikidrama-logo__rim {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.48);
-  stroke-width: 1.15;
-}
-
-.wikidrama-logo__flash {
-  fill: none;
-  stroke: rgba(251, 191, 36, 0.9);
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 12;
-  stroke-dashoffset: 12;
-  opacity: 0;
-}
-
-.wikidrama-logo.is-dramatizing .wikidrama-logo__svg {
+.wikidrama-logo.is-dramatizing .wikidrama-logo__svg,
+.wikidrama-logo.is-dramatizing .wikidrama-logo__svg > svg {
   animation: logoDramaSettle 1.08s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.wikidrama-logo.is-dramatizing .wikidrama-logo__globe-surface {
-  animation: logoGlobeWarmth 1.08s ease-out;
-}
-
-.wikidrama-logo.is-dramatizing .wikidrama-logo__glyph {
-  animation: logoGlyphRed 1.08s ease-out;
-}
-
-.wikidrama-logo.is-dramatizing .wikidrama-logo__piece {
-  animation: logoPieceSettle 0.72s cubic-bezier(0.16, 1, 0.3, 1) var(--piece-delay) both;
-}
-
-.wikidrama-logo.is-dramatizing .wikidrama-logo__rim {
-  animation: logoRimDrama 1.08s ease-out;
-}
-
-.wikidrama-logo.is-dramatizing .wikidrama-logo__flash {
-  animation: logoSparkBurst 1.08s ease-out;
+.wikidrama-logo.is-dramatizing .wikidrama-logo__keyhole {
+  animation: keyholeDrama 1.08s ease-out forwards;
 }
 
 @keyframes logoIdleBreath {
@@ -271,61 +182,25 @@ body {
   }
 }
 
-@keyframes logoPieceSettle {
-  0% {
-    opacity: 0;
-    transform: translate(var(--piece-x), var(--piece-y)) scale(0.58) rotate(var(--piece-rotate));
-  }
-  42% {
-    opacity: 1;
-    transform: translate(0, 0) scale(1.08) rotate(0deg);
-  }
-  74% {
-    opacity: 0.96;
-    transform: translate(0, 0) scale(1) rotate(0deg);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(0, 0) scale(0.98) rotate(0deg);
-  }
+@keyframes keyholeDrama {
+  0%, 100% { fill: #ffffff; filter: drop-shadow(0 0 0px rgba(239, 68, 68, 0)); transform: scale(1); }
+  10%      { fill: #ef4444; filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.9)); transform: scale(1.2); }
+  50%      { fill: #ef4444; filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6)); transform: scale(1.05); }
+  85%      { fill: #ef4444; filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.9)); transform: scale(1.15); }
 }
 
-@keyframes logoGlyphRed {
-  0%, 48% { fill: rgba(24, 24, 27, 0.78); }
-  63%, 84% {
-    fill: #ef4444;
-    stroke: rgba(127, 29, 29, 0.28);
-  }
-  100% { fill: rgba(24, 24, 27, 0.78); }
-}
-
-@keyframes logoGlobeWarmth {
-  0%, 44% { filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.28)); }
-  68%, 84% { filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.42)); }
-  100% { filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.28)); }
-}
-
-@keyframes logoRimDrama {
-  0%, 48% { stroke: rgba(255, 255, 255, 0.48); }
-  68%, 84% { stroke: rgba(248, 113, 113, 0.95); }
-  100% { stroke: rgba(255, 255, 255, 0.48); }
-}
-
-@keyframes logoSparkBurst {
-  0%, 58% { opacity: 0; stroke-dashoffset: 12; transform: scale(0.9); transform-origin: 48px 48px; }
-  75% { opacity: 1; stroke-dashoffset: 0; transform: scale(1.08); transform-origin: 48px 48px; }
-  100% { opacity: 0; stroke-dashoffset: -8; transform: scale(1.22); transform-origin: 48px 48px; }
+@keyframes pupilDrama {
+  0%, 100% { r: 23; }
+  15%, 80% { r: 18; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .wikidrama-logo,
   .wikidrama-logo__svg,
   .wikidrama-logo__halo,
-  .wikidrama-logo__globe-surface,
-  .wikidrama-logo__glyph,
-  .wikidrama-logo__piece,
-  .wikidrama-logo__rim,
-  .wikidrama-logo__flash {
+  .wikidrama-logo__sclera,
+  .wikidrama-logo__pupil,
+  .wikidrama-logo__keyhole {
     animation: none !important;
     transition: none !important;
   }
@@ -334,12 +209,7 @@ body {
     transform: none;
   }
 
-  .wikidrama-logo.is-dramatizing .wikidrama-logo__piece {
-    opacity: 0.92;
-    transform: none;
-  }
-
-  .wikidrama-logo.is-dramatizing .wikidrama-logo__glyph {
+  .wikidrama-logo.is-dramatizing .wikidrama-logo__keyhole {
     fill: #ef4444;
   }
 }

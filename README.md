@@ -17,7 +17,7 @@
 
 ## Latest Updates
 
-- **Animated WikiDrama logo** — interactive globe with puzzle pieces, multilingual glyphs, and a dramatize animation on click. Respects `prefers-reduced-motion`.
+- **Animated WikiDrama logo** — minimalist "Eye & Keyhole" vector design. The keyhole glows red interactively upon hover or tap during gameplay. Respects `prefers-reduced-motion`.
 - **Full SVG icon system** — all emoji icons replaced with crisp inline SVGs across the entire UI: category picker, settings modal (flags, gear, theme toggles, close button), home mode buttons, and duel headers.
 - **Simplified CategoryPicker** — tap-to-play flow replaces the previous select-then-play pattern for faster navigation.
 - **Live drama ticker** on the home screen with current Wikipedia edit/pageview signals.
