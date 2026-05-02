@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { E } from '../utils/emojis'
 import SettingsModal from '../components/SettingsModal'
 import DramaTicker from '../components/DramaTicker'
 import WikiDramaLogo from '../components/WikiDramaLogo'
@@ -113,8 +112,11 @@ export default function Home() {
               <div key={mode.id} className="relative [perspective:1000px]">
                 {mode.special && (
                   <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
-                    <span className="bg-purple-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full tracking-wide uppercase">
-                      <span aria-hidden="true">{E.wwStar}</span> {t('specialMode')}
+                    <span className="inline-flex items-center gap-1.5 bg-purple-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full tracking-wide uppercase">
+                      <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
+                        <path d="M12 2.75 14.82 8.6l6.43.88-4.67 4.53 1.14 6.39L12 17.36 6.28 20.4l1.14-6.39-4.67-4.53 6.43-.88z" />
+                      </svg>
+                      {t('specialMode')}
                     </span>
                   </div>
                 )}

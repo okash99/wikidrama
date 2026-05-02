@@ -69,6 +69,60 @@ body {
 @keyframes fillBar { from { width: 0%; } }
 .fill-bar { animation: fillBar 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
+.duel-loading-logo {
+  display: inline-flex;
+  width: 76px;
+  height: 76px;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 18px 26px rgba(254, 50, 0, 0.14));
+  animation: duelLoadingPulse 1.7s ease-in-out infinite;
+}
+
+.duel-loading-logo__svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+}
+
+.duel-loading-logo__svg > svg {
+  width: 76px;
+  height: 76px;
+}
+
+.duel-loading-logo .wikidrama-logo__keyhole {
+  transform-origin: center;
+  animation: duelLoadingLock 1.7s ease-in-out infinite;
+}
+
+@keyframes duelLoadingPulse {
+  0%, 100% {
+    opacity: 0.78;
+    transform: scale(0.96);
+    filter: drop-shadow(0 12px 20px rgba(254, 50, 0, 0.08));
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+    filter: drop-shadow(0 18px 30px rgba(254, 50, 0, 0.28));
+  }
+}
+
+@keyframes duelLoadingLock {
+  0%, 100% {
+    fill: #ffffff;
+    filter: drop-shadow(0 0 0 rgba(254, 50, 0, 0));
+    transform: scale(1);
+  }
+  50% {
+    fill: #fe3200;
+    filter: drop-shadow(0 0 12px rgba(254, 50, 0, 0.9));
+    transform: scale(1.12);
+  }
+}
+
 .wikidrama-logo {
   position: relative;
   display: inline-flex;
@@ -253,3 +307,17 @@ body {
   50%     { text-shadow: 0 0 20px rgba(253,224,71,1), 0 0 40px rgba(234,179,8,0.5); }
 }
 .enormous-text-glow { animation: goldTextGlow 1.8s ease-in-out infinite; }
+
+@keyframes suddenDeathPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 24px rgba(239,68,68,0.55);
+  }
+  50% {
+    transform: scale(1.12);
+    box-shadow: 0 0 34px rgba(239,68,68,0.9);
+  }
+}
+.sudden-death-pulse {
+  animation: suddenDeathPulse 0.6s ease-in-out infinite;
+}

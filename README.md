@@ -1,4 +1,3 @@
-
 # WikiDrama
 
 > Two Wikipedia articles. Only one can be the most controversial, or the most read.
@@ -7,6 +6,7 @@
 
 <p align="center">
   <img src="public/img/screenshot-home.png" alt="WikiDrama Home Screen" width="350" />
+  <img src="public/img/screenshot-settings.png" alt="WikiDrama Settings Screen" width="350" />
 </p>
 
 [![Deploy](https://img.shields.io/badge/Live-wikidrama.pages.dev-red?style=flat-square)](https://wikidrama.pages.dev)
@@ -17,6 +17,7 @@
 
 ## Latest Updates
 
+- **Sudden Death Mode in WikiWars** — an optional setting adding a countdown timer to WikiWars duels for a more intense, fast-paced experience. Includes custom pulse animations and a timeout overlay.
 - **Animated WikiDrama logo** — minimalist "Eye & Keyhole" vector design. The keyhole glows red interactively upon hover or tap during gameplay. Respects `prefers-reduced-motion`.
 - **Full SVG icon system** — all emoji icons replaced with crisp inline SVGs across the entire UI: category picker, settings modal (flags, gear, theme toggles, close button), home mode buttons, and duel headers.
 - **Simplified CategoryPicker** — tap-to-play flow replaces the previous select-then-play pattern for faster navigation.

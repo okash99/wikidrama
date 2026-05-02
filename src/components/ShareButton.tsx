@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import type { ArticleData } from '../api/wikipedia'
-import { computeDramaScore, getDramaTierKey, getDramaTierEmoji } from '../utils/dramaScore'
-import { E } from '../utils/emojis'
+import { computeDramaScore, getDramaTierKey } from '../utils/dramaScore'
 import type { WinnerState } from '../pages/Duel'
 import { useFocusTrap } from '../hooks/useFocusTrap'
+import Icon from './Icon'
 
 interface Props {
   articles: [ArticleData, ArticleData]
@@ -45,49 +45,45 @@ export default function ShareButton({ articles, winner, selected }: Props) {
   const loserScore         = winnerIdx === 0 ? scoreB : scoreA
   const guessedRight       = isTie || selected === winner
 
-  const tieHeader = isTie
-    ? `${E.scales} ${t('shareTieHeader')}`
-    : `${E.swords} ${t('shareDuelHeader')}`
-
   const shareText = [
-    tieHeader,
+    isTie ? t('shareTieHeader') : t('shareDuelHeader'),
     '',
     isTie
-      ? `${E.scales} ${winnerData.article.title} = ${loserData.article.title}`
-      : `${E.winner} ${winnerData.article.title}`,
+      ? `${winnerData.article.title} = ${loserData.article.title}`
+      : `Winner: ${winnerData.article.title}`,
     isTie
       ? `   ${t('shareTieBoth').replace('%score%', String(winnerScore))}`
       : `   ${dramaBar(winnerScore)} ${winnerScore}%`,
     ...(!isTie ? [
-      `   ${E.edit} ${winnerData.stats.editCount} ${t('shareEditions')}  ${E.editors} ${winnerData.stats.uniqueEditors} ${t('shareEditeurs')}`,
-      `   ${E.revert} ${winnerData.stats.reversionRate}% reversions  ${winnerData.stats.recentEdits} ${t('shareEdits30')}`,
-      `   -> ${getDramaTierEmoji(winnerScore)} ${t(getDramaTierKey(winnerScore))}`,
+      `   ${winnerData.stats.editCount} ${t('shareEditions')}  ${winnerData.stats.uniqueEditors} ${t('shareEditeurs')}`,
+      `   ${winnerData.stats.reversionRate}% reversions  ${winnerData.stats.recentEdits} ${t('shareEdits30')}`,
+      `   -> ${t(getDramaTierKey(winnerScore))}`,
       '',
-      `${E.disputed} ${loserData.article.title}`,
+      `Challenger: ${loserData.article.title}`,
       `   ${dramaBar(loserScore)} ${loserScore}%`,
-      `   ${E.edit} ${loserData.stats.editCount} ${t('shareEditions')}  ${E.editors} ${loserData.stats.uniqueEditors} ${t('shareEditeurs')}`,
-      `   ${E.revert} ${loserData.stats.reversionRate}% reversions  ${loserData.stats.recentEdits} ${t('shareEdits30')}`,
-      `   -> ${getDramaTierEmoji(loserScore)} ${t(getDramaTierKey(loserScore))}`,
+      `   ${loserData.stats.editCount} ${t('shareEditions')}  ${loserData.stats.uniqueEditors} ${t('shareEditeurs')}`,
+      `   ${loserData.stats.reversionRate}% reversions  ${loserData.stats.recentEdits} ${t('shareEdits30')}`,
+      `   -> ${t(getDramaTierKey(loserScore))}`,
     ] : []),
     '',
-    guessedRight ? `${E.checkmark} ${t('shareRight')}` : `${E.cross} ${t('shareWrong')}`,
+    guessedRight ? t('shareRight') : t('shareWrong'),
     '',
-    `${E.pointRight} ${t('shareTryIt')}`,
+    t('shareTryIt'),
     'https://wikidrama.pages.dev',
   ].join('\n')
 
   const shortTweetText = isTie
     ? [
-        `${E.swords} WikiDrama`,
-        `${E.scales} ${t('shareTieHeader')} ${winnerData.article.title} vs ${loserData.article.title} — ${winnerScore}% chacun`,
-        `${E.checkmark} ${t('shareNoWinner')}`,
+        'WikiDrama',
+        `${t('shareTieHeader')} ${winnerData.article.title} vs ${loserData.article.title} - ${winnerScore}% chacun`,
+        t('shareNoWinner'),
         'https://wikidrama.pages.dev',
       ].join('\n')
     : [
-        `${E.swords} WikiDrama`,
-        `${E.winner} ${winnerData.article.title} — ${winnerScore}%`,
-        `${E.disputed} ${loserData.article.title} — ${loserScore}%`,
-        guessedRight ? `${E.checkmark} ${t('shareFelt')}` : `${E.cross} ${t('shareWrong')}`,
+        'WikiDrama',
+        `${winnerData.article.title} - ${winnerScore}%`,
+        `${loserData.article.title} - ${loserScore}%`,
+        guessedRight ? t('shareFelt') : t('shareWrong'),
         'https://wikidrama.pages.dev',
       ].join('\n')
 
@@ -140,22 +136,26 @@ export default function ShareButton({ articles, winner, selected }: Props) {
           {canShare && (
             <button onClick={shareNative}
               className="w-full py-3 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-              {E.phone} {t('shareVia')}
+              <Icon name="phone" className="h-4 w-4" />
+              {t('shareVia')}
             </button>
           )}
           <div className="flex gap-2">
             <button onClick={shareToWhatsApp}
               className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-              {E.whatsapp} WhatsApp
+              <Icon name="whatsapp" className="h-4 w-4" />
+              WhatsApp
             </button>
             <button onClick={shareToTwitter}
               className="flex-1 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-              {E.twitter} Twitter
+              <Icon name="twitter" className="h-4 w-4" />
+              Twitter
             </button>
           </div>
           <button onClick={copyToClipboard}
             className="w-full py-3 rounded-xl bg-btn hover:bg-btn-hover active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-            {copied ? `${E.checkmark} ${t('shareCopied')}` : `${E.clipboard} ${t('copyText')}`}
+            <Icon name={copied ? 'check' : 'clipboard'} className="h-4 w-4" />
+            {copied ? t('shareCopied') : t('copyText')}
           </button>
         </div>
 

@@ -1,15 +1,21 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { fetchArticleData, fetchArticleFromCategory, type ArticleData } from '../api/wikipedia'
 import { computeDramaScore } from '../utils/dramaScore'
 import { E } from '../utils/emojis'
+import eyeLogoRaw from '../assets/eye-logo.svg?raw'
+import { useSettings } from '../context/SettingsContext'
 import DuelCard from '../components/DuelCard'
 import CategoryPicker from '../components/CategoryPicker'
 import ShareButton from '../components/ShareButton'
+import Icon from '../components/Icon'
+import SuddenDeathOverlay from '../components/SuddenDeathOverlay'
 
-type Phase = 'pick-category' | 'loading' | 'vote' | 'reveal'
+type Phase = 'pick-category' | 'loading' | 'vote' | 'reveal' | 'sudden-death'
 export type WinnerState = 0 | 1 | 'tie'
+
+const SUDDEN_DEATH_SECONDS = 5
 
 function FolderIcon() {
   return (
@@ -22,6 +28,14 @@ function FolderIcon() {
   )
 }
 
+function LoadingDuelIcon() {
+  return (
+    <span className="duel-loading-logo" aria-hidden="true">
+      <span className="duel-loading-logo__svg" dangerouslySetInnerHTML={{ __html: eyeLogoRaw }} />
+    </span>
+  )
+}
+
 function isOffline(): boolean {
   return typeof navigator !== 'undefined' && !navigator.onLine
 }
@@ -30,6 +44,7 @@ export default function Duel() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { suddenDeathEnabled } = useSettings()
   const mode = searchParams.get('mode') || 'random'
 
   const [phase, setPhase]       = useState<Phase>(mode === 'random' ? 'loading' : 'pick-category')
@@ -37,6 +52,8 @@ export default function Duel() {
   const [articles, setArticles] = useState<[ArticleData, ArticleData] | null>(null)
   const [selected, setSelected] = useState<0 | 1 | null>(null)
   const [error, setError]       = useState<string | null>(null)
+  const [suddenDeathRemaining, setSuddenDeathRemaining] = useState(SUDDEN_DEATH_SECONDS)
+  const loadRequestId = useRef(0)
 
   const fetchDistinctPair = useCallback(async (cat?: string): Promise<[ArticleData, ArticleData]> => {
     const fetcher = cat ? () => fetchArticleFromCategory(cat) : fetchArticleData
@@ -51,16 +68,20 @@ export default function Duel() {
   }, [])
 
   const loadDuel = useCallback(async (cat?: string) => {
+    const requestId = ++loadRequestId.current
     if (isOffline()) { setError('offline'); setPhase('vote'); return }
     setPhase('loading')
     setSelected(null)
     setArticles(null)
     setError(null)
+    setSuddenDeathRemaining(SUDDEN_DEATH_SECONDS)
     try {
       const pair = await fetchDistinctPair(cat)
+      if (requestId !== loadRequestId.current) return
       setArticles(pair)
       setPhase('vote')
     } catch (err: unknown) {
+      if (requestId !== loadRequestId.current) return
       const msg = err instanceof Error ? err.message : ''
       setError(msg.includes('AbortError') || isOffline() ? 'offline' : 'generic')
       setPhase('vote')
@@ -70,6 +91,27 @@ export default function Duel() {
   useEffect(() => {
     if (mode === 'random') loadDuel()
   }, [mode, loadDuel])
+
+  useEffect(() => {
+    if (!suddenDeathEnabled || phase !== 'vote' || !articles) {
+      setSuddenDeathRemaining(SUDDEN_DEATH_SECONDS)
+      return
+    }
+
+    setSuddenDeathRemaining(SUDDEN_DEATH_SECONDS)
+    const deadline = Date.now() + SUDDEN_DEATH_SECONDS * 1000
+
+    const timerId = window.setInterval(() => {
+      const next = Math.max(0, Math.ceil((deadline - Date.now()) / 1000))
+      setSuddenDeathRemaining(next)
+      if (next === 0) {
+        window.clearInterval(timerId)
+        setPhase('sudden-death')
+      }
+    }, 250)
+
+    return () => window.clearInterval(timerId)
+  }, [suddenDeathEnabled, phase, articles])
 
   function handleVote(index: 0 | 1) {
     if (phase !== 'vote') return
@@ -88,11 +130,18 @@ export default function Duel() {
   const winner      = getWinner()
   const isTie       = winner === 'tie'
   const guessedRight = isTie || selected === winner
+  const isSuddenDeathExpired = phase === 'sudden-death'
 
   function getResultMessage(): string {
-    if (isTie)        return `${E.handshake} ${t('duelTie')}`
-    if (guessedRight) return `${E.checkmark} ${t('duelRight')}`
-    return `${E.cross} ${t('duelWrong')}`
+    if (isTie)        return t('duelTie')
+    if (guessedRight) return t('duelRight')
+    return t('duelWrong')
+  }
+
+  function getResultIcon() {
+    if (isTie) return 'handshake'
+    if (guessedRight) return 'check'
+    return 'x'
   }
 
   function getResultColor(): string {
@@ -133,7 +182,7 @@ export default function Duel() {
   if (phase === 'loading') {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-4">
-        <div className="text-4xl animate-pulse">{E.swords}</div>
+        <LoadingDuelIcon />
         <p className="text-muted text-sm">{t('duelLoading')}</p>
       </main>
     )
@@ -154,9 +203,10 @@ export default function Duel() {
         </div>
         <button
           onClick={() => loadDuel(mode === 'thematic' ? category : undefined)}
-          className="py-2.5 px-6 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm"
+          className="inline-flex items-center justify-center gap-2 py-2.5 px-6 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm"
         >
-          {E.reload} {t('duelRetry')}
+          <Icon name="refresh" className="h-4 w-4" />
+          {t('duelRetry')}
         </button>
         <button onClick={() => navigate('/')} className="text-muted text-xs underline">
           {t('duelBackHome')}
@@ -185,13 +235,27 @@ export default function Duel() {
               winner={phase === 'reveal' && (winner === 0 || isTie)}
               onClick={() => handleVote(0)}
               position="top"
+              disabled={isSuddenDeathExpired}
+              dimmed={isSuddenDeathExpired}
             />
           </div>
 
           <div className="relative z-20 flex items-center justify-center h-0 flex-shrink-0">
-            <span className="bg-base border border-border-strong text-text font-extrabold text-[10px] w-6 h-6 rounded-full flex items-center justify-center shadow-lg">
-              VS
-            </span>
+            {suddenDeathEnabled && phase === 'vote' ? (
+              <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 text-base font-black tabular-nums shadow-[0_0_24px_rgba(239,68,68,0.55)] ${
+                suddenDeathRemaining === 1
+                  ? 'border-red-200 bg-red-700 text-white shadow-[0_0_30px_rgba(254,202,202,0.95)]'
+                  : 'border-red-400 bg-red-950 text-red-100'
+              } ${
+                suddenDeathRemaining <= 3 ? 'sudden-death-pulse' : ''
+              }`}>
+                {suddenDeathRemaining}
+              </span>
+            ) : (
+              <span className="bg-base border border-border-strong text-text font-extrabold text-[10px] w-6 h-6 rounded-full flex items-center justify-center shadow-lg">
+                VS
+              </span>
+            )}
           </div>
 
           <div className="flex-1 overflow-hidden">
@@ -202,6 +266,8 @@ export default function Duel() {
               winner={phase === 'reveal' && (winner === 1 || isTie)}
               onClick={() => handleVote(1)}
               position="bottom"
+              disabled={isSuddenDeathExpired}
+              dimmed={isSuddenDeathExpired}
             />
           </div>
         </div>
@@ -209,27 +275,34 @@ export default function Duel() {
 
       <div className="flex-shrink-0 bg-base border-t border-border px-3 py-2.5">
         {phase === 'vote' && (
-          <p className="text-center text-muted text-xs py-1">
-            {E.finger} {t('duelTapArticle')}
+          <p className="flex items-center justify-center gap-1.5 text-center text-muted text-xs py-1">
+            <Icon name="pointerUp" className="h-3.5 w-3.5 text-yellow-400" />
+            {t('duelTapArticle')}
           </p>
         )}
         {phase === 'reveal' && articles && (
           <div className="flex flex-col gap-2 fade-in">
-            <p className={`text-center text-sm font-bold ${getResultColor()}`}>
+            <p className={`flex items-center justify-center gap-1.5 text-center text-sm font-bold ${getResultColor()}`}>
+              <Icon name={getResultIcon()} className="h-4 w-4" />
               {getResultMessage()}
             </p>
             <div className="flex gap-2">
               <ShareButton articles={articles} winner={winner} selected={selected} />
               <button
                 onClick={() => mode === 'thematic' ? loadDuel(category) : loadDuel()}
-                className="flex-shrink-0 py-2.5 px-5 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm whitespace-nowrap"
+                className="inline-flex flex-shrink-0 items-center justify-center gap-2 py-2.5 px-5 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm whitespace-nowrap"
               >
-                {E.reload} {t('replay')}
+                <Icon name="refresh" className="h-4 w-4" />
+                {t('replay')}
               </button>
             </div>
           </div>
         )}
       </div>
+
+      {isSuddenDeathExpired && (
+        <SuddenDeathOverlay onReturnHome={() => navigate('/')} />
+      )}
     </main>
   )
 }

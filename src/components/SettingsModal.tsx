@@ -90,7 +90,7 @@ function CloseIcon() {
 
 export default function SettingsModal({ onClose }: SettingsModalProps) {
   const { t } = useTranslation()
-  const { lang, setLang, theme, setTheme } = useSettings()
+  const { lang, setLang, theme, setTheme, suddenDeathEnabled, setSuddenDeathEnabled } = useSettings()
   const modalRef = useFocusTrap(true, onClose)
 
   return (
@@ -168,6 +168,28 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
               }`}
             >
               <ThemeIcon variant="light" /> {t('themeLight')}
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest">{t('suddenDeath')}</p>
+          <div className="grid grid-cols-2 gap-1.5 bg-black/40 p-1 rounded-xl border border-zinc-800">
+            <button
+              onClick={() => setSuddenDeathEnabled(true)}
+              className={`flex items-center justify-center gap-2 py-1.5 rounded-lg transition-all text-sm font-medium ${
+                suddenDeathEnabled ? 'bg-zinc-800 text-white shadow-sm font-bold border border-zinc-700' : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              {t('settingOn')}
+            </button>
+            <button
+              onClick={() => setSuddenDeathEnabled(false)}
+              className={`flex items-center justify-center gap-2 py-1.5 rounded-lg transition-all text-sm font-medium ${
+                !suddenDeathEnabled ? 'bg-zinc-800 text-white shadow-sm font-bold border border-zinc-700' : 'text-zinc-500 hover:text-zinc-300'
+              }`}
+            >
+              {t('settingOff')}
             </button>
           </div>
         </div>

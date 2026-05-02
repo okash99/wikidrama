@@ -1,13 +1,18 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { fetchSummaryForWikiWars, type PageviewsData } from '../api/pageviews'
-import { getPopularityTierKey, getPopularityTierEmoji, getPopularityColor, getPopularityBarColor, formatViews, viewsToScore, getPopularityTier } from '../utils/popularityScore'
+import { getPopularityTierKey, getPopularityColor, getPopularityBarColor, formatViews, viewsToScore, getPopularityTier } from '../utils/popularityScore'
 import { E } from '../utils/emojis'
+import { useSettings } from '../context/SettingsContext'
 import { useFocusTrap } from '../hooks/useFocusTrap'
+import Icon from '../components/Icon'
+import SuddenDeathOverlay from '../components/SuddenDeathOverlay'
 
-type Phase = 'loading' | 'vote' | 'reveal'
+type Phase = 'loading' | 'vote' | 'reveal' | 'sudden-death'
+
+const SUDDEN_DEATH_SECONDS = 5
 
 function dramaBar(score: number): string {
   const filled = Math.round(score / 10)
@@ -43,32 +48,32 @@ function ShareModal({
   }, [])
 
   const shareText = [
-    `${E.pvIcon} ${isTie ? t('wwShareTieHeader') : t('wwShareHeader')}`,
+    isTie ? t('wwShareTieHeader') : t('wwShareHeader'),
     '',
     isTie
-      ? `${E.scales} ${winnerCard.title} = ${loserCard.title}`
-      : `${E.winner} ${winnerCard.title}`,
+      ? `${winnerCard.title} = ${loserCard.title}`
+      : `Winner: ${winnerCard.title}`,
     isTie
       ? `   ${t('wwShareTieBoth').replace('%views%', formatViews(winnerCard.views))}`
       : `   ${dramaBar(scoreW)} ${formatViews(winnerCard.views)} ${t('shareViews12m')}`,
     ...(!isTie ? [
       '',
-      `${E.pointRight} ${loserCard.title}`,
+      `Challenger: ${loserCard.title}`,
       `   ${dramaBar(scoreL)} ${formatViews(loserCard.views)} ${t('shareViews12m')}`,
     ] : []),
     '',
-    guessedRight ? `${E.checkmark} ${t('wwShareRight')}` : `${E.cross} ${t('wwShareWrong')}`,
+    guessedRight ? t('wwShareRight') : t('wwShareWrong'),
     '',
-    `${E.pointRight} ${t('wwShareTryIt')}`,
+    t('wwShareTryIt'),
     'https://wikidrama.pages.dev',
   ].join('\n')
 
   const tweetText = [
-    `${E.pvIcon} WikiWars`,
+    'WikiWars',
     isTie
-      ? `${E.scales} ${t('wwShareTieHeader')} ${winnerCard.title} vs ${loserCard.title}`
-      : `${E.winner} ${winnerCard.title} (${formatViews(winnerCard.views)}) > ${loserCard.title} (${formatViews(loserCard.views)})`,
-    guessedRight ? `${E.checkmark} ${t('wwShareRight')}` : `${E.cross} ${t('wwShareWrong')}`,
+      ? `${t('wwShareTieHeader')} ${winnerCard.title} vs ${loserCard.title}`
+      : `${winnerCard.title} (${formatViews(winnerCard.views)}) > ${loserCard.title} (${formatViews(loserCard.views)})`,
+    guessedRight ? t('wwShareRight') : t('wwShareWrong'),
     'https://wikidrama.pages.dev',
   ].join('\n')
 
@@ -96,7 +101,10 @@ function ShareModal({
         onClick={e => e.stopPropagation()}
       >
         <div className="w-10 h-1 bg-border-strong rounded-full mx-auto" />
-        <p id="ww-share-title" className="text-sm font-semibold text-text text-center">{E.pvIcon} {t('wwShareTitle')}</p>
+        <p id="ww-share-title" className="flex items-center justify-center gap-1.5 text-sm font-semibold text-text text-center">
+          <Icon name="barChart" className="h-4 w-4 text-emerald-300" />
+          {t('wwShareTitle')}
+        </p>
 
         <div className="bg-card border border-border-strong rounded-2xl p-4 max-h-44 overflow-y-auto scrollbar-none">
           <pre className="text-xs text-text whitespace-pre-wrap font-mono leading-relaxed">{shareText}</pre>
@@ -106,22 +114,26 @@ function ShareModal({
           {canShare && (
             <button onClick={shareNative}
               className="w-full py-3 rounded-xl bg-purple-500 hover:bg-purple-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-              {E.phone} {t('shareVia')}
+              <Icon name="phone" className="h-4 w-4" />
+              {t('shareVia')}
             </button>
           )}
           <div className="flex gap-2">
             <button onClick={() => { window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank'); onClose() }}
               className="flex-1 py-3 rounded-xl bg-green-600 hover:bg-green-700 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-              {E.whatsapp} WhatsApp
+              <Icon name="whatsapp" className="h-4 w-4" />
+              WhatsApp
             </button>
             <button onClick={() => { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, '_blank'); onClose() }}
               className="flex-1 py-3 rounded-xl bg-sky-500 hover:bg-sky-600 active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-              {E.twitter} Twitter
+              <Icon name="twitter" className="h-4 w-4" />
+              Twitter
             </button>
           </div>
           <button onClick={copyText}
             className="w-full py-3 rounded-xl bg-btn hover:bg-btn-hover active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-            {copied ? `${E.checkmark} ${t('shareCopied')}` : `${E.clipboard} ${t('copyText')}`}
+            <Icon name={copied ? 'check' : 'clipboard'} className="h-4 w-4" />
+            {copied ? t('shareCopied') : t('copyText')}
           </button>
         </div>
         <button onClick={onClose} className="text-muted text-sm text-center py-1">{t('shareAnnuler')}</button>
@@ -134,29 +146,61 @@ function ShareModal({
 export default function WikiWars() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { suddenDeathEnabled } = useSettings()
   const [phase, setPhase]         = useState<Phase>('loading')
   const [cards, setCards]         = useState<[PageviewsData, PageviewsData] | null>(null)
   const [selected, setSelected]   = useState<0 | 1 | null>(null)
   const [error, setError]         = useState(false)
   const [showShare, setShowShare] = useState(false)
+  const [suddenDeathRemaining, setSuddenDeathRemaining] = useState(SUDDEN_DEATH_SECONDS)
+  const loadRequestId = useRef(0)
 
   const loadDuel = useCallback(async () => {
+    const requestId = ++loadRequestId.current
     setPhase('loading')
     setSelected(null)
     setCards(null)
     setError(false)
     setShowShare(false)
+    setSuddenDeathRemaining(SUDDEN_DEATH_SECONDS)
     try {
       const [a, b] = await Promise.all([fetchSummaryForWikiWars(), fetchSummaryForWikiWars()])
-      setCards(a.title === b.title ? [a, await fetchSummaryForWikiWars()] : [a, b])
+      const pair: [PageviewsData, PageviewsData] = a.title === b.title
+        ? [a, await fetchSummaryForWikiWars()]
+        : [a, b]
+      if (requestId !== loadRequestId.current) return
+      setCards(pair)
       setPhase('vote')
     } catch {
+      if (requestId !== loadRequestId.current) return
       setError(true)
       setPhase('vote')
     }
   }, [])
 
   useEffect(() => { loadDuel() }, [loadDuel])
+
+  useEffect(() => {
+    if (!suddenDeathEnabled || phase !== 'vote' || !cards) {
+      setSuddenDeathRemaining(SUDDEN_DEATH_SECONDS)
+      return
+    }
+
+    setSuddenDeathRemaining(SUDDEN_DEATH_SECONDS)
+    const deadline = Date.now() + SUDDEN_DEATH_SECONDS * 1000
+
+    const timerId = window.setInterval(() => {
+      const next = Math.max(0, Math.ceil((deadline - Date.now()) / 1000))
+      setSuddenDeathRemaining(next)
+      if (next === 0) {
+        window.clearInterval(timerId)
+        setShowShare(false)
+        setPhase('sudden-death')
+      }
+    }, 250)
+
+    return () => window.clearInterval(timerId)
+  }, [suddenDeathEnabled, phase, cards])
 
   function handleVote(index: 0 | 1) {
     if (phase !== 'vote' || !cards) return
@@ -173,11 +217,17 @@ export default function WikiWars() {
   const winner       = getWinner()
   const isTie        = winner === 'tie'
   const guessedRight = isTie || selected === winner
+  const isSuddenDeathExpired = phase === 'sudden-death'
 
   function getResultMessage() {
-    if (isTie)        return `${E.handshake} ${t('wwTie')}`
-    if (guessedRight) return `${E.checkmark} ${t('wwRight')}`
-    return `${E.cross} ${t('wwWrong')}`
+    if (isTie)        return t('wwTie')
+    if (guessedRight) return t('wwRight')
+    return t('wwWrong')
+  }
+  function getResultIcon() {
+    if (isTie) return 'handshake'
+    if (guessedRight) return 'check'
+    return 'x'
   }
   function getResultColor() {
     if (isTie)        return 'text-yellow-400'
@@ -188,7 +238,7 @@ export default function WikiWars() {
   if (phase === 'loading') {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-4">
-        <div className="text-4xl animate-pulse">{E.pvIcon}</div>
+        <Icon name="barChart" className="h-12 w-12 animate-pulse text-purple-300" />
         <p className="text-muted text-sm">{t('wwLoading')}</p>
       </main>
     )
@@ -200,8 +250,9 @@ export default function WikiWars() {
         <span className="text-5xl">{E.satellite}</span>
         <p className="text-white font-bold">{t('duelErrorTitle')}</p>
         <p className="text-muted text-sm">{t('duelErrorMsg')}</p>
-        <button onClick={loadDuel} className="py-2.5 px-6 rounded-xl bg-purple-500 hover:bg-purple-600 active:scale-95 transition-all font-bold text-sm">
-          {E.reload} {t('duelRetry')}
+        <button onClick={loadDuel} className="inline-flex items-center justify-center gap-2 py-2.5 px-6 rounded-xl bg-purple-500 hover:bg-purple-600 active:scale-95 transition-all font-bold text-sm">
+          <Icon name="refresh" className="h-4 w-4" />
+          {t('duelRetry')}
         </button>
         <button onClick={() => navigate('/')} className="text-muted text-xs underline">{t('duelBackHome')}</button>
       </main>
@@ -235,10 +286,10 @@ export default function WikiWars() {
               <div key={i} className="flex-1 overflow-hidden">
                 <button
                   onClick={() => handleVote(i as 0 | 1)}
-                  disabled={phase === 'reveal'}
+                  disabled={phase === 'reveal' || isSuddenDeathExpired}
                   className={`relative w-full h-full overflow-hidden transition-all
-                    ${isLoser ? 'opacity-50' : 'opacity-100'}
-                    ${phase !== 'reveal' ? 'active:brightness-110' : ''}
+                    ${isLoser || isSuddenDeathExpired ? 'opacity-40' : 'opacity-100'}
+                    ${phase !== 'reveal' && !isSuddenDeathExpired ? 'active:brightness-110' : ''}
                   `}
                 >
                   {card.thumbnail
@@ -264,7 +315,8 @@ export default function WikiWars() {
                         isMondial ? 'bg-yellow-400 text-slate-900 enormous-badge-glow' :
                         'bg-purple-500 text-white'
                       }`}>
-                        {E.pvIcon} {t('wwMostViewed')}
+                        <Icon name="barChart" className="h-3.5 w-3.5" />
+                        {t('wwMostViewed')}
                       </div>
                     )}
 
@@ -292,7 +344,7 @@ export default function WikiWars() {
                           {formatViews(card.views)}
                         </span>
                         <p className="text-white/50 text-xs">{t('wwViews12m')}</p>
-                        <p className={`text-xs font-semibold ${colorText}`}>{getPopularityTierEmoji(card.views)} {t(getPopularityTierKey(card.views))}</p>
+                        <p className={`text-xs font-semibold ${colorText}`}>{t(getPopularityTierKey(card.views))}</p>
                         <div className="w-full h-1.5 rounded-full bg-white/20">
                           <div className={`h-1.5 rounded-full fill-bar ${colorBar}`} style={{ width: `${score}%` }} />
                         </div>
@@ -305,22 +357,36 @@ export default function WikiWars() {
           })}
 
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-            <span className="bg-base border border-purple-600 text-text font-extrabold text-[10px] w-6 h-6 rounded-full flex items-center justify-center shadow-lg">
-              VS
-            </span>
+            {suddenDeathEnabled && phase === 'vote' ? (
+              <span className={`flex h-11 w-11 items-center justify-center rounded-full border-2 text-base font-black tabular-nums shadow-[0_0_24px_rgba(239,68,68,0.55)] ${
+                suddenDeathRemaining === 1
+                  ? 'border-red-200 bg-red-700 text-white shadow-[0_0_30px_rgba(254,202,202,0.95)]'
+                  : 'border-red-400 bg-red-950 text-red-100'
+              } ${
+                suddenDeathRemaining <= 3 ? 'sudden-death-pulse' : ''
+              }`}>
+                {suddenDeathRemaining}
+              </span>
+            ) : (
+              <span className="bg-base border border-purple-600 text-text font-extrabold text-[10px] w-6 h-6 rounded-full flex items-center justify-center shadow-lg">
+                VS
+              </span>
+            )}
           </div>
         </div>
       )}
 
       <div className="flex-shrink-0 bg-base border-t border-border px-3 py-2.5">
         {phase === 'vote' && (
-          <p className="text-center text-muted text-xs py-1">
-            {E.finger} {t('wwInstruction')}
+          <p className="flex items-center justify-center gap-1.5 text-center text-muted text-xs py-1">
+            <Icon name="pointerUp" className="h-3.5 w-3.5 text-yellow-400" />
+            {t('wwInstruction')}
           </p>
         )}
         {phase === 'reveal' && cards && (
           <div className="flex flex-col gap-2 fade-in">
-            <p className={`text-center text-sm font-bold ${getResultColor()}`}>
+            <p className={`flex items-center justify-center gap-1.5 text-center text-sm font-bold ${getResultColor()}`}>
+              <Icon name={getResultIcon()} className="h-4 w-4" />
               {getResultMessage()}
             </p>
             <div className="flex gap-2">
@@ -332,9 +398,10 @@ export default function WikiWars() {
               </button>
               <button
                 onClick={loadDuel}
-                className="flex-shrink-0 py-2.5 px-5 rounded-xl bg-purple-500 hover:bg-purple-600 active:scale-95 transition-all font-bold text-sm whitespace-nowrap"
+                className="inline-flex flex-shrink-0 items-center justify-center gap-2 py-2.5 px-5 rounded-xl bg-purple-500 hover:bg-purple-600 active:scale-95 transition-all font-bold text-sm whitespace-nowrap"
               >
-                {E.reload} {t('replay')}
+                <Icon name="refresh" className="h-4 w-4" />
+                {t('replay')}
               </button>
             </div>
           </div>
@@ -348,6 +415,10 @@ export default function WikiWars() {
           selected={selected}
           onClose={() => setShowShare(false)}
         />
+      )}
+
+      {isSuddenDeathExpired && (
+        <SuddenDeathOverlay onReturnHome={() => navigate('/')} />
       )}
     </main>
   )

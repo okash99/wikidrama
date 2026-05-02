@@ -10,13 +10,15 @@ interface Props {
   winner: boolean
   onClick: () => void
   position: 'top' | 'bottom'
+  disabled?: boolean
+  dimmed?: boolean
 }
 
 function fmt(n: number): string {
   return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
 }
 
-export default function DuelCard({ data, revealed, winner, onClick }: Props) {
+export default function DuelCard({ data, revealed, winner, onClick, disabled = false, dimmed = false }: Props) {
   const { t } = useTranslation()
   const { article, stats } = data
   const score = computeDramaScore(stats)
@@ -33,10 +35,10 @@ export default function DuelCard({ data, revealed, winner, onClick }: Props) {
   return (
     <button
       onClick={onClick}
-      disabled={revealed}
+      disabled={revealed || disabled}
       className={`relative w-full h-full overflow-hidden transition-all
-        ${ isLoser ? 'opacity-50' : 'opacity-100' }
-        ${ !revealed ? 'active:brightness-110' : '' }
+        ${ dimmed || isLoser ? 'opacity-40' : 'opacity-100' }
+        ${ !revealed && !disabled ? 'active:brightness-110' : '' }
       `}
     >
       {article.thumbnail ? (

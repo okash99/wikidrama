@@ -9,6 +9,8 @@ interface SettingsContextType {
   setLang: (lang: Lang) => void
   theme: Theme
   setTheme: (theme: Theme) => void
+  suddenDeathEnabled: boolean
+  setSuddenDeathEnabled: (enabled: boolean) => void
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null)
@@ -20,6 +22,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(
     (localStorage.getItem('wikidrama_theme') as Theme) || 'dark'
   )
+  const [suddenDeathEnabled, setSuddenDeathEnabledState] = useState(
+    localStorage.getItem('wikidrama_sudden_death') === 'true'
+  )
 
   const setLang = (l: Lang) => {
     setLangState(l)
@@ -30,6 +35,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const setTheme = (t: Theme) => {
     setThemeState(t)
     localStorage.setItem('wikidrama_theme', t)
+  }
+
+  const setSuddenDeathEnabled = (enabled: boolean) => {
+    setSuddenDeathEnabledState(enabled)
+    localStorage.setItem('wikidrama_sudden_death', String(enabled))
   }
 
   useEffect(() => {
@@ -45,7 +55,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, [theme])
 
   return (
-    <SettingsContext.Provider value={{ lang, setLang, theme, setTheme }}>
+    <SettingsContext.Provider value={{ lang, setLang, theme, setTheme, suddenDeathEnabled, setSuddenDeathEnabled }}>
       {children}
     </SettingsContext.Provider>
   )
