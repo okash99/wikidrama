@@ -1,4 +1,5 @@
-# WikiDrama
+
+# WikiDrama
 
 > Two Wikipedia articles. Only one can be the most controversial, or the most read.
 
@@ -6,7 +7,6 @@
 
 <p align="center">
   <img src="public/img/screenshot-home.png" alt="WikiDrama Home Screen" width="350" />
-  <img src="public/img/screenshot-settings.png" alt="WikiDrama Settings Screen" width="350" />
 </p>
 
 [![Deploy](https://img.shields.io/badge/Live-wikidrama.pages.dev-red?style=flat-square)](https://wikidrama.pages.dev)
