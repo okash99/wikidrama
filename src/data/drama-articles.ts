@@ -35,8 +35,45 @@ export const ENORMOUS_POOL: string[] = [
 ]
 
 // Langue Wikipedia par catégorie (defaut = 'en')
-export const CATEGORY_LANG: Record<string, 'en' | 'fr'> = {
+export type WikiLang = 'en' | 'fr'
+
+export interface DramaPoolEntry {
+  category: string
+  title: string
+  lang: WikiLang
+}
+
+export const CATEGORY_LANG: Record<string, WikiLang> = {
   'YouTubeurs FR': 'fr',
+}
+
+export const CANONICAL_TITLES: Record<string, string> = {
+  'en:Capitol Hill riots': 'January 6 United States Capitol attack',
+  'en:FIFA corruption scandal': '2015 FIFA corruption case',
+  'en:Doping in football': 'Doping in association football',
+  'en:Zidane headbutt incident': '2006 FIFA World Cup final',
+  'en:NFL protests': 'U.S. national anthem kneeling protests',
+  'en:Astros sign-stealing scandal': 'Houston Astros sign stealing scandal',
+  'en:Saudi Arabia sportswashing': 'Sportswashing in Saudi Arabia',
+  'en:Knysna incident': 'France at the 2010 FIFA World Cup',
+  'en:French football team racism affair': 'France national football team',
+  'en:Pepsi advertisement controversy': 'Live for Now',
+  'en:GMO controversy': 'Genetically modified food controversies',
+  'en:Wi-Fi health concerns': 'Wireless device radiation and health',
+  'en:Collaboration in France during World War II': 'France during World War II',
+  'en:Circumcision and religion': 'Religion and circumcision',
+  'en:Apple vs. FBI encryption dispute': 'Apple–FBI encryption dispute',
+  'en:Google antitrust cases': 'Antitrust cases against Google by the European Union',
+  'en:Uber data breach': 'List of data breaches',
+  'en:Fred (YouTuber)': 'Lucas Cruikshank',
+  'fr:Cypré': 'Cyprien Iov',
+  'fr:Domingo (vidéaste web)': 'Domingo (streamer)',
+  'fr:Ponce (vidéaste web)': 'Ponce (streamer)',
+  'fr:Nota Bene (YouTubeur)': 'Benjamin Brillaud',
+  'fr:Dirty Biology': 'Léo Grasset',
+  'fr:Suricate (web-série)': 'Golden Moustache',
+  'fr:Luc Peron': 'Vidéaste web',
+  'fr:Lena Squall': 'YouTube',
 }
 
 export const DRAMA_POOL: Record<string, string[]> = {
@@ -323,4 +360,11 @@ export const DRAMA_POOL: Record<string, string[]> = {
 }
 
 export const DRAMA_POOL_FLAT: string[] = Object.values(DRAMA_POOL).flat()
+export const DRAMA_POOL_ENTRIES: DramaPoolEntry[] = Object.entries(DRAMA_POOL).flatMap(
+  ([category, titles]) => titles.map((title) => ({
+    category,
+    title,
+    lang: CATEGORY_LANG[category] ?? 'en',
+  }))
+)
 export const DRAMA_CATEGORIES = Object.keys(DRAMA_POOL)

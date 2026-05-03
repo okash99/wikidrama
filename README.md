@@ -2,51 +2,31 @@
 
 > Two Wikipedia articles. Only one can be the most controversial, or the most read.
 
-**WikiDrama** is a mobile-first React app that turns Wikipedia edit wars and pageview data into quick duel games. It includes the classic **Drama Score** mode, a themed duel mode, and **WikiWars**, a special mode based on Wikimedia pageviews.
+WikiDrama is a mobile-first React app that turns Wikipedia edit wars and pageview data into quick duel games. It includes the classic Drama Score mode, a thematic duel mode, and WikiWars, a special mode based on Wikimedia pageviews.
 
 <p align="center">
   <img src="public/img/screenshot-home.png" alt="WikiDrama Home Screen" width="350" />
 </p>
 
-[![Deploy](https://img.shields.io/badge/Live-wikidrama.pages.dev-red?style=flat-square)](https://wikidrama.pages.dev)
-[![Stack](https://img.shields.io/badge/Stack-React%2018%20%2B%20Vite%20%2B%20Tailwind-blue?style=flat-square)]()
-[![API](https://img.shields.io/badge/API-Wikipedia%20%2B%20Wikimedia-green?style=flat-square)]()
-
----
-
-## Latest Updates
-
-- **Sudden Death Mode in WikiWars** — an optional setting adding a countdown timer to WikiWars duels for a more intense, fast-paced experience. Includes custom pulse animations and a timeout overlay.
-- **Animated WikiDrama logo** — minimalist "Eye & Keyhole" vector design. The keyhole glows red interactively upon hover or tap during gameplay. Respects `prefers-reduced-motion`.
-- **Full SVG icon system** — all emoji icons replaced with crisp inline SVGs across the entire UI: category picker, settings modal (flags, gear, theme toggles, close button), home mode buttons, and duel headers.
-- **Simplified CategoryPicker** — tap-to-play flow replaces the previous select-then-play pattern for faster navigation.
-- **Live drama ticker** on the home screen with current Wikipedia edit/pageview signals.
-- **Settings source notice** clarifying that interface language does not change the data source: Wikipedia EN remains the source except for FR themes.
-- **FR/EN/ES/DE interface translations** with localized labels for settings, categories, share text, WikiWars, and the live ticker.
-- **Dark/light theme support** through semantic Tailwind tokens.
-- **Focus-trapped modals** for Settings and sharing flows.
-
----
+[Live demo](https://wikidrama.pages.dev)
 
 ## Game Modes
 
 ### Random Duel
 
-Two Wikipedia articles are drawn at random from a pool of 500+ controversial topics. Guess which one generated the most controversy.
+Two Wikipedia articles are drawn at random from a pool of controversial topics. Guess which one generated the most controversy.
 
 ### Thematic Duel
 
-Pick a category and compare two articles from the same universe. Categories include Politics, Sport, Pop Culture, Science, History, Religion, Tech, French YouTubers, and US YouTubers.
+Pick a category and compare two articles from the same universe. Current categories include Politics, Sport, Pop Culture, Science, History, Religion, Tech, French YouTubers, and US YouTubers.
 
 ### WikiWars
 
 Forget the drama: guess which article got the most Wikipedia views over the last 12 months using the Wikimedia Pageviews API.
 
----
-
 ## Drama Score
 
-Drama Score is computed from six public Wikipedia/XTools metrics:
+Drama Score is computed from six public Wikipedia and XTools metrics:
 
 | Metric | Source | Weight |
 |---|---|---|
@@ -61,9 +41,7 @@ Drama Score is computed from six public Wikipedia/XTools metrics:
 score = f(edits, rev, editors, anon, watch, minor)
 ```
 
-Tiers: **Legendary** > **Enormous Drama** > **Total Chaos** > **Agitated** > **Disputed** > **Calm** > **No drama**.
-
----
+Tiers: Legendary > Enormous Drama > Total Chaos > Agitated > Disputed > Calm > No drama.
 
 ## WikiWars Tiers
 
@@ -76,18 +54,14 @@ Tiers: **Legendary** > **Enormous Drama** > **Total Chaos** > **Agitated** > **D
 | Known | 20k-100k |
 | Obscure | < 20k |
 
----
-
 ## Data Sources
 
-- **Wikipedia REST API** for article summaries and revision data.
-- **Wikipedia Action API** for revision and protection checks.
-- **XTools API** for aggregate article stats such as total revisions, editors, anonymous edits, minor edits, and watchers.
-- **Wikimedia Pageviews API** for WikiWars 12-month views and the live ticker top-article signal.
+- Wikipedia REST API for article summaries and thumbnails
+- Wikipedia Action API for revision and protection checks
+- XTools API for aggregate article stats such as revisions, editors, anonymous edits, minor edits, and watchers
+- Wikimedia Pageviews API for WikiWars 12-month views and the live ticker
 
-The app is frontend-only and uses public APIs with no account or backend required. Most data comes from Wikipedia EN; FR-themed categories can use Wikipedia FR.
-
----
+The app is frontend-only and uses public APIs with no account or backend required. Most data comes from Wikipedia EN, while FR-themed categories can use Wikipedia FR.
 
 ## Stack
 
@@ -97,8 +71,6 @@ The app is frontend-only and uses public APIs with no account or backend require
 - i18next / react-i18next
 - React Router
 - Cloudflare Pages
-
----
 
 ## Run Locally
 
@@ -115,23 +87,18 @@ Build:
 npm run build
 ```
 
----
-
 ## Roadmap
 
 - [x] FR/EN/ES/DE interface localization
 - [x] Dark/light theme system
-- [x] Glassmorphism UI pass with semantic colors
 - [x] Mobile viewport and accessibility fixes
 - [x] Live home ticker
 - [x] Settings notice for Wikipedia source behavior
-- [x] SVG icon system (emoji-free UI)
 - [x] Animated interactive logo
+- [x] Sudden Death mode
 - [ ] Streak counter
 - [ ] Thematic WikiWars mode
 - [ ] User accounts and saved scores
 - [ ] Expanded live feed for ongoing edit wars
 
----
-
-*WikiDrama V3 - Powered by public Wikipedia, Wikimedia, and XTools APIs.*
+WikiDrama V3 is powered by public Wikipedia, Wikimedia, and XTools APIs.

@@ -1,167 +1,177 @@
-# WikiDrama — DESIGN.md
+# WikiDrama - Design System
 
-> Context file for AI design iteration via Google Stitch.
-> This document describes the current visual system, component structure, and design rules as of April 2026.
-
----
+> Source of truth for WikiDrama's current UI and interaction rules.
+> Keep this file aligned with the code before making major UI changes.
 
 ## App Identity
 
-- **Name**: WikiDrama
-- **Concept**: Wikipedia edit wars turned into a card duel game. Two articles face off — guess which one generated the most controversy.
-- **Platform**: Mobile-first web app (max-width: 448px / `max-w-md`)
-- **Tone**: Dark, punchy, gamified. Think Wordle meets Wikipedia drama.
+- Name: WikiDrama
+- Concept: Wikipedia edit wars and pageview battles turned into fast mobile duels
+- Platform: mobile-first web app
+- Width model: centered single-column app, `max-w-md`
+- Tone: dramatic, playful, high-contrast, compact
 
----
+## Core Product Patterns
+
+- Home is a stacked mode selector with a strong logo moment and a live ticker
+- Duel and WikiWars are split-screen top-vs-bottom experiences
+- Reveal is the payoff and must stay visually stronger than the vote state
+- The app should feel instant and lightweight: no account flows, no heavy setup, no backend UI
 
 ## Layout
 
-- Single column, full-height, centered on mobile
-- Root container: `max-w-md mx-auto min-h-screen flex flex-col bg-black`
-- All pages fill the viewport height (`flex-1`)
-- No sidebar, no nav bar — pure full-screen focus
-- Safe area insets respected (iOS notch-aware)
+- Root app container: `max-w-md mx-auto min-h-screen flex flex-col`
+- Main screens fill the viewport height where needed, especially duel flows
+- The app is designed phone-first and should remain comfortable around 390px wide
+- Touch targets should stay at least 44px high
 
----
+## Theme and Color Model
 
-## Color Palette
+WikiDrama is no longer hard-coded to pure black only. The app supports dark and light themes through semantic tokens in [`src/index.css`](/C:/Users/jamil/wikidrama/src/index.css:7).
 
-| Token | Hex | Usage |
-|---|---|---|
-| Background | `#000000` | App background, cards, everywhere |
-| Surface | `zinc-900` (#18181b) | Buttons, panels, category cards |
-| Border | `zinc-700/800` | Subtle card borders |
-| Text primary | `#ffffff` | Headings, scores |
-| Text secondary | `zinc-400` (#a1a1aa) | Subtitles, captions |
-| Text muted | `zinc-600` (#52525b) | Footer, mono labels |
-| Red accent | `red-500` (#ef4444) | Random Duel button, app name |
-| Purple accent | `purple-800/950` | WikiWars special mode gradient |
+### Semantic tokens
 
-### Drama Tier Colors
+- `bg-base`: main screen background
+- `bg-card`: elevated card background
+- `bg-panel`: modal and panel background
+- `bg-btn` / `bg-btn-hover`: neutral action surfaces
+- `border` / `border-border-strong`: separators and card outlines
+- `text`, `text-muted`, `text-faint`: text hierarchy
 
-| Tier | Score | Text color | Bar color | Effect |
-|---|---|---|---|---|
-| Légendaire | 90–100 | `sky-300` | `sky-400` | Blue shimmer pulse (1.8s loop) |
-| Énorme Drama | 75–89 | `yellow-300` | `yellow-400` | Gold shimmer pulse (1.8s loop) |
-| Chaos total | 60–74 | `red-500` | `red-500` | None |
-| Agité | 45–59 | `amber-500` | `amber-500` | None |
-| Disputé | 30–44 | `yellow-400` | `yellow-400` | None |
-| Calme | 15–29 | `green-400` | `green-400` | None |
-| Aucun drama | 0–14 | `slate-400` | `slate-500` | None |
+### Accent colors
 
----
+- Red: primary Duel accent
+- Purple: WikiWars accent
+- Sky: Legendary drama tier
+- Gold/yellow: Enormous drama tier and Worldwide/Viral-adjacent celebration states
 
 ## Typography
 
-- **Font**: Inter (Google Fonts) — weights 400, 600, 700, 800
-- **Headings**: `font-extrabold` (800), tight tracking
-- **App title**: `text-5xl font-extrabold` — "Wiki" white + "Drama" red-500
-- **Drama score**: `text-4xl font-extrabold` colored by tier
-- **Body**: `text-sm` / `text-xs` for descriptions, stats
-- **Mono labels**: `font-mono text-xs text-zinc-600` (formula display)
+- Font: Inter
+- Headings: bold to extra-bold, tight and compact
+- Home title: oversized, with "Drama" highlighted in red
+- Body copy: short, compact, readable on mobile
+- Mono text is reserved for formulas and share/export snippets
 
----
+## Screens and Components
 
-## Screens & Components
+### Home (`/`)
 
-### 1. Home (`/`)
-- Full black background, centered column
-- `WikiDramaLogo` interactive SVG component (86px) at top — globe with puzzle pieces, multilingual glyphs, dramatize animation on click
-- Title: `WikiDrama` (white + red "Drama")
-- Tagline: `text-zinc-400 text-base`
-- **3 mode buttons** stacked vertically with `gap-3`:
-  - **Duel Random** — `bg-red-500`, rounded-2xl, py-5, shuffle SVG icon badge
-  - **Duel Thématique** — `bg-zinc-900 border border-zinc-700`, folder SVG icon badge
-  - **WikiWars** — purple gradient, `border-purple-800`, chart SVG icon badge, "Special Mode" badge above
-- Hover/touch: label fades out, description fades in (backdrop-blur overlay)
-- Bottom: Drama Score formula card (`bg-zinc-900 border border-zinc-800 rounded-2xl`)
-- Footer: GitHub + Play Store links, zinc-500 text
+- Contains the live ticker, animated logo, title, tagline, and 3 game modes
+- Mode cards are stacked vertically
+- Each mode card has a front face and a back face
+- Front face: direct play CTA
+- Back face: short mode description with `Retour` and `Jouer`
+- `WikiWars` carries a special-mode badge
+- Bottom formula card summarizes the Drama Score inputs
+- Footer includes GitHub and placeholder store link
 
-### 2. Duel (`/duel?mode=random|thematic`)
-- **Split-screen** — two `DuelCard` stacked vertically, each takes 50% viewport height
-- A thin horizontal separator with `VS` badge in the center
-- Loading state: `LoadingDuel` spinner component
-- Error states: offline message or generic error with retry button
-- Bottom action bar (after reveal): **Partager** + **Rejouer** buttons
+### Settings Modal
 
-#### DuelCard (vote phase)
-- Full-bleed Wikipedia thumbnail as background (`object-cover`)
-- Dark overlay: `bg-black/60`
-- Article title: `text-xl font-extrabold text-white text-center drop-shadow-lg`
-- Short extract: pill with `bg-black/40 backdrop-blur-sm rounded-2xl text-xs`
-- Vote button: subtle border pill `text-white/50 border border-white/20 rounded-full`
+- Opened from the Home screen
+- Focus-trapped modal
+- Contains language, theme, and Sudden Death settings
+- Includes the language source notice
+- Uses glassy/dimmed dark styling even when the app supports light mode
 
-#### DuelCard (reveal phase)
-- Winner: overlay brightens (`bg-black/40`), loser: `opacity-50`
-- Legendary winner: `bg-sky-950/50` overlay + blue shimmer border + `legendary-shimmer` animation
-- Enormous winner: `bg-yellow-950/40` overlay + gold shimmer border + `enormous-shimmer` animation
-- Regular winner: `border-4 border-yellow-400`
-- Score badge: `text-4xl font-extrabold` in tier color, with glow animation if Legendary/Enormous
-- Tier label text below score
-- Protected article: orange lock label
-- Progress bar: `h-1.5 rounded-full` animated fill
-- Stats grid: 2 columns × 3 rows, `text-xs text-white/80 bg-black/40 backdrop-blur-sm rounded-xl`
-  - ✏️ edits count | 👥 unique editors
-  - ↩️ reversion % | 👻 anon %
-  - 👁️ watchers | ✂️ minor %
+### Duel (`/duel`)
 
-### 3. CategoryPicker (inside Duel thematic)
-- Full-width list of category cards, tap-to-play (no selection state)
-- Each card: Wikipedia category thumbnail + inline SVG icon + category name + article count
-- Per-category SVG icons: temple (Politique), soccer ball (Sport), clapperboard (Pop Culture), flask (Science), book (Histoire), cross (Religion), smartphone (Tech), play button (YouTubers FR/US)
+- Thematic mode starts with a category picker
+- Random mode loads directly into the duel
+- Main duel layout is always top card vs bottom card
+- Cards use article imagery when available, otherwise gradient fallbacks
+- Vote state is simpler and dimmer than reveal state
+- Reveal shows score, tier, progress bar, and article stats
+- Protected articles get a dedicated badge
+- Bottom bar changes between vote instruction and replay/share actions
 
-### 4. WikiWars (`/wikiwars`)
-- Same split-screen layout as Duel
-- Purple-tinted accents instead of red/gold
-- Articles compared by Wikipedia pageviews (12 months) instead of Drama Score
-- Tier system: Viral 💎 / Mondial 🌍 / Tendance 📈 / Populaire 👀 / Connu 📖 / Obscur 🌑
+### Category Picker
 
-### 5. NotFound (`/*`)
-- Centered, dark, simple 404 message
-- Back-to-home button
+- Tap-to-play list, no separate selection confirmation
+- Each row uses a thumbnail, custom category icon, label, and article count
+- Categories are currently: Politics, Sport, Pop Culture, Science, History, Religion, Tech, YouTubeurs FR, YouTubeurs US
 
-### 6. ErrorBoundary
-- Wraps entire app
-- Two states: offline (no connection) / generic JS error
-- Retry button that re-initializes the current mode
+### WikiWars (`/wikiwars`)
 
----
+- Reuses the split-screen duel pattern
+- Uses purple accents instead of red
+- Compares pageviews over 12 months instead of drama score
+- Reveal shows formatted views, tier label, and popularity bar
+- Share flow is a dedicated modal
 
-## Animations
+### Share Sheets
 
-| Name | Class | Description |
-|---|---|---|
-| Slide up | `.slide-up` | 0.25s cubic-bezier, used for bottom sheets |
-| Fade in | `.fade-in` | 0.3s ease, used for reveal phase elements |
-| Fill bar | `.fill-bar` | 0.8s animated progress bar on score reveal |
-| Legendary shimmer | `.legendary-shimmer` | Blue border pulsing glow, 1.8s infinite |
-| Legendary badge glow | `.legendary-badge-glow` | Badge box-shadow pulse |
-| Legendary text glow | `.legendary-text-glow` | Score text-shadow pulse |
-| Enormous shimmer | `.enormous-shimmer` | Gold border pulsing glow, 1.8s infinite |
-| Enormous badge glow | `.enormous-badge-glow` | Gold badge pulse |
-| Enormous text glow | `.enormous-text-glow` | Gold text pulse |
+- Duel and WikiWars both use bottom-sheet style share modals
+- Share modals are focus-trapped
+- Share content uses monospace preview blocks
 
----
+### Error States
 
-## Design Rules (do not break)
+- Local page-level errors show retry and return-home actions
+- Global `ErrorBoundary` exists and should remain visually simple
 
-1. **Always black background** — never white, never gray as a base
-2. **Mobile-first** — every design decision assumes a 390px-wide phone screen
-3. **No account UI** — zero friction, no login/signup flows
-4. **Drama tiers are sacred** — Legendary = blue glow, Enormous = gold glow. Never swap these colors
-5. **Reveal is the payoff** — the reveal animation is the emotional core. Do not reduce it
-6. **Split-screen duel** — top/bottom halves are the core UX pattern. Do not break into cards side-by-side
-7. **Touch targets** — all interactive elements minimum 44px height
-8. **No heavy animations** — shimmer effects only on Legendary/Enormous. Logo dramatize animation is the only other heavy animation, and respects `prefers-reduced-motion`
-9. **Typography contrast** — score text must always be clearly readable over the dark card overlay
+## Reveal Rules
 
----
+- Reveal is the emotional core of the product
+- Winners brighten; losers dim
+- Regular winners get a visible accent border
+- Legendary and Enormous states get shimmer and text glow
+- Avoid weakening reveal by making vote state equally loud
 
-## Tech Stack (for reference)
+## Tier Rules
 
-- Vite + React 18 + TypeScript
-- Tailwind CSS v3
-- React Router v6
-- Data: Wikipedia REST API + XTools API (no auth required)
-- Cache: localStorage, version key `wikistats-v9`
-- Build: static SPA, deployed on Cloudflare Pages
+### Drama tiers
+
+- Legendary: blue/sky glow
+- Enormous Drama: gold glow
+- Total Chaos: strong red accent
+- Lower tiers should remain readable but less theatrical
+
+These color meanings should not be swapped.
+
+### WikiWars tiers
+
+- Viral
+- Worldwide
+- Trending
+- Popular
+- Known
+- Obscure
+
+WikiWars can share some celebration patterns with Duel, but it should remain purple-led overall.
+
+## Motion
+
+Current named motion patterns:
+
+- `slide-up`: bottom-sheet entrance
+- `fade-in`: soft reveal entrance
+- `fill-bar`: animated score/progress fill
+- `legendary-shimmer`: blue celebratory border glow
+- `enormous-shimmer`: gold celebratory border glow
+- `sudden-death-pulse`: countdown urgency state
+- `wikidrama-logo` drama animation on interaction
+
+Motion should feel intentional, not constant. The main heavy moments are:
+
+- logo dramatization
+- reveal celebration
+- sudden death urgency
+
+Respect `prefers-reduced-motion`.
+
+## Non-Negotiable Constraints
+
+1. Preserve the mobile-first single-column app structure.
+2. Preserve the split-screen duel pattern for Duel and WikiWars.
+3. Keep reveal stronger than vote.
+4. Preserve the meaning of Legendary = blue and Enormous = gold.
+5. Do not introduce account, signup, or backend-management UI unless explicitly requested.
+6. Keep UI copy short and high-signal on mobile.
+7. Maintain support for i18n and both theme modes.
+
+## Notes for UI Work
+
+- Check [`README.md`](/C:/Users/jamil/wikidrama/README.md:1) for product framing
+- Check [`AGENTS.md`](/C:/Users/jamil/wikidrama/AGENTS.md:1) for repo workflow rules
+- Before changing visuals, verify that this file still matches components in `src/pages` and `src/components`
