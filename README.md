@@ -96,9 +96,11 @@ npm run build
 - [x] Settings notice for Wikipedia source behavior
 - [x] Animated interactive logo
 - [x] Sudden Death mode
-- [ ] Streak counter
-- [ ] Thematic WikiWars mode
-- [ ] User accounts and saved scores
-- [ ] Expanded live feed for ongoing edit wars
+- [ ] Streak counter / Local stats
+- [ ] Quest and xp system
+- [ ] User accounts and saved scores with ladder
+- [ ] Enrich the live feed with more metrics
+- [ ] ADD MORE ARTICLES AND THEMES ! + Refine formula - Add talkPAGE Sentiment score to the DramaScore formula
+
 
 WikiDrama V3 is powered by public Wikipedia, Wikimedia, and XTools APIs.
