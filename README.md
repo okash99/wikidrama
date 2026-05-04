@@ -14,7 +14,7 @@ WikiDrama is a mobile-first React app that turns Wikipedia edit wars and pagevie
 
 ### Random Duel
 
-Two Wikipedia articles are drawn at random from a pool of controversial topics. Guess which one generated the most controversy.
+Two Wikipedia articles are drawn at random from a curated pool of over 850 controversial topics. Guess which one generated the most controversy.
 
 ### Thematic Duel
 
