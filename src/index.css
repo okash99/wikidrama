@@ -54,6 +54,11 @@ body {
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(82, 82, 91, 0.5); border-radius: 10px; } /* zinc-600/50 */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(113, 113, 122, 0.8); } /* zinc-500/80 */
+
 @keyframes slideUp {
   from { transform: translateY(100%); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }

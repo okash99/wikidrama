@@ -84,7 +84,7 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="profile-title"
-        className="relative w-full mx-4 max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl bg-zinc-900/90 backdrop-blur-2xl border border-zinc-800 flex flex-col gap-6 p-5 shadow-2xl custom-scrollbar"
+        className="relative w-full mx-4 max-w-sm max-h-[90vh] overflow-y-auto rounded-2xl bg-zinc-900/40 backdrop-blur-2xl border border-zinc-800 flex flex-col gap-6 p-5 shadow-2xl custom-scrollbar"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -104,7 +104,7 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
         <div className="flex flex-col items-center gap-3 mt-2">
           <div className="w-20 h-20 rounded-full bg-zinc-800 border-2 border-zinc-700 flex items-center justify-center relative shadow-inner">
             <UserIcon />
-            <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white text-xs font-black px-2 py-1 rounded-lg border border-blue-400 shadow-md transform rotate-3">
+            <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-md border border-blue-400 shadow-md">
               LVL {level}
             </div>
           </div>
