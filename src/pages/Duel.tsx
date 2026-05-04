@@ -6,6 +6,7 @@ import { computeDramaScore } from '../utils/dramaScore'
 import { E } from '../utils/emojis'
 import eyeLogoRaw from '../assets/eye-logo.svg?raw'
 import { useSettings } from '../context/SettingsContext'
+import { useProfile } from '../context/ProfileContext'
 import DuelCard from '../components/DuelCard'
 import CategoryPicker from '../components/CategoryPicker'
 import ShareButton from '../components/ShareButton'
@@ -45,6 +46,7 @@ export default function Duel() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { suddenDeathEnabled } = useSettings()
+  const { addGameResult } = useProfile()
   const mode = searchParams.get('mode') || 'random'
 
   const [phase, setPhase]       = useState<Phase>(mode === 'random' ? 'loading' : 'pick-category')
@@ -114,9 +116,20 @@ export default function Duel() {
   }, [suddenDeathEnabled, phase, articles])
 
   function handleVote(index: 0 | 1) {
-    if (phase !== 'vote') return
+    if (phase !== 'vote' || !articles) return
     setSelected(index)
     setPhase('reveal')
+
+    const scoreA = computeDramaScore(articles[0].stats)
+    const scoreB = computeDramaScore(articles[1].stats)
+    const currentWinner = scoreA === scoreB ? 'tie' : (scoreA > scoreB ? 0 : 1)
+    
+    const outcome = currentWinner === 'tie' ? 'DRAW' : (currentWinner === index ? 'WIN' : 'LOSS')
+    addGameResult({
+      outcome,
+      mode: suddenDeathEnabled ? 'sudden_death' : mode,
+      category: mode === 'thematic' ? category : undefined
+    })
   }
 
   function getWinner(): WinnerState {

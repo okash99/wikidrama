@@ -2,10 +2,20 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import SettingsModal from '../components/SettingsModal'
+import ProfileModal from '../components/ProfileModal'
 import DramaTicker from '../components/DramaTicker'
 import WikiDramaLogo from '../components/WikiDramaLogo'
 
 type ModeId = 'random' | 'thematic' | 'wikiwars'
+
+function UserIcon() {
+  return (
+    <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  )
+}
 
 function ModeIcon({ id }: { id: ModeId }) {
   if (id === 'random') {
@@ -50,6 +60,7 @@ export default function Home() {
   const { t } = useTranslation()
   const [flipped, setFlipped] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
 
   const MODES = [
     {
@@ -81,17 +92,27 @@ export default function Home() {
   return (
     <>
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
 
       <main className="relative flex flex-col items-center justify-between flex-1 px-6 py-8">
-        <button
-          onClick={() => setShowSettings(true)}
-          className="absolute top-5 right-5 z-20 text-muted hover:text-text transition-colors p-1"
-          aria-label={t('settings')}
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.02 7.02 0 0 0-1.62-.94l-.36-2.54A.484.484 0 0 0 14 2h-4a.484.484 0 0 0-.48.41l-.36 2.54a7.02 7.02 0 0 0-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.64 8.47a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.47.47 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.36 1.04.67 1.62.94l.36 2.54c.05.24.27.41.48.41h4c.22 0 .43-.17.47-.41l.36-2.54a7.02 7.02 0 0 0 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z" />
-          </svg>
-        </button>
+        <div className="absolute top-5 right-5 z-20 flex items-center gap-3">
+          <button
+            onClick={() => setShowProfile(true)}
+            className="text-muted hover:text-text transition-colors p-1"
+            aria-label={t('profile')}
+          >
+            <UserIcon />
+          </button>
+          <button
+            onClick={() => setShowSettings(true)}
+            className="text-muted hover:text-text transition-colors p-1"
+            aria-label={t('settings')}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.02 7.02 0 0 0-1.62-.94l-.36-2.54A.484.484 0 0 0 14 2h-4a.484.484 0 0 0-.48.41l-.36 2.54a7.02 7.02 0 0 0-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.64 8.47a.47.47 0 0 0 .12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.47.47 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.36 1.04.67 1.62.94l.36 2.54c.05.24.27.41.48.41h4c.22 0 .43-.17.47-.41l.36-2.54a7.02 7.02 0 0 0 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.47.47 0 0 0-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z" />
+            </svg>
+          </button>
+        </div>
 
         <div className="flex flex-col items-center gap-6 w-full pt-12">
           <DramaTicker />

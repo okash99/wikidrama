@@ -6,6 +6,7 @@ WikiDrama is a mobile-first React app that turns Wikipedia edit wars and pagevie
 
 <p align="center">
   <img src="public/img/screenshot-home.png" alt="WikiDrama Home Screen" width="350" />
+  <img src="public/img/screenshot-profile.png" alt="WikiDrama Profile & Quests" width="350" />
 </p>
 
 [Live demo](https://wikidrama.pages.dev)
@@ -96,8 +97,8 @@ npm run build
 - [x] Settings notice for Wikipedia source behavior
 - [x] Animated interactive logo
 - [x] Sudden Death mode
-- [ ] Streak counter / Local stats
-- [ ] Quest and xp system
+- [x] Streak counter / Local stats
+- [x] Quest and xp system
 - [ ] User accounts and saved scores with ladder
 - [ ] Enrich the live feed with more metrics
 - [ ] ADD MORE ARTICLES AND THEMES ! + Refine formula - Add talkPAGE Sentiment score to the DramaScore formula

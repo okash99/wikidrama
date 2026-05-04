@@ -6,6 +6,7 @@ import { fetchSummaryForWikiWars, type PageviewsData } from '../api/pageviews'
 import { getPopularityTierKey, getPopularityColor, getPopularityBarColor, formatViews, viewsToScore, getPopularityTier } from '../utils/popularityScore'
 import { E } from '../utils/emojis'
 import { useSettings } from '../context/SettingsContext'
+import { useProfile } from '../context/ProfileContext'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import Icon from '../components/Icon'
 import SuddenDeathOverlay from '../components/SuddenDeathOverlay'
@@ -147,6 +148,7 @@ export default function WikiWars() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { suddenDeathEnabled } = useSettings()
+  const { addGameResult } = useProfile()
   const [phase, setPhase]         = useState<Phase>('loading')
   const [cards, setCards]         = useState<[PageviewsData, PageviewsData] | null>(null)
   const [selected, setSelected]   = useState<0 | 1 | null>(null)
@@ -206,6 +208,14 @@ export default function WikiWars() {
     if (phase !== 'vote' || !cards) return
     setSelected(index)
     setPhase('reveal')
+
+    const currentWinner = cards[0].views === cards[1].views ? 'tie' : (cards[0].views > cards[1].views ? 0 : 1)
+    const outcome = currentWinner === 'tie' ? 'DRAW' : (currentWinner === index ? 'WIN' : 'LOSS')
+    
+    addGameResult({
+      outcome,
+      mode: 'wikiwars'
+    })
   }
 
   function getWinner(): 0 | 1 | 'tie' {
