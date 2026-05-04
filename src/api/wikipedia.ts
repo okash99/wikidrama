@@ -3,8 +3,6 @@ import {
   DRAMA_POOL,
   DRAMA_POOL_ENTRIES,
   DRAMA_CATEGORIES,
-  LEGENDARY_POOL,
-  ENORMOUS_POOL,
   CATEGORY_LANG,
   type DramaPoolEntry,
   type WikiLang,
@@ -19,10 +17,6 @@ const FETCH_TIMEOUT_MS = 8000
 const XTOOLS_TIMEOUT_MS = 6000
 const XTOOLS_MAX_RETRIES = 2
 
-const DRAW_LEGENDARY = 0.10
-const DRAW_ENORMOUS  = 0.20
-const DRAW_WHITELIST = 0.50
-
 const COMMONS_API_URL = 'https://commons.wikimedia.org/w/api.php'
 const WIKIDATA_ENTITY_URL = 'https://www.wikidata.org/wiki/Special:EntityData'
 
@@ -34,8 +28,9 @@ const CATEGORY_FALLBACK_TITLES: Record<string, { title: string; lang: WikiLang }
   Histoire: { title: 'History', lang: 'en' },
   Religion: { title: 'Religion', lang: 'en' },
   Tech: { title: 'Technology', lang: 'en' },
-  'YouTubeurs FR': { title: 'YouTube', lang: 'fr' },
-  'YouTubeurs US': { title: 'YouTube', lang: 'en' },
+  'YouTubeurs FR': { title: 'Vidéaste web', lang: 'fr' },
+  'YouTubeurs US': { title: 'YouTuber', lang: 'en' },
+  Divers: { title: 'Internet meme', lang: 'en' },
 }
 
 const DEFAULT_CATEGORY_FALLBACK = { title: 'Wikipedia', lang: 'en' as const }
@@ -376,22 +371,6 @@ async function fetchSummary(title: string, lang: WikiLang = 'en', category?: str
   }
 }
 
-async function fetchRandomSummary(): Promise<WikiArticle> {
-  const { base } = getUrls('en')
-  const res = await fetchWithTimeout(`${base}/page/random/summary`, FETCH_TIMEOUT_MS)
-  if (!res.ok) throw new Error('Random failed')
-  const data = await res.json() as SummaryData
-  const image = await resolveArticleImage(data.title, 'en', data)
-  return {
-    title: data.title,
-    extract: data.extract?.slice(0, 300) || '',
-    thumbnail: image.thumbnail,
-    imageSource: image.imageSource,
-    pageId: data.pageid,
-    url: data.content_urls?.desktop?.page || '',
-  }
-}
-
 // ─── XTools ───────────────────────────────────────────────────────────────────
 
 interface XToolsData {
@@ -529,16 +508,6 @@ export async function fetchArticleStats(title: string, lang: WikiLang = 'en'): P
   return stats
 }
 
-// ─── Source picker ────────────────────────────────────────────────────────────
-
-function pickSource(): 'legendary' | 'enormous' | 'whitelist' | 'random' {
-  const r = Math.random()
-  if (r < DRAW_LEGENDARY) return 'legendary'
-  if (r < DRAW_LEGENDARY + DRAW_ENORMOUS) return 'enormous'
-  if (r < DRAW_LEGENDARY + DRAW_ENORMOUS + DRAW_WHITELIST) return 'whitelist'
-  return 'random'
-}
-
 // ─── Validated article fetch ──────────────────────────────────────────────────
 
 async function fetchValidatedArticle(title?: string, lang: WikiLang = 'en', category?: string): Promise<ArticleData> {
@@ -550,18 +519,9 @@ async function fetchValidatedArticle(title?: string, lang: WikiLang = 'en', cate
       if (title) {
         article = await fetchSummary(title, lang, category)
       } else {
-        const source = pickSource()
-        if (source === 'legendary') {
-          article = await fetchSummary(LEGENDARY_POOL[Math.floor(Math.random() * LEGENDARY_POOL.length)])
-        } else if (source === 'enormous') {
-          article = await fetchSummary(ENORMOUS_POOL[Math.floor(Math.random() * ENORMOUS_POOL.length)])
-        } else if (source === 'whitelist') {
-          const entry = pickPoolEntry()
-          article = await fetchSummary(entry.title, entry.lang, entry.category)
-          articleLang = entry.lang
-        } else {
-          article = await fetchRandomSummary()
-        }
+        const entry = pickPoolEntry()
+        article = await fetchSummary(entry.title, entry.lang, entry.category)
+        articleLang = entry.lang
       }
       const stats = await fetchArticleStats(article.title, articleLang)
       if (computeDramaScore(stats) < DRAMA_SCORE_THRESHOLD) {

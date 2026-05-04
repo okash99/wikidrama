@@ -18,7 +18,7 @@ Two Wikipedia articles are drawn at random from a pool of controversial topics. 
 
 ### Thematic Duel
 
-Pick a category and compare two articles from the same universe. Current categories include Politics, Sport, Pop Culture, Science, History, Religion, Tech, French YouTubers, and US YouTubers.
+Pick a category and compare two articles from the same universe. Current categories include Politics, Sport, Pop Culture, Science, History, Religion, Tech, French YouTubers, US YouTubers, and Miscellaneous.
 
 ### WikiWars
 
