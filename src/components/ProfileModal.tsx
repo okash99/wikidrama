@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useProfile } from '../context/ProfileContext'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import { getTitleKeyForLevel, XP_PER_LEVEL, Quest } from '../types/profile'
+import { AVATARS } from '../constants/avatars'
 
 interface ProfileModalProps {
   onClose: () => void
@@ -66,10 +68,12 @@ function QuestItem({ quest }: { quest: Quest }) {
 
 export default function ProfileModal({ onClose }: ProfileModalProps) {
   const { t } = useTranslation()
-  const { profile } = useProfile()
+  const { profile, updateAvatar } = useProfile()
   const modalRef = useFocusTrap(true, onClose)
+  const [isEditingAvatar, setIsEditingAvatar] = useState(false)
 
-  const { level, xp } = profile.progression
+  const { level, xp, avatarId } = profile.progression
+  const selectedAvatar = AVATARS.find(a => a.id === profile.avatarId)
   const titleKey = getTitleKeyForLevel(level)
   const xpPercent = Math.min(100, (xp / XP_PER_LEVEL) * 100)
 
@@ -100,70 +104,133 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
           </button>
         </div>
 
-        {/* User Header */}
-        <div className="flex flex-col items-center gap-3 mt-2">
-          <div className="w-20 h-20 rounded-full bg-zinc-800 border-2 border-zinc-700 flex items-center justify-center relative shadow-inner">
-            <UserIcon />
-            <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-md border border-blue-400 shadow-md">
-              LVL {level}
+        {!isEditingAvatar ? (
+          <>
+            {/* User Header */}
+            <div className="flex flex-col items-center gap-3 mt-2">
+              <div className="relative group cursor-pointer" onClick={() => setIsEditingAvatar(true)}>
+                <div className={`w-20 h-20 rounded-full border-2 flex items-center justify-center shadow-inner overflow-hidden transition-all duration-300 ${selectedAvatar ? `${selectedAvatar.bg} ${selectedAvatar.border}` : 'bg-zinc-800 border-zinc-700'}`}>
+                  {selectedAvatar ? (
+                    <div className={`w-11 h-11 ${selectedAvatar.color}`}>{selectedAvatar.icon}</div>
+                  ) : (
+                    <UserIcon />
+                  )}
+                  {/* Edit Overlay */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-full">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 20h9"/>
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                  </div>
+                </div>
+                <div className="absolute -bottom-1 -right-1 bg-blue-600 text-white text-[10px] font-black px-1.5 py-0.5 rounded-md border border-blue-400 shadow-md z-10 pointer-events-none">
+                  LVL {level}
+                </div>
+              </div>
+              <div className="text-center">
+                <h3 className="text-white font-bold text-lg leading-tight">{t(titleKey)}</h3>
+                <p className="text-zinc-400 text-xs font-medium uppercase tracking-wider mt-1">{t('profileLevel', { level })}</p>
+              </div>
             </div>
-          </div>
-          <div className="text-center">
-            <h3 className="text-white font-bold text-lg leading-tight">{t(titleKey)}</h3>
-            <p className="text-zinc-400 text-xs font-medium uppercase tracking-wider mt-1">{t('profileLevel', { level })}</p>
-          </div>
-        </div>
 
-        {/* XP Bar */}
-        <div className="flex flex-col gap-1.5 px-2">
-          <div className="flex justify-between text-xs font-bold">
-            <span className="text-blue-400">XP</span>
-            <span className="text-zinc-400">{t('profileXp', { xp, req: XP_PER_LEVEL })}</span>
-          </div>
-          <div className="h-3 w-full bg-black/60 rounded-full overflow-hidden border border-zinc-800 shadow-inner">
-            <div 
-              className="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-1000 ease-out relative"
-              style={{ width: `${xpPercent}%` }}
-            >
-              <div className="absolute top-0 bottom-0 right-0 w-4 bg-white/20 blur-[2px]" />
+            {/* XP Bar */}
+            <div className="flex flex-col gap-1.5 px-2">
+              <div className="flex justify-between text-xs font-bold">
+                <span className="text-blue-400">XP</span>
+                <span className="text-zinc-400">{t('profileXp', { xp, req: XP_PER_LEVEL })}</span>
+              </div>
+              <div className="h-3 w-full bg-black/60 rounded-full overflow-hidden border border-zinc-800 shadow-inner">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-600 to-blue-400 rounded-full transition-all duration-1000 ease-out relative"
+                  style={{ width: `${xpPercent}%` }}
+                >
+                  <div className="absolute top-0 bottom-0 right-0 w-4 bg-white/20 blur-[2px]" />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Daily Quests */}
-        <div className="flex flex-col gap-3">
-          <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest px-1">{t('profileDailyQuests')}</p>
-          <div className="flex flex-col gap-2">
-            {profile.dailyQuests.map(quest => (
-              <QuestItem key={quest.id} quest={quest} />
-            ))}
-          </div>
-        </div>
+            {/* Daily Quests */}
+            <div className="flex flex-col gap-3">
+              <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest px-1">{t('profileDailyQuests')}</p>
+              <div className="flex flex-col gap-2">
+                {profile.dailyQuests.map(quest => (
+                  <QuestItem key={quest.id} quest={quest} />
+                ))}
+              </div>
+            </div>
 
-        {/* Stats */}
-        <div className="flex flex-col gap-3">
-          <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest px-1">{t('profileStats')}</p>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="bg-zinc-800/40 border border-zinc-800 rounded-xl p-3 flex flex-col items-center justify-center text-center">
-              <span className="text-2xl font-black text-green-400">{profile.stats.wins}</span>
-              <span className="text-xs text-zinc-500 font-medium uppercase mt-1">{t('profileWins')}</span>
+            {/* Stats */}
+            <div className="flex flex-col gap-3">
+              <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest px-1">{t('profileStats')}</p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-zinc-800/40 border border-zinc-800 rounded-xl p-3 flex flex-col items-center justify-center text-center">
+                  <span className="text-2xl font-black text-green-400">{profile.stats.wins}</span>
+                  <span className="text-xs text-zinc-500 font-medium uppercase mt-1">{t('profileWins')}</span>
+                </div>
+                <div className="bg-zinc-800/40 border border-zinc-800 rounded-xl p-3 flex flex-col items-center justify-center text-center">
+                  <span className="text-2xl font-black text-red-400">{profile.stats.losses}</span>
+                  <span className="text-xs text-zinc-500 font-medium uppercase mt-1">{t('profileLosses')}</span>
+                </div>
+                <div className="bg-zinc-800/40 border border-zinc-800 rounded-xl p-3 flex flex-col items-center justify-center text-center">
+                  <span className="text-2xl font-black text-zinc-300">{profile.stats.draws}</span>
+                  <span className="text-xs text-zinc-500 font-medium uppercase mt-1">{t('profileDraws')}</span>
+                </div>
+                <div className="bg-zinc-800/40 border border-zinc-800 rounded-xl p-3 flex flex-col items-center justify-center text-center">
+                  <span className="text-2xl font-black text-yellow-400">{profile.stats.bestStreak} 
+                    <span className="text-yellow-400/50 text-sm ml-0.5">🔥</span>
+                  </span>
+                  <span className="text-xs text-zinc-500 font-medium uppercase mt-1">{t('profileBestStreak')}</span>
+                </div>
+              </div>
             </div>
-            <div className="bg-zinc-800/40 border border-zinc-800 rounded-xl p-3 flex flex-col items-center justify-center text-center">
-              <span className="text-2xl font-black text-red-400">{profile.stats.losses}</span>
-              <span className="text-xs text-zinc-500 font-medium uppercase mt-1">{t('profileLosses')}</span>
+          </>
+        ) : (
+          <div className="flex flex-col gap-4 pb-2 fade-in">
+            <div className="flex items-center justify-between mb-2">
+              <button 
+                onClick={() => setIsEditingAvatar(false)}
+                className="flex items-center gap-1.5 text-xs font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-widest"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m15 18-6-6 6-6"/>
+                </svg>
+                {t('back')}
+              </button>
             </div>
-            <div className="bg-zinc-800/40 border border-zinc-800 rounded-xl p-3 flex flex-col items-center justify-center text-center">
-              <span className="text-2xl font-black text-zinc-300">{profile.stats.draws}</span>
-              <span className="text-xs text-zinc-500 font-medium uppercase mt-1">{t('profileDraws')}</span>
-            </div>
-            <div className="bg-zinc-800/40 border border-zinc-800 rounded-xl p-3 flex flex-col items-center justify-center text-center">
-              <span className="text-2xl font-black text-yellow-400">{profile.stats.bestStreak} 
-                <span className="text-yellow-400/50 text-sm ml-0.5">🔥</span>
-              </span>
-              <span className="text-xs text-zinc-500 font-medium uppercase mt-1">{t('profileBestStreak')}</span>
+            
+            <div className="grid grid-cols-3 gap-3">
+              {AVATARS.map((avatar) => {
+                const isSelected = profile.avatarId === avatar.id;
+                return (
+                  <button
+                    key={avatar.id}
+                    onClick={() => {
+                      updateAvatar(avatar.id);
+                      setIsEditingAvatar(false);
+                    }}
+                    className={`group relative flex items-center justify-center aspect-square rounded-xl border transition-all duration-300 overflow-hidden 
+                      ${isSelected ? 'bg-zinc-800/80 border-zinc-500 shadow-md scale-105' : 'bg-zinc-900/60 border-zinc-800 hover:border-zinc-600 hover:bg-zinc-800'}
+                      ${avatar.glow}
+                    `}
+                  >
+                    {/* Background glow base */}
+                    <div className={`absolute inset-0 opacity-20 transition-opacity duration-300 ${isSelected ? 'opacity-40' : 'group-hover:opacity-30'} ${avatar.bg}`}></div>
+                    
+                    {/* Icon */}
+                    <div className={`w-10 h-10 transition-transform duration-300 ${isSelected ? 'scale-110' : 'group-hover:scale-110'} ${avatar.color}`}>
+                      {avatar.icon}
+                    </div>
+                    
+                    {/* Selected indicator */}
+                    {isSelected && (
+                      <div className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)] border border-white/20"></div>
+                    )}
+                  </button>
+                )
+              })}
             </div>
           </div>
-        </div>
+        )}
 
       </div>
     </div>
