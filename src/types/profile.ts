@@ -24,6 +24,7 @@ export interface PlayerProgression {
 
 export interface PlayerProfile {
   avatarId?: string;
+  avatarBgTheme?: string;
   stats: PlayerStats;
   progression: PlayerProgression;
   dailyQuests: Quest[];

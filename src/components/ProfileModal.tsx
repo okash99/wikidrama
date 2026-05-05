@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useProfile } from '../context/ProfileContext'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import { getTitleKeyForLevel, getXpForLevel, Quest } from '../types/profile'
-import { AVATARS } from '../constants/avatars'
+import { AVATARS, CUSTOM_BG_THEMES } from '../constants/avatars'
 
 interface ProfileModalProps {
   onClose: () => void
@@ -68,15 +68,21 @@ function QuestItem({ quest }: { quest: Quest }) {
 
 export default function ProfileModal({ onClose }: ProfileModalProps) {
   const { t } = useTranslation()
-  const { profile, updateAvatar } = useProfile()
+  const { profile, updateAvatar, updateAvatarBg } = useProfile()
   const modalRef = useFocusTrap(true, onClose)
   const [isEditingAvatar, setIsEditingAvatar] = useState(false)
 
   const { level, xp } = profile.progression
   const selectedAvatar = AVATARS.find(a => a.id === profile.avatarId)
+  const selectedTheme = CUSTOM_BG_THEMES.find(t => t.id === profile.avatarBgTheme) || CUSTOM_BG_THEMES[0]
   const titleKey = getTitleKeyForLevel(level)
   const xpRequired = getXpForLevel(level)
   const xpPercent = level >= 100 ? 100 : Math.min(100, (xp / xpRequired) * 100)
+
+  // Derived styling for the main display avatar
+  const displayBg = selectedTheme.id !== 'default' ? selectedTheme.bg : (selectedAvatar?.bg || 'bg-zinc-800')
+  const displayBorder = selectedTheme.id !== 'default' ? selectedTheme.border : (selectedAvatar?.border || 'border-zinc-700')
+
 
   return (
     <div
@@ -110,7 +116,7 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
             {/* User Header */}
             <div className="flex flex-col items-center gap-3 mt-2">
               <div className="relative group cursor-pointer" onClick={() => setIsEditingAvatar(true)}>
-                <div className={`w-20 h-20 rounded-full border-2 flex items-center justify-center shadow-inner overflow-hidden transition-all duration-300 ${selectedAvatar ? `${selectedAvatar.bg} ${selectedAvatar.border}` : 'bg-zinc-800 border-zinc-700'}`}>
+                <div className={`w-20 h-20 rounded-full border-2 flex items-center justify-center shadow-inner overflow-hidden transition-all duration-300 ${displayBg} ${displayBorder}`}>
                   {selectedAvatar ? (
                     <div className={`w-11 h-11 ${selectedAvatar.color}`}>{selectedAvatar.icon}</div>
                   ) : (
@@ -199,6 +205,32 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
               </button>
             </div>
             
+            {/* Color Palette Selection */}
+            <div className="mb-5 flex flex-col gap-3">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-center">{t('profileCustomColor', 'Couleur de fond')}</span>
+              <div className="flex gap-1.5 justify-center pt-2 pb-3 px-2">
+                {CUSTOM_BG_THEMES.map((theme) => {
+                  const isThemeSelected = profile.avatarBgTheme === theme.id || (!profile.avatarBgTheme && theme.id === 'default');
+                  return (
+                    <button
+                      key={theme.id}
+                      onClick={() => updateAvatarBg(theme.id === 'default' ? undefined : theme.id)}
+                      className={`flex-shrink-0 w-7 h-7 rounded-full border-2 transition-all duration-300 ${theme.colorClass} 
+                        ${isThemeSelected ? 'border-white scale-110 shadow-[0_0_10px_rgba(255,255,255,0.3)]' : 'border-black/50 hover:scale-105'}
+                      `}
+                      aria-label={`Select ${theme.id} color`}
+                    >
+                      {theme.id === 'default' && (
+                        <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50">
+                          <line x1="4" y1="4" x2="20" y2="20" />
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            
             <div className="grid grid-cols-3 gap-3">
               {AVATARS.map((avatar) => {
                 const isSelected = profile.avatarId === avatar.id;
@@ -211,11 +243,12 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
                     }}
                     className={`group relative flex items-center justify-center aspect-square rounded-xl border transition-all duration-300 overflow-hidden 
                       ${isSelected ? 'bg-zinc-800/80 border-zinc-500 shadow-md scale-105' : 'bg-zinc-900/60 border-zinc-800 hover:border-zinc-600 hover:bg-zinc-800'}
-                      ${avatar.glow}
+                      ${selectedTheme.id !== 'default' ? selectedTheme.glow : avatar.glow}
                     `}
                   >
                     {/* Background glow base */}
-                    <div className={`absolute inset-0 opacity-20 transition-opacity duration-300 ${isSelected ? 'opacity-40' : 'group-hover:opacity-30'} ${avatar.bg}`}></div>
+                    <div className={`absolute inset-0 opacity-20 transition-opacity duration-300 ${isSelected ? 'opacity-40' : 'group-hover:opacity-30'} ${selectedTheme.id !== 'default' ? selectedTheme.bg : avatar.bg}`}></div>
+
                     
                     {/* Icon */}
                     <div className={`w-10 h-10 transition-transform duration-300 ${isSelected ? 'scale-110' : 'group-hover:scale-110'} ${avatar.color}`}>

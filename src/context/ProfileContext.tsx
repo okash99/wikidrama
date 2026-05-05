@@ -14,6 +14,7 @@ interface ProfileContextType {
   xpGainedNotification: number | null;
   clearXpNotification: () => void;
   updateAvatar: (id: string) => void;
+  updateAvatarBg: (themeId: string | undefined) => void;
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -166,8 +167,15 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     }));
   }, []);
 
+  const updateAvatarBg = useCallback((themeId: string | undefined) => {
+    setProfile(prev => ({
+      ...prev,
+      avatarBgTheme: themeId
+    }));
+  }, []);
+
   return (
-    <ProfileContext.Provider value={{ profile, addGameResult, xpGainedNotification, clearXpNotification, updateAvatar }}>
+    <ProfileContext.Provider value={{ profile, addGameResult, xpGainedNotification, clearXpNotification, updateAvatar, updateAvatarBg }}>
       {children}
     </ProfileContext.Provider>
   );

@@ -9,6 +9,25 @@ export interface AvatarDefinition {
   glow: string;
 }
 
+export interface CustomBgTheme {
+  id: string;
+  bg: string;
+  border: string;
+  glow: string;
+  colorClass: string; // Used for the palette circles
+}
+
+export const CUSTOM_BG_THEMES: CustomBgTheme[] = [
+  { id: 'default', bg: '', border: '', glow: '', colorClass: 'bg-zinc-800' },
+  { id: 'zinc', bg: 'bg-zinc-400/30', border: 'border-zinc-400/50', glow: 'group-hover:shadow-[0_0_15px_rgba(161,161,170,0.5)]', colorClass: 'bg-zinc-400' },
+  { id: 'amber', bg: 'bg-amber-500/20', border: 'border-amber-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(251,191,36,0.5)]', colorClass: 'bg-amber-500' },
+  { id: 'cyan', bg: 'bg-cyan-500/20', border: 'border-cyan-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(34,211,238,0.5)]', colorClass: 'bg-cyan-500' },
+  { id: 'purple', bg: 'bg-purple-500/20', border: 'border-purple-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(168,85,247,0.5)]', colorClass: 'bg-purple-500' },
+  { id: 'rose', bg: 'bg-rose-500/20', border: 'border-rose-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(244,63,94,0.5)]', colorClass: 'bg-rose-500' },
+  { id: 'green', bg: 'bg-green-500/20', border: 'border-green-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(74,222,128,0.5)]', colorClass: 'bg-green-500' },
+  { id: 'blue', bg: 'bg-blue-500/20', border: 'border-blue-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)]', colorClass: 'bg-blue-500' },
+];
+
 const RAW_AVATARS: AvatarDefinition[] = [
   {
     id: 'ghost',
@@ -96,10 +115,10 @@ const RAW_AVATARS: AvatarDefinition[] = [
 ];
 
 const DICEBEAR_CATEGORIES = [
-  { name: 'fun-emoji', seeds: ['WikiDrama', 'Gossip', 'Villain', 'Comet', 'Nova', 'Smile', 'Laugh', 'Cool', 'Wink', 'Love'], color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', shadow: 'rgba(251,191,36,0.4)' },
+  { name: 'fun-emoji', seeds: ['WikiDrama', 'Gossip', 'Villain', 'Comet', 'Nova', 'Smile', 'Laugh', 'Cool', 'Wink', 'Love'], color: 'text-zinc-200', bg: 'bg-zinc-400/30', border: 'border-zinc-400/50', shadow: 'rgba(161,161,170,0.5)' },
   { name: 'glass', seeds: ['Alpha', 'Beta', 'Gamma', 'Delta', 'Echo', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa'], color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30', shadow: 'rgba(34,211,238,0.4)' },
-  { name: 'pixel-art', seeds: ['Hero', 'Mage', 'Rogue', 'Cleric', 'Bard', 'Paladin', 'Ranger', 'Monk', 'Druid', 'Warlock'], color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30', shadow: 'rgba(168,85,247,0.4)' },
-  { name: 'pixel-art-neutral', seeds: ['Rock', 'Paper', 'Tree', 'Cloud', 'Star', 'Moon', 'Sun', 'Rain', 'Snow', 'Wind'], color: 'text-zinc-400', bg: 'bg-zinc-500/20', border: 'border-zinc-500/40', shadow: 'rgba(161,161,170,0.3)' },
+  { name: 'pixel-art', seeds: ['Hero', 'Mage', 'Rogue', 'Cleric', 'Bard', 'Paladin', 'Ranger', 'Monk', 'Druid', 'Warlock'], color: 'text-zinc-200', bg: 'bg-zinc-400/30', border: 'border-zinc-400/50', shadow: 'rgba(161,161,170,0.5)' },
+  { name: 'pixel-art-neutral', seeds: ['Rock', 'Paper', 'Tree', 'Cloud', 'Star', 'Moon', 'Sun', 'Rain', 'Snow', 'Wind'], color: 'text-zinc-200', bg: 'bg-zinc-400/30', border: 'border-zinc-400/50', shadow: 'rgba(161,161,170,0.5)' },
   { name: 'thumbs', seeds: ['Jack', 'Jill', 'Bob', 'Alice', 'Eve', 'Charlie', 'Dave', 'Frank', 'Grace', 'Heidi'], color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30', shadow: 'rgba(59,130,246,0.4)' },
   { name: 'adventurer', seeds: ['Finn', 'Jake', 'Marceline', 'Bonnibel', 'Simon', 'BMO', 'LSP', 'Gunther', 'Peppermint', 'Cinnamon'], color: 'text-green-400', bg: 'bg-green-500/10', border: 'border-green-500/30', shadow: 'rgba(74,222,128,0.4)' },
   { name: 'rings', seeds: ['Saturn', 'Jupiter', 'Mars', 'Venus', 'Pluto', 'Mercury', 'Earth', 'Uranus', 'Neptune', 'Ceres'], color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30', shadow: 'rgba(244,63,94,0.4)' },
