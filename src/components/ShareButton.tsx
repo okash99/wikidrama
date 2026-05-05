@@ -24,6 +24,7 @@ export default function ShareButton({ articles, winner, selected }: Props) {
   const { t } = useTranslation()
   const [showModal, setShowModal] = useState(false)
   const [copied, setCopied]       = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
   const modalRef = useFocusTrap(showModal, () => setShowModal(false))
 
   useEffect(() => {
@@ -44,6 +45,10 @@ export default function ShareButton({ articles, winner, selected }: Props) {
   const winnerScore        = winnerIdx === 0 ? scoreA : scoreB
   const loserScore         = winnerIdx === 0 ? scoreB : scoreA
   const guessedRight       = isTie || selected === winner
+
+  const langA = a.article.url.split('//')[1]?.split('.')[0] || 'en'
+  const langB = b.article.url.split('//')[1]?.split('.')[0] || 'en'
+  const shareUrl = `${window.location.origin}/?a=${langA}:${encodeURIComponent(a.article.title)}&b=${langB}:${encodeURIComponent(b.article.title)}`
 
   const shareText = [
     isTie ? t('shareTieHeader') : t('shareDuelHeader'),
@@ -69,7 +74,7 @@ export default function ShareButton({ articles, winner, selected }: Props) {
     guessedRight ? t('shareRight') : t('shareWrong'),
     '',
     t('shareTryIt'),
-    'https://wikidrama.pages.dev',
+    shareUrl,
   ].join('\n')
 
   const shortTweetText = isTie
@@ -77,14 +82,14 @@ export default function ShareButton({ articles, winner, selected }: Props) {
         'WikiDrama',
         `${t('shareTieHeader')} ${winnerData.article.title} vs ${loserData.article.title} - ${winnerScore}% chacun`,
         t('shareNoWinner'),
-        'https://wikidrama.pages.dev',
+        shareUrl,
       ].join('\n')
     : [
         'WikiDrama',
         `${winnerData.article.title} - ${winnerScore}%`,
         `${loserData.article.title} - ${loserScore}%`,
         guessedRight ? t('shareFelt') : t('shareWrong'),
-        'https://wikidrama.pages.dev',
+        shareUrl,
       ].join('\n')
 
   async function copyToClipboard() {
@@ -93,6 +98,14 @@ export default function ShareButton({ articles, winner, selected }: Props) {
       setCopied(true)
       setTimeout(() => { setCopied(false); setShowModal(false) }, 2000)
     } catch { alert(shareText) }
+  }
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      setLinkCopied(true)
+      setTimeout(() => { setLinkCopied(false); setShowModal(false) }, 2000)
+    } catch { alert(shareUrl) }
   }
 
   function shareToWhatsApp() {
@@ -122,13 +135,13 @@ export default function ShareButton({ articles, winner, selected }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="share-title"
-        className="w-full max-w-md bg-panel border border-border-strong rounded-t-3xl p-5 flex flex-col gap-4 slide-up"
+        className="w-full max-w-md bg-panel/50 backdrop-blur-2xl border border-border-strong rounded-t-3xl p-5 flex flex-col gap-4 slide-up"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="w-10 h-1 bg-border-strong rounded-full mx-auto" />
         <p id="share-title" className="text-sm font-semibold text-text text-center">{t('sharePartager')}</p>
 
-        <div className="bg-card border border-border-strong rounded-2xl p-4 max-h-44 overflow-y-auto scrollbar-none">
+        <div className="bg-card/40 backdrop-blur-lg border border-border-strong rounded-2xl p-4 max-h-44 overflow-y-auto scrollbar-none">
           <pre className="text-xs text-text whitespace-pre-wrap font-mono leading-relaxed">{shareText}</pre>
         </div>
 
@@ -152,11 +165,18 @@ export default function ShareButton({ articles, winner, selected }: Props) {
               Twitter
             </button>
           </div>
-          <button onClick={copyToClipboard}
-            className="w-full py-3 rounded-xl bg-btn hover:bg-btn-hover active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
-            <Icon name={copied ? 'check' : 'clipboard'} className="h-4 w-4" />
-            {copied ? t('shareCopied') : t('copyText')}
-          </button>
+          <div className="flex gap-2">
+            <button onClick={copyToClipboard}
+              className="flex-1 py-3 rounded-xl bg-btn hover:bg-btn-hover active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
+              <Icon name={copied ? 'check' : 'clipboard'} className="h-4 w-4" />
+              {copied ? t('shareCopied') : t('copyText')}
+            </button>
+            <button onClick={copyLink}
+              className="flex-1 py-3 rounded-xl bg-btn hover:bg-btn-hover active:scale-95 transition-all font-semibold text-sm flex items-center justify-center gap-2">
+              <Icon name={linkCopied ? 'check' : 'link'} className="h-4 w-4" />
+              {linkCopied ? t('shareCopied') : t('copyLink')}
+            </button>
+          </div>
         </div>
 
         <button onClick={() => setShowModal(false)} className="text-muted text-sm text-center py-1">

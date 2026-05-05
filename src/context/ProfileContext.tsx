@@ -130,6 +130,11 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
         xpEarned += newStreak;
       }
 
+      // Sudden Death XP boost
+      if (result.mode === 'sudden_death') {
+        xpEarned *= 2;
+      }
+
       // Update Quests
       const { quests: newQuests, totalXpReward: questXp } = updateQuests(prev.dailyQuests, result, isWin, newStreak);
       xpEarned += questXp;

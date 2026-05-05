@@ -70,6 +70,7 @@ export default {
     share: 'Teilen',
     shareVia: 'Teilen uber...',
     copyText: 'Text kopieren',
+    copyLink: 'Link kopieren',
     iKnewIt: 'Ich wusste es!',
     gotMe: 'Erwischt...',
     sharePartager: 'Duell teilen',

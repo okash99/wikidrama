@@ -148,7 +148,7 @@ export default function WikiWars() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { suddenDeathEnabled } = useSettings()
-  const { addGameResult } = useProfile()
+  const { profile, addGameResult } = useProfile()
   const [phase, setPhase]         = useState<Phase>('loading')
   const [cards, setCards]         = useState<[PageviewsData, PageviewsData] | null>(null)
   const [selected, setSelected]   = useState<0 | 1 | null>(null)
@@ -280,6 +280,12 @@ export default function WikiWars() {
           >
             {E.arrowLeft}
           </button>
+
+          {profile && profile.stats.currentStreak >= 2 && (
+            <div className="absolute top-3 right-3 z-30 text-yellow-400 font-bold text-sm bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1.5">
+              🔥 {profile.stats.currentStreak}
+            </div>
+          )}
 
           {[0, 1].map((i) => {
             const card      = cards[i as 0 | 1]

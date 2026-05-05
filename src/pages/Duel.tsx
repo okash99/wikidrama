@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { fetchArticleData, fetchArticleFromCategory, type ArticleData } from '../api/wikipedia'
+import { fetchArticleData, fetchArticleFromCategory, fetchArticleByTitle, type ArticleData } from '../api/wikipedia'
 import { computeDramaScore } from '../utils/dramaScore'
 import { E } from '../utils/emojis'
 import eyeLogoRaw from '../assets/eye-logo.svg?raw'
@@ -46,7 +46,7 @@ export default function Duel() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { suddenDeathEnabled } = useSettings()
-  const { addGameResult } = useProfile()
+  const { profile, addGameResult } = useProfile()
   const mode = searchParams.get('mode') || 'random'
 
   const [phase, setPhase]       = useState<Phase>(mode === 'random' ? 'loading' : 'pick-category')
@@ -69,7 +69,7 @@ export default function Duel() {
     return [a, b]
   }, [])
 
-  const loadDuel = useCallback(async (cat?: string) => {
+  const loadDuel = useCallback(async (cat?: string, sharedA?: string, sharedB?: string) => {
     const requestId = ++loadRequestId.current
     if (isOffline()) { setError('offline'); setPhase('vote'); return }
     setPhase('loading')
@@ -78,7 +78,17 @@ export default function Duel() {
     setError(null)
     setSuddenDeathRemaining(SUDDEN_DEATH_SECONDS)
     try {
-      const pair = await fetchDistinctPair(cat)
+      let pair: [ArticleData, ArticleData]
+      if (sharedA && sharedB) {
+        const [langA, ...titleAParts] = sharedA.split(':')
+        const [langB, ...titleBParts] = sharedB.split(':')
+        pair = await Promise.all([
+          fetchArticleByTitle(titleAParts.join(':'), langA as any),
+          fetchArticleByTitle(titleBParts.join(':'), langB as any)
+        ])
+      } else {
+        pair = await fetchDistinctPair(cat)
+      }
       if (requestId !== loadRequestId.current) return
       setArticles(pair)
       setPhase('vote')
@@ -91,7 +101,14 @@ export default function Duel() {
   }, [fetchDistinctPair])
 
   useEffect(() => {
-    if (mode === 'random') loadDuel()
+    const paramA = searchParams.get('a')
+    const paramB = searchParams.get('b')
+    if (paramA && paramB) {
+      loadDuel(undefined, paramA, paramB)
+    } else if (mode === 'random') {
+      loadDuel()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, loadDuel])
 
   useEffect(() => {
@@ -240,6 +257,12 @@ export default function Duel() {
             {E.arrowLeft}
           </button>
 
+          {profile && profile.stats.currentStreak >= 2 && (
+            <div className="absolute top-3 right-3 z-30 text-yellow-400 font-bold text-sm bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1.5">
+              🔥 {profile.stats.currentStreak}
+            </div>
+          )}
+
           <div className="flex-1 overflow-hidden">
             <DuelCard
               data={articles[0]}
@@ -302,7 +325,15 @@ export default function Duel() {
             <div className="flex gap-2">
               <ShareButton articles={articles} winner={winner} selected={selected} />
               <button
-                onClick={() => mode === 'thematic' ? loadDuel(category) : loadDuel()}
+                onClick={() => {
+                  if (searchParams.has('a') || searchParams.has('b')) {
+                    const newParams = new URLSearchParams(searchParams)
+                    newParams.delete('a')
+                    newParams.delete('b')
+                    navigate(`/?${newParams.toString()}`, { replace: true })
+                  }
+                  mode === 'thematic' ? loadDuel(category) : loadDuel()
+                }}
                 className="inline-flex flex-shrink-0 items-center justify-center gap-2 py-2.5 px-5 rounded-xl bg-red-500 hover:bg-red-600 active:scale-95 transition-all font-bold text-sm whitespace-nowrap"
               >
                 <Icon name="refresh" className="h-4 w-4" />

@@ -173,7 +173,16 @@ export default function SettingsModal({ onClose }: SettingsModalProps) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest">{t('suddenDeath')}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest">{t('suddenDeath')}</p>
+            <span
+              className={`px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider ${
+                suddenDeathEnabled ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-zinc-800 text-zinc-500 border border-zinc-700'
+              }`}
+            >
+              XP x2
+            </span>
+          </div>
           <div className="grid grid-cols-2 gap-1.5 bg-black/40 p-1 rounded-xl border border-zinc-800">
             <button
               onClick={() => setSuddenDeathEnabled(true)}

@@ -111,6 +111,7 @@ npm run build
 - [x] Quest and xp system
 - [x] Profile avatars (50+ unlockable styles)
 - [x] User accounts and saved scores with ladder
+- [x] Shareable Duel Links
 - [ ] Enrich the live feed with more metrics
 - [ ] ADD MORE ARTICLES AND THEMES ! + Refine formula - Add talkPAGE Sentiment score to the DramaScore formula
 

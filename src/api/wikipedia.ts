@@ -552,3 +552,7 @@ export async function fetchArticleFromCategory(category: string): Promise<Articl
   const title = pool[Math.floor(Math.random() * pool.length)]
   return fetchValidatedArticle(title, lang, category)
 }
+
+export async function fetchArticleByTitle(title: string, lang: WikiLang = 'en'): Promise<ArticleData> {
+  return fetchValidatedArticle(title, lang)
+}
