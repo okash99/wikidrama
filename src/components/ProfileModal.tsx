@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useProfile } from '../context/ProfileContext'
 import { useFocusTrap } from '../hooks/useFocusTrap'
-import { getTitleKeyForLevel, XP_PER_LEVEL, Quest } from '../types/profile'
+import { getTitleKeyForLevel, getXpForLevel, Quest } from '../types/profile'
 import { AVATARS } from '../constants/avatars'
 
 interface ProfileModalProps {
@@ -72,10 +72,11 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
   const modalRef = useFocusTrap(true, onClose)
   const [isEditingAvatar, setIsEditingAvatar] = useState(false)
 
-  const { level, xp, avatarId } = profile.progression
+  const { level, xp } = profile.progression
   const selectedAvatar = AVATARS.find(a => a.id === profile.avatarId)
   const titleKey = getTitleKeyForLevel(level)
-  const xpPercent = Math.min(100, (xp / XP_PER_LEVEL) * 100)
+  const xpRequired = getXpForLevel(level)
+  const xpPercent = level >= 100 ? 100 : Math.min(100, (xp / xpRequired) * 100)
 
   return (
     <div
@@ -137,7 +138,7 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
             <div className="flex flex-col gap-1.5 px-2">
               <div className="flex justify-between text-xs font-bold">
                 <span className="text-blue-400">XP</span>
-                <span className="text-zinc-400">{t('profileXp', { xp, req: XP_PER_LEVEL })}</span>
+                <span className="text-zinc-400">{t('profileXp', { xp, req: xpRequired })}</span>
               </div>
               <div className="h-3 w-full bg-black/60 rounded-full overflow-hidden border border-zinc-800 shadow-inner">
                 <div 

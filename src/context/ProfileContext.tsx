@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { PlayerProfile, Quest, XP_PER_LEVEL } from '../types/profile';
+import { PlayerProfile, Quest, getXpForLevel } from '../types/profile';
 import { loadProfile, saveProfile } from '../utils/storage';
 
 interface GameResult {
@@ -30,16 +30,21 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
     let newXp = currentProfile.progression.xp + amount;
     let newLevel = currentProfile.progression.level;
 
-    // Level up logic (Max Level 100)
-    while (newXp >= XP_PER_LEVEL && newLevel < 100) {
-      newXp -= XP_PER_LEVEL;
-      newLevel += 1;
+    // Level up logic (Max Level 100) — exponential curve
+    while (newLevel < 100) {
+      const required = getXpForLevel(newLevel);
+      if (newXp >= required) {
+        newXp -= required;
+        newLevel += 1;
+      } else {
+        break;
+      }
     }
-    
-    // If level 100, cap XP
+
+    // If level 100, cap XP (bar shows full)
     if (newLevel >= 100) {
       newLevel = 100;
-      newXp = XP_PER_LEVEL;
+      newXp = 0;
     }
 
     return {

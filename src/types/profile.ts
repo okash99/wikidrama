@@ -30,7 +30,37 @@ export interface PlayerProfile {
   lastLoginDate: string; // YYYY-MM-DD
 }
 
-export const XP_PER_LEVEL = 100;
+/**
+ * Dofus-style accelerated XP curve (base 50).
+ * Growth rates: 3% (lvl 1-69) → 6% (70-79) → 8% (80-89) → 15% (90-98).
+ * Boss level (99 → 100) = sum of all levels 1 → 98.
+ *
+ * Key milestones:
+ *   Lvl 2: 50 XP  |  Lvl 50: 146  |  Lvl 90: 945
+ *   Lvl 99: 3 316  |  Boss: ~36 660  |  Total: ~73 320
+ */
+
+function _xpGrowthRate(level: number): number {
+  if (level >= 90) return 1.15;
+  if (level >= 80) return 1.08;
+  if (level >= 70) return 1.06;
+  return 1.03;
+}
+
+// Pre-computed table (built once at module load)
+const _xpTable: number[] = [0]; // index 0 unused
+_xpTable[1] = 50;
+for (let i = 2; i <= 98; i++) {
+  _xpTable[i] = Math.floor(_xpTable[i - 1] * _xpGrowthRate(i));
+}
+let _bossXp = 0;
+for (let i = 1; i <= 98; i++) _bossXp += _xpTable[i];
+_xpTable[99] = _bossXp;
+
+export function getXpForLevel(level: number): number {
+  if (level >= 100) return 0;
+  return _xpTable[level] ?? 0;
+}
 
 export const LEVEL_TITLES = [
   { maxLevel: 9, key: 'profile.titles.novice' },
