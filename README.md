@@ -55,6 +55,16 @@ Tiers: Legendary > Enormous Drama > Total Chaos > Agitated > Disputed > Calm > N
 | Known | 20k-100k |
 | Obscure | < 20k |
 
+## Progression & XP System
+
+WikiDrama includes a player profile and leveling system inspired by classic RPGs (like Dofus), featuring an accelerated XP curve:
+- **Base XP:** Level 1 to 2 requires 50 XP.
+- **Accelerated Growth:** The XP requirement grows progressively: +3% (Lvl 1-69), +6% (Lvl 70-79), +8% (Lvl 80-89), and +15% (Lvl 90-98).
+- **The "Boss" Level:** The final stretch (Level 99 to 100) requires the sum of all XP from Level 1 to 98 combined (approx. 36,660 XP), making it a true achievement.
+
+Players earn XP through daily quests and winning duels, unlocking progressively prestigious titles along the way.
+
+
 ## Data Sources
 
 - Wikipedia REST API for article summaries and thumbnails
