@@ -23,21 +23,6 @@ const RAW_AVATARS: AvatarDefinition[] = [
     ),
   },
   {
-    id: 'alien',
-    color: 'text-green-400',
-    bg: 'bg-green-500/10',
-    border: 'border-green-500/30',
-    glow: 'group-hover:shadow-[0_0_15px_rgba(74,222,128,0.4)]',
-    icon: (
-      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2c4 0 7 3 7 7 0 5-5 10-7 13-2-3-7-8-7-13 0-4 3-7 7-7z"/>
-        <circle cx="9" cy="11" r="1"/>
-        <circle cx="15" cy="11" r="1"/>
-        <path d="M10 16h4"/>
-      </svg>
-    ),
-  },
-  {
     id: 'cat',
     color: 'text-orange-400',
     bg: 'bg-orange-500/10',
@@ -80,45 +65,6 @@ const RAW_AVATARS: AvatarDefinition[] = [
     ),
   },
   {
-    id: 'sword',
-    color: 'text-slate-300',
-    bg: 'bg-slate-500/10',
-    border: 'border-slate-500/30',
-    glow: 'group-hover:shadow-[0_0_15px_rgba(203,213,225,0.4)]',
-    icon: (
-      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14.5 17.5 3 6V3h3l11.5 11.5"/>
-        <path d="M13 19l6-6"/>
-        <path d="M16 16l4 4"/>
-        <path d="M19 21l2-2"/>
-      </svg>
-    ),
-  },
-  {
-    id: 'zap',
-    color: 'text-sky-400',
-    bg: 'bg-sky-500/10',
-    border: 'border-sky-500/30',
-    glow: 'group-hover:shadow-[0_0_15px_rgba(56,189,248,0.4)]',
-    icon: (
-      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
-      </svg>
-    ),
-  },
-  {
-    id: 'bird',
-    color: 'text-pink-400',
-    bg: 'bg-pink-500/10',
-    border: 'border-pink-500/30',
-    glow: 'group-hover:shadow-[0_0_15px_rgba(244,114,182,0.4)]',
-    icon: (
-      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M16 7h.01M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20M15 19l2 2M18 16l2 2"/>
-      </svg>
-    ),
-  },
-  {
     id: 'bot',
     color: 'text-teal-400',
     bg: 'bg-teal-500/10',
@@ -149,23 +95,34 @@ const RAW_AVATARS: AvatarDefinition[] = [
   }
 ];
 
-const MULTIAVATAR_SEEDS = [
-  'WikiDrama', 'DramaKing', 'DramaQueen', 'Gossip', 'Scandal',
-  'Legend', 'Epic', 'Myth', 'Hero', 'Villain',
-  'Alpha', 'Omega', 'Player1', 'Player2', 'Gamer',
-  'Star', 'Moon', 'Sun', 'Comet', 'Nova'
+const DICEBEAR_CATEGORIES = [
+  { name: 'fun-emoji', seeds: ['WikiDrama', 'Gossip', 'Villain', 'Comet', 'Nova', 'Smile', 'Laugh', 'Cool', 'Wink', 'Love'], color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/30', shadow: 'rgba(251,191,36,0.4)' },
+  { name: 'glass', seeds: ['Alpha', 'Beta', 'Gamma', 'Delta', 'Echo', 'Zeta', 'Eta', 'Theta', 'Iota', 'Kappa'], color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/30', shadow: 'rgba(34,211,238,0.4)' },
+  { name: 'pixel-art', seeds: ['Hero', 'Mage', 'Rogue', 'Cleric', 'Bard', 'Paladin', 'Ranger', 'Monk', 'Druid', 'Warlock'], color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/30', shadow: 'rgba(168,85,247,0.4)' },
+  { name: 'pixel-art-neutral', seeds: ['Rock', 'Paper', 'Tree', 'Cloud', 'Star', 'Moon', 'Sun', 'Rain', 'Snow', 'Wind'], color: 'text-zinc-400', bg: 'bg-zinc-500/20', border: 'border-zinc-500/40', shadow: 'rgba(161,161,170,0.3)' },
+  { name: 'thumbs', seeds: ['Jack', 'Jill', 'Bob', 'Alice', 'Eve', 'Charlie', 'Dave', 'Frank', 'Grace', 'Heidi'], color: 'text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/30', shadow: 'rgba(59,130,246,0.4)' },
+  { name: 'adventurer', seeds: ['Finn', 'Jake', 'Marceline', 'Bonnibel', 'Simon', 'BMO', 'LSP', 'Gunther', 'Peppermint', 'Cinnamon'], color: 'text-green-400', bg: 'bg-green-500/10', border: 'border-green-500/30', shadow: 'rgba(74,222,128,0.4)' },
+  { name: 'rings', seeds: ['Saturn', 'Jupiter', 'Mars', 'Venus', 'Pluto', 'Mercury', 'Earth', 'Uranus', 'Neptune', 'Ceres'], color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/30', shadow: 'rgba(244,63,94,0.4)' },
+  { name: 'notionists', seeds: ['Write', 'Read', 'Think', 'Code', 'Design', 'Plan', 'Build', 'Test', 'Ship', 'Learn'], color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/30', shadow: 'rgba(249,115,22,0.4)' },
+  { name: 'notionists-neutral', seeds: ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten'], color: 'text-slate-400', bg: 'bg-slate-500/20', border: 'border-slate-500/40', shadow: 'rgba(148,163,184,0.3)' },
 ];
 
-const multiavatars: AvatarDefinition[] = MULTIAVATAR_SEEDS.map((seed) => ({
-  id: `multi_${seed.toLowerCase()}`,
-  color: 'text-white',
-  bg: 'bg-zinc-500/40',
-  border: 'border-zinc-500/60',
-  glow: 'group-hover:shadow-[0_0_15px_rgba(255,255,255,0.3)]',
-  icon: <img src={`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${encodeURIComponent(seed)}&backgroundColor=transparent`} alt={`Avatar ${seed}`} className="w-full h-full object-contain rounded-full" />
-}));
+const generatedAvatars: AvatarDefinition[] = [];
+
+DICEBEAR_CATEGORIES.forEach(category => {
+  category.seeds.forEach(seed => {
+    generatedAvatars.push({
+      id: `${category.name}_${seed.toLowerCase()}`,
+      color: category.color,
+      bg: category.bg,
+      border: category.border,
+      glow: `group-hover:shadow-[0_0_15px_${category.shadow}]`,
+      icon: <img src={`https://api.dicebear.com/9.x/${category.name}/svg?seed=${encodeURIComponent(seed)}&backgroundColor=transparent`} alt={`Avatar ${category.name} ${seed}`} className="w-full h-full object-contain rounded-full" />
+    });
+  });
+});
 
 export const AVATARS: AvatarDefinition[] = [
   ...RAW_AVATARS,
-  ...multiavatars
+  ...generatedAvatars
 ];
