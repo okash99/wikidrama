@@ -215,16 +215,20 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
                     <button
                       key={theme.id}
                       onClick={() => updateAvatarBg(theme.id === 'default' ? undefined : theme.id)}
-                      className={`flex-shrink-0 w-7 h-7 rounded-full border-2 transition-all duration-300 ${theme.colorClass} 
-                        ${isThemeSelected ? 'border-white scale-110 shadow-[0_0_10px_rgba(255,255,255,0.3)]' : 'border-black/50 hover:scale-105'}
-                      `}
+                      className="flex min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-full transition-transform duration-300 hover:scale-105 active:scale-95"
                       aria-label={`Select ${theme.id} color`}
                     >
-                      {theme.id === 'default' && (
-                        <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50">
-                          <line x1="4" y1="4" x2="20" y2="20" />
-                        </svg>
-                      )}
+                      <span
+                        className={`flex h-7 w-7 items-center justify-center rounded-full border-2 transition-all duration-300 ${theme.colorClass}
+                          ${isThemeSelected ? 'border-white scale-110 shadow-[0_0_10px_rgba(255,255,255,0.3)]' : 'border-black/50'}
+                        `}
+                      >
+                        {theme.id === 'default' && (
+                          <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50">
+                            <line x1="4" y1="4" x2="20" y2="20" />
+                          </svg>
+                        )}
+                      </span>
                     </button>
                   );
                 })}

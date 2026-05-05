@@ -56,6 +56,7 @@ export default function Duel() {
   const [error, setError]       = useState<string | null>(null)
   const [suddenDeathRemaining, setSuddenDeathRemaining] = useState(SUDDEN_DEATH_SECONDS)
   const loadRequestId = useRef(0)
+  const suddenDeathResultRecorded = useRef(false)
 
   const fetchDistinctPair = useCallback(async (cat?: string): Promise<[ArticleData, ArticleData]> => {
     const fetcher = cat ? () => fetchArticleFromCategory(cat) : fetchArticleData
@@ -77,6 +78,7 @@ export default function Duel() {
     setArticles(null)
     setError(null)
     setSuddenDeathRemaining(SUDDEN_DEATH_SECONDS)
+    suddenDeathResultRecorded.current = false
     try {
       let pair: [ArticleData, ArticleData]
       if (sharedA && sharedB) {
@@ -125,15 +127,25 @@ export default function Duel() {
       setSuddenDeathRemaining(next)
       if (next === 0) {
         window.clearInterval(timerId)
+        if (!suddenDeathResultRecorded.current) {
+          suddenDeathResultRecorded.current = true
+          addGameResult({
+            outcome: 'LOSS',
+            mode,
+            category: mode === 'thematic' ? category : undefined,
+            suddenDeath: true
+          })
+        }
         setPhase('sudden-death')
       }
     }, 250)
 
     return () => window.clearInterval(timerId)
-  }, [suddenDeathEnabled, phase, articles])
+  }, [addGameResult, category, mode, suddenDeathEnabled, phase, articles])
 
   function handleVote(index: 0 | 1) {
     if (phase !== 'vote' || !articles) return
+    suddenDeathResultRecorded.current = true
     setSelected(index)
     setPhase('reveal')
 
@@ -144,8 +156,9 @@ export default function Duel() {
     const outcome = currentWinner === 'tie' ? 'DRAW' : (currentWinner === index ? 'WIN' : 'LOSS')
     addGameResult({
       outcome,
-      mode: suddenDeathEnabled ? 'sudden_death' : mode,
-      category: mode === 'thematic' ? category : undefined
+      mode,
+      category: mode === 'thematic' ? category : undefined,
+      suddenDeath: suddenDeathEnabled
     })
   }
 

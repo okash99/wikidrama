@@ -4,8 +4,9 @@ import { loadProfile, saveProfile } from '../utils/storage';
 
 interface GameResult {
   outcome: 'WIN' | 'LOSS' | 'DRAW';
-  mode: string; // 'classic', 'wikiwars', 'sudden_death', etc.
+  mode: string; // 'random', 'thematic', 'wikiwars', etc.
   category?: string; // e.g. 'Politics', 'Pop Culture'
+  suddenDeath?: boolean;
 }
 
 interface ProfileContextType {
@@ -75,7 +76,7 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
           if (isWin && result.mode === 'wikiwars') progressToAdd = 1;
           break;
         case 'PLAY_SUDDEN_DEATH':
-          if (result.mode === 'sudden_death') progressToAdd = 1;
+          if (result.suddenDeath) progressToAdd = 1;
           break;
         case 'STREAK':
           // For streak, progress is the max streak reached
@@ -131,7 +132,7 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
       }
 
       // Sudden Death XP boost
-      if (result.mode === 'sudden_death') {
+      if (result.suddenDeath) {
         xpEarned *= 2;
       }
 

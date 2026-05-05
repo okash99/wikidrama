@@ -48,7 +48,7 @@ export default function ShareButton({ articles, winner, selected }: Props) {
 
   const langA = a.article.url.split('//')[1]?.split('.')[0] || 'en'
   const langB = b.article.url.split('//')[1]?.split('.')[0] || 'en'
-  const shareUrl = `${window.location.origin}/?a=${langA}:${encodeURIComponent(a.article.title)}&b=${langB}:${encodeURIComponent(b.article.title)}`
+  const shareUrl = `${window.location.origin}/duel?a=${langA}:${encodeURIComponent(a.article.title)}&b=${langB}:${encodeURIComponent(b.article.title)}`
 
   const shareText = [
     isTie ? t('shareTieHeader') : t('shareDuelHeader'),

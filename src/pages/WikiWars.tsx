@@ -156,6 +156,7 @@ export default function WikiWars() {
   const [showShare, setShowShare] = useState(false)
   const [suddenDeathRemaining, setSuddenDeathRemaining] = useState(SUDDEN_DEATH_SECONDS)
   const loadRequestId = useRef(0)
+  const suddenDeathResultRecorded = useRef(false)
 
   const loadDuel = useCallback(async () => {
     const requestId = ++loadRequestId.current
@@ -165,6 +166,7 @@ export default function WikiWars() {
     setError(false)
     setShowShare(false)
     setSuddenDeathRemaining(SUDDEN_DEATH_SECONDS)
+    suddenDeathResultRecorded.current = false
     try {
       const [a, b] = await Promise.all([fetchSummaryForWikiWars(), fetchSummaryForWikiWars()])
       const pair: [PageviewsData, PageviewsData] = a.title === b.title
@@ -197,15 +199,24 @@ export default function WikiWars() {
       if (next === 0) {
         window.clearInterval(timerId)
         setShowShare(false)
+        if (!suddenDeathResultRecorded.current) {
+          suddenDeathResultRecorded.current = true
+          addGameResult({
+            outcome: 'LOSS',
+            mode: 'wikiwars',
+            suddenDeath: true
+          })
+        }
         setPhase('sudden-death')
       }
     }, 250)
 
     return () => window.clearInterval(timerId)
-  }, [suddenDeathEnabled, phase, cards])
+  }, [addGameResult, suddenDeathEnabled, phase, cards])
 
   function handleVote(index: 0 | 1) {
     if (phase !== 'vote' || !cards) return
+    suddenDeathResultRecorded.current = true
     setSelected(index)
     setPhase('reveal')
 
@@ -214,7 +225,8 @@ export default function WikiWars() {
     
     addGameResult({
       outcome,
-      mode: 'wikiwars'
+      mode: 'wikiwars',
+      suddenDeath: suddenDeathEnabled
     })
   }
 

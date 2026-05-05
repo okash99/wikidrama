@@ -23,12 +23,32 @@ export const getInitialProfile = (): PlayerProfile => {
   };
 };
 
+export const normalizeProfile = (stored: Partial<PlayerProfile>, initial = getInitialProfile()): PlayerProfile => ({
+  ...initial,
+  ...stored,
+  stats: {
+    ...initial.stats,
+    ...stored.stats,
+    gamesPlayedPerMode: {
+      ...initial.stats.gamesPlayedPerMode,
+      ...stored.stats?.gamesPlayedPerMode
+    }
+  },
+  progression: {
+    ...initial.progression,
+    ...stored.progression
+  },
+  dailyQuests: Array.isArray(stored.dailyQuests) ? stored.dailyQuests : initial.dailyQuests,
+  lastLoginDate: stored.lastLoginDate || initial.lastLoginDate
+});
+
 export const loadProfile = (): PlayerProfile => {
   try {
     const data = localStorage.getItem(PROFILE_STORAGE_KEY);
     if (!data) return getInitialProfile();
 
-    const profile: PlayerProfile = JSON.parse(data);
+    const stored = JSON.parse(data) as Partial<PlayerProfile>;
+    const profile = normalizeProfile(stored);
     const currentDate = getCurrentDateStr();
 
     // Check if it's a new day, if so, reset quests and update login date
@@ -37,9 +57,6 @@ export const loadProfile = (): PlayerProfile => {
       profile.lastLoginDate = currentDate;
       saveProfile(profile);
     }
-
-    // Ensure all stats properties exist in case of old save structure
-    if (profile.stats.draws === undefined) profile.stats.draws = 0;
 
     return profile;
   } catch (error) {
