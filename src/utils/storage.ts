@@ -1,4 +1,4 @@
-import { PlayerProfile } from '../types/profile';
+import { PlayerProfile, getTotalXpForProgress } from '../types/profile';
 import { getCurrentDateStr, getDailyQuests } from '../data/quests';
 
 const PROFILE_STORAGE_KEY = 'wikidrama_player_profile';
@@ -16,31 +16,53 @@ export const getInitialProfile = (): PlayerProfile => {
     },
     progression: {
       level: 1,
-      xp: 0
+      xp: 0,
+      totalXpEarned: 0
     },
     dailyQuests: getDailyQuests(dateStr),
+    dailyQuestState: {
+      categoriesPlayed: [],
+      wikiWarsStreak: 0
+    },
     lastLoginDate: dateStr
   };
 };
 
-export const normalizeProfile = (stored: Partial<PlayerProfile>, initial = getInitialProfile()): PlayerProfile => ({
-  ...initial,
-  ...stored,
-  stats: {
-    ...initial.stats,
-    ...stored.stats,
-    gamesPlayedPerMode: {
-      ...initial.stats.gamesPlayedPerMode,
-      ...stored.stats?.gamesPlayedPerMode
-    }
-  },
-  progression: {
+export const normalizeProfile = (stored: Partial<PlayerProfile>, initial = getInitialProfile()): PlayerProfile => {
+  const progression = {
     ...initial.progression,
     ...stored.progression
-  },
-  dailyQuests: Array.isArray(stored.dailyQuests) ? stored.dailyQuests : initial.dailyQuests,
-  lastLoginDate: stored.lastLoginDate || initial.lastLoginDate
-});
+  };
+  const totalXpEarned = Number.isFinite(progression.totalXpEarned)
+    ? progression.totalXpEarned
+    : getTotalXpForProgress(progression.level, progression.xp);
+
+  return {
+    ...initial,
+    ...stored,
+    stats: {
+      ...initial.stats,
+      ...stored.stats,
+      gamesPlayedPerMode: {
+        ...initial.stats.gamesPlayedPerMode,
+        ...stored.stats?.gamesPlayedPerMode
+      }
+    },
+    progression: {
+      ...progression,
+      totalXpEarned
+    },
+    dailyQuests: Array.isArray(stored.dailyQuests) ? stored.dailyQuests : initial.dailyQuests,
+    dailyQuestState: {
+      ...initial.dailyQuestState,
+      ...stored.dailyQuestState,
+      categoriesPlayed: Array.isArray(stored.dailyQuestState?.categoriesPlayed)
+        ? stored.dailyQuestState.categoriesPlayed
+        : initial.dailyQuestState.categoriesPlayed
+    },
+    lastLoginDate: stored.lastLoginDate || initial.lastLoginDate
+  };
+};
 
 export const loadProfile = (): PlayerProfile => {
   try {
@@ -54,6 +76,7 @@ export const loadProfile = (): PlayerProfile => {
     // Check if it's a new day, if so, reset quests and update login date
     if (profile.lastLoginDate !== currentDate) {
       profile.dailyQuests = getDailyQuests(currentDate);
+      profile.dailyQuestState = getInitialProfile().dailyQuestState;
       profile.lastLoginDate = currentDate;
       saveProfile(profile);
     }

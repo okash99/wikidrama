@@ -1,17 +1,25 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { PlayerProfile, Quest, getXpForLevel } from '../types/profile';
+import { DailyQuestState, PlayerProfile, Quest, getXpForLevel } from '../types/profile';
 import { loadProfile, saveProfile } from '../utils/storage';
+import { getCategoryId } from '../data/categories';
 
 interface GameResult {
   outcome: 'WIN' | 'LOSS' | 'DRAW';
   mode: string; // 'random', 'thematic', 'wikiwars', etc.
   category?: string; // e.g. 'Politics', 'Pop Culture'
   suddenDeath?: boolean;
+  protectedArticles?: number;
+  legendaryArticles?: number;
+}
+
+interface QuestEvent {
+  type: 'SHARE_DUEL';
 }
 
 interface ProfileContextType {
   profile: PlayerProfile;
   addGameResult: (result: GameResult) => void;
+  addQuestEvent: (event: QuestEvent) => void;
   xpGainedNotification: number | null;
   clearXpNotification: () => void;
   updateAvatar: (id: string) => void;
@@ -53,12 +61,19 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
       ...currentProfile,
       progression: {
         level: newLevel,
-        xp: newXp
+        xp: newXp,
+        totalXpEarned: currentProfile.progression.totalXpEarned + amount
       }
     };
   }, []);
 
-  const updateQuests = useCallback((quests: Quest[], result: GameResult, isWin: boolean, streak: number): { quests: Quest[], totalXpReward: number } => {
+  const updateQuests = useCallback((
+    quests: Quest[],
+    result: GameResult,
+    isWin: boolean,
+    streak: number,
+    questState: DailyQuestState
+  ): { quests: Quest[], totalXpReward: number } => {
     let totalXpReward = 0;
     const updatedQuests = quests.map(quest => {
       if (quest.completed) return quest;
@@ -75,8 +90,16 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
         case 'WIN_WIKIWARS':
           if (isWin && result.mode === 'wikiwars') progressToAdd = 1;
           break;
+        case 'WIN_WIKIWARS_STREAK':
+          if (result.mode === 'wikiwars' && questState.wikiWarsStreak > quest.progress) {
+            progressToAdd = questState.wikiWarsStreak - quest.progress;
+          }
+          break;
         case 'PLAY_SUDDEN_DEATH':
           if (result.suddenDeath) progressToAdd = 1;
+          break;
+        case 'WIN_SUDDEN_DEATH':
+          if (isWin && result.suddenDeath) progressToAdd = 1;
           break;
         case 'STREAK':
           // For streak, progress is the max streak reached
@@ -85,10 +108,55 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
           }
           break;
         case 'PLAY_CATEGORY':
-          if (result.category === quest.categoryTarget) progressToAdd = 1;
+          if (getCategoryId(result.category) === getCategoryId(quest.categoryTarget)) progressToAdd = 1;
+          break;
+        case 'PLAY_DISTINCT_CATEGORIES':
+          if (questState.categoriesPlayed.length > quest.progress) {
+            progressToAdd = questState.categoriesPlayed.length - quest.progress;
+          }
+          break;
+        case 'ENCOUNTER_PROTECTED':
+          if ((result.protectedArticles ?? 0) >= 1) progressToAdd = 1;
+          break;
+        case 'ENCOUNTER_DOUBLE_PROTECTED':
+          if ((result.protectedArticles ?? 0) >= 2) progressToAdd = 1;
+          break;
+        case 'DRAW_ANY':
+          if (result.outcome === 'DRAW') progressToAdd = 1;
+          break;
+        case 'WIN_THEMATIC':
+          if (isWin && result.mode === 'thematic') progressToAdd = 1;
+          break;
+        case 'DUEL_LEGENDS':
+          if ((result.legendaryArticles ?? 0) >= 2) progressToAdd = 1;
+          break;
+        case 'SHARE_DUEL':
           break;
       }
 
+      const newProgress = Math.min(quest.progress + progressToAdd, quest.target);
+      const isCompleted = newProgress >= quest.target;
+
+      if (isCompleted && !quest.completed) {
+        totalXpReward += quest.xpReward;
+      }
+
+      return {
+        ...quest,
+        progress: newProgress,
+        completed: isCompleted
+      };
+    });
+
+    return { quests: updatedQuests, totalXpReward };
+  }, []);
+
+  const updateQuestsForEvent = useCallback((quests: Quest[], event: QuestEvent): { quests: Quest[], totalXpReward: number } => {
+    let totalXpReward = 0;
+    const updatedQuests = quests.map(quest => {
+      if (quest.completed) return quest;
+
+      const progressToAdd = quest.type === event.type ? 1 : 0;
       const newProgress = Math.min(quest.progress + progressToAdd, quest.target);
       const isCompleted = newProgress >= quest.target;
 
@@ -120,6 +188,17 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
       
       const newGamesPlayed = { ...prev.stats.gamesPlayedPerMode };
       newGamesPlayed[result.mode] = (newGamesPlayed[result.mode] || 0) + 1;
+      const categoryId = getCategoryId(result.category);
+      const newCategoriesPlayed = categoryId && !prev.dailyQuestState.categoriesPlayed.includes(categoryId)
+        ? [...prev.dailyQuestState.categoriesPlayed, categoryId]
+        : prev.dailyQuestState.categoriesPlayed;
+      const newWikiWarsStreak = result.mode === 'wikiwars'
+        ? (isWin ? prev.dailyQuestState.wikiWarsStreak + 1 : 0)
+        : prev.dailyQuestState.wikiWarsStreak;
+      const newDailyQuestState = {
+        categoriesPlayed: newCategoriesPlayed,
+        wikiWarsStreak: newWikiWarsStreak
+      };
 
       // Base XP
       let xpEarned = 0;
@@ -137,7 +216,7 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
       }
 
       // Update Quests
-      const { quests: newQuests, totalXpReward: questXp } = updateQuests(prev.dailyQuests, result, isWin, newStreak);
+      const { quests: newQuests, totalXpReward: questXp } = updateQuests(prev.dailyQuests, result, isWin, newStreak, newDailyQuestState);
       xpEarned += questXp;
 
       let nextProfile = {
@@ -150,7 +229,8 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
           bestStreak: newBestStreak,
           gamesPlayedPerMode: newGamesPlayed
         },
-        dailyQuests: newQuests
+        dailyQuests: newQuests,
+        dailyQuestState: newDailyQuestState
       };
 
       if (xpEarned > 0) {
@@ -161,6 +241,23 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
       return nextProfile;
     });
   }, [addXp, updateQuests]);
+
+  const addQuestEvent = useCallback((event: QuestEvent) => {
+    setProfile(prev => {
+      const { quests: newQuests, totalXpReward: questXp } = updateQuestsForEvent(prev.dailyQuests, event);
+      let nextProfile = {
+        ...prev,
+        dailyQuests: newQuests
+      };
+
+      if (questXp > 0) {
+        nextProfile = addXp(questXp, nextProfile);
+        setXpGainedNotification(questXp);
+      }
+
+      return nextProfile;
+    });
+  }, [addXp, updateQuestsForEvent]);
 
   const clearXpNotification = useCallback(() => {
     setXpGainedNotification(null);
@@ -181,7 +278,7 @@ export const ProfileProvider: React.FC<{ children: ReactNode }> = ({ children })
   }, []);
 
   return (
-    <ProfileContext.Provider value={{ profile, addGameResult, xpGainedNotification, clearXpNotification, updateAvatar, updateAvatarBg }}>
+    <ProfileContext.Provider value={{ profile, addGameResult, addQuestEvent, xpGainedNotification, clearXpNotification, updateAvatar, updateAvatarBg }}>
       {children}
     </ProfileContext.Provider>
   );

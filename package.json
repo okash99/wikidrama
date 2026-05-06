@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "audit:images": "node scripts/audit-wikimedia-images.mjs",
-    "verify:profile": "node scripts/verify-profile-migration.cjs"
+    "verify:profile": "node scripts/verify-profile-migration.cjs",
+    "verify:xp": "node scripts/verify-xp-curve.cjs"
   },
   "dependencies": {
     "i18next": "^26.0.8",

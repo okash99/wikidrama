@@ -6,6 +6,7 @@ import { computeDramaScore, getDramaTierKey } from '../utils/dramaScore'
 import type { WinnerState } from '../pages/Duel'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import Icon from './Icon'
+import { useProfile } from '../context/ProfileContext'
 
 interface Props {
   articles: [ArticleData, ArticleData]
@@ -22,6 +23,7 @@ const canShare = typeof navigator !== 'undefined' && typeof navigator.share === 
 
 export default function ShareButton({ articles, winner, selected }: Props) {
   const { t } = useTranslation()
+  const { addQuestEvent } = useProfile()
   const [showModal, setShowModal] = useState(false)
   const [copied, setCopied]       = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
@@ -92,9 +94,14 @@ export default function ShareButton({ articles, winner, selected }: Props) {
         shareUrl,
       ].join('\n')
 
+  function recordShareQuest() {
+    addQuestEvent({ type: 'SHARE_DUEL' })
+  }
+
   async function copyToClipboard() {
     try {
       await navigator.clipboard.writeText(shareText)
+      recordShareQuest()
       setCopied(true)
       setTimeout(() => { setCopied(false); setShowModal(false) }, 2000)
     } catch { alert(shareText) }
@@ -103,6 +110,7 @@ export default function ShareButton({ articles, winner, selected }: Props) {
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(shareUrl)
+      recordShareQuest()
       setLinkCopied(true)
       setTimeout(() => { setLinkCopied(false); setShowModal(false) }, 2000)
     } catch { alert(shareUrl) }
@@ -110,17 +118,20 @@ export default function ShareButton({ articles, winner, selected }: Props) {
 
   function shareToWhatsApp() {
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank')
+    recordShareQuest()
     setShowModal(false)
   }
 
   function shareToTwitter() {
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shortTweetText)}`, '_blank')
+    recordShareQuest()
     setShowModal(false)
   }
 
   async function shareNative() {
     try {
       await navigator.share({ title: 'WikiDrama', text: shareText })
+      recordShareQuest()
       setShowModal(false)
     } catch { /* cancelled */ }
   }

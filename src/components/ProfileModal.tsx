@@ -1,12 +1,29 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useProfile } from '../context/ProfileContext'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import { getTitleKeyForLevel, getXpForLevel, Quest } from '../types/profile'
 import { AVATARS, CUSTOM_BG_THEMES } from '../constants/avatars'
+import { getCategoryI18nKey } from '../data/categories'
 
 interface ProfileModalProps {
   onClose: () => void
+}
+
+function getDailyQuestTimeLeft() {
+  const now = new Date()
+  const nextReset = new Date(now)
+  nextReset.setHours(24, 0, 0, 0)
+
+  const totalSeconds = Math.max(0, Math.floor((nextReset.getTime() - now.getTime()) / 1000))
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+
+  return {
+    label: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`,
+    isCritical: totalSeconds <= 30 * 60
+  }
 }
 
 function UserIcon() {
@@ -28,11 +45,23 @@ function CloseIcon() {
   )
 }
 
+function ResetIcon() {
+  return (
+    <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 8a8.5 8.5 0 1 0 1.1 7.2" />
+      <path d="M20 3v5h-5" />
+      <path d="M20 8 16.5 4.5" />
+    </svg>
+  )
+}
+
 function QuestItem({ quest }: { quest: Quest }) {
   const { t } = useTranslation()
   const progressPercent = Math.min(100, Math.round((quest.progress / quest.target) * 100))
+  const categoryKey = getCategoryI18nKey(quest.categoryTarget)
+  const categoryLabel = categoryKey ? t(categoryKey) : quest.categoryTarget
   
-  let label = t(`quest.type.${quest.type}`, { target: quest.target, category: quest.categoryTarget })
+  let label = t(`quest.type.${quest.type}`, { target: quest.target, category: categoryLabel })
 
   return (
     <div className="flex flex-col gap-2 p-3 bg-zinc-800/60 border border-zinc-700/50 rounded-xl relative overflow-hidden">
@@ -71,6 +100,7 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
   const { profile, updateAvatar, updateAvatarBg } = useProfile()
   const modalRef = useFocusTrap(true, onClose)
   const [isEditingAvatar, setIsEditingAvatar] = useState(false)
+  const [dailyQuestTimeLeft, setDailyQuestTimeLeft] = useState(getDailyQuestTimeLeft)
 
   const { level, xp } = profile.progression
   const selectedAvatar = AVATARS.find(a => a.id === profile.avatarId)
@@ -83,6 +113,13 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
   const displayBg = selectedTheme.id !== 'default' ? selectedTheme.bg : (selectedAvatar?.bg || 'bg-zinc-800')
   const displayBorder = selectedTheme.id !== 'default' ? selectedTheme.border : (selectedAvatar?.border || 'border-zinc-700')
 
+  useEffect(() => {
+    const updateTimeLeft = () => setDailyQuestTimeLeft(getDailyQuestTimeLeft())
+    updateTimeLeft()
+
+    const intervalId = window.setInterval(updateTimeLeft, 1000)
+    return () => window.clearInterval(intervalId)
+  }, [])
 
   return (
     <div
@@ -158,7 +195,13 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
 
             {/* Daily Quests */}
             <div className="flex flex-col gap-3">
-              <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest px-1">{t('profileDailyQuests')}</p>
+              <div className="flex items-center justify-between px-1">
+                <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest">{t('profileDailyQuests')}</p>
+                <span className={`flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest tabular-nums ${dailyQuestTimeLeft.isCritical ? 'animate-pulse text-red-400' : 'text-zinc-500'}`}>
+                  <ResetIcon />
+                  {dailyQuestTimeLeft.label}
+                </span>
+              </div>
               <div className="flex flex-col gap-2">
                 {profile.dailyQuests.map(quest => (
                   <QuestItem key={quest.id} quest={quest} />
@@ -208,7 +251,7 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
             {/* Color Palette Selection */}
             <div className="mb-5 flex flex-col gap-3">
               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-center">{t('profileCustomColor', 'Couleur de fond')}</span>
-              <div className="flex gap-1.5 justify-center pt-2 pb-3 px-2">
+              <div className="grid grid-cols-4 justify-items-center gap-x-1.5 gap-y-2 pt-2 pb-3 px-8">
                 {CUSTOM_BG_THEMES.map((theme) => {
                   const isThemeSelected = profile.avatarBgTheme === theme.id || (!profile.avatarBgTheme && theme.id === 'default');
                   return (

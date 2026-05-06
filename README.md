@@ -62,7 +62,7 @@ WikiDrama includes a player profile and leveling system inspired by classic RPGs
 - **Accelerated Growth:** The XP requirement grows progressively: +3% (Lvl 1-69), +6% (Lvl 70-79), +8% (Lvl 80-89), and +15% (Lvl 90-98).
 - **The "Boss" Level:** The final stretch (Level 99 to 100) requires the sum of all XP from Level 1 to 98 combined (approx. 36,660 XP), making it a true achievement.
 
-Players earn XP through daily quests and winning duels, unlocking progressively prestigious titles along the way.
+Players earn XP through daily quests and winning duels, unlocking progressively prestigious titles along the way. Progression is stored as a local browser profile using `localStorage`; it is not synced across devices.
 
 
 ## Data Sources
@@ -110,7 +110,8 @@ npm run build
 - [x] Streak counter / Local stats
 - [x] Quest and xp system
 - [x] Profile avatars (50+ unlockable styles)
-- [x] User accounts and saved scores with ladder
+- [x] Local profile with saved stats, XP, quests, and avatar customization
+- [ ] Synced user accounts and ladder
 - [x] Shareable Duel Links
 - [ ] Enrich the live feed with more metrics
 - [ ] ADD MORE ARTICLES AND THEMES ! + Refine formula - Add talkPAGE Sentiment score to the DramaScore formula

@@ -7,6 +7,7 @@ import {
   type DramaPoolEntry,
   type WikiLang,
 } from '../data/drama-articles'
+import { getCategoryPoolKey } from '../data/categories'
 import { computeDramaScore } from '../utils/dramaScore'
 
 const CACHE_TTL = 1000 * 60 * 30
@@ -111,7 +112,7 @@ export { DRAMA_CATEGORIES as CATEGORIES }
 
 function getLang(category?: string): WikiLang {
   if (!category) return 'en'
-  return CATEGORY_LANG[category] ?? 'en'
+  return CATEGORY_LANG[getCategoryPoolKey(category)] ?? 'en'
 }
 
 function getUrls(lang: WikiLang) {
@@ -546,11 +547,12 @@ export async function fetchArticleData(): Promise<ArticleData> {
 }
 
 export async function fetchArticleFromCategory(category: string): Promise<ArticleData> {
-  const pool = DRAMA_POOL[category]
+  const poolKey = getCategoryPoolKey(category)
+  const pool = DRAMA_POOL[poolKey]
   if (!pool || pool.length === 0) return fetchValidatedArticle()
-  const lang = getLang(category)
+  const lang = getLang(poolKey)
   const title = pool[Math.floor(Math.random() * pool.length)]
-  return fetchValidatedArticle(title, lang, category)
+  return fetchValidatedArticle(title, lang, poolKey)
 }
 
 export async function fetchArticleByTitle(title: string, lang: WikiLang = 'en'): Promise<ArticleData> {

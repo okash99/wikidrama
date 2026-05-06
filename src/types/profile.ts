@@ -1,8 +1,24 @@
 export interface Quest {
   id: string;
-  type: 'PLAY_ANY' | 'WIN_ANY' | 'WIN_WIKIWARS' | 'PLAY_SUDDEN_DEATH' | 'STREAK' | 'PLAY_CATEGORY';
+  type:
+    | 'PLAY_ANY'
+    | 'WIN_ANY'
+    | 'WIN_WIKIWARS'
+    | 'PLAY_SUDDEN_DEATH'
+    | 'STREAK'
+    | 'PLAY_CATEGORY'
+    | 'ENCOUNTER_PROTECTED'
+    | 'ENCOUNTER_DOUBLE_PROTECTED'
+    | 'DRAW_ANY'
+    | 'PLAY_DISTINCT_CATEGORIES'
+    | 'WIN_SUDDEN_DEATH'
+    | 'SHARE_DUEL'
+    | 'WIN_THEMATIC'
+    | 'WIN_WIKIWARS_STREAK'
+    | 'DUEL_LEGENDS';
   target: number; // e.g., 3 wins
   categoryTarget?: string; // e.g., 'Pop Culture'
+  rarity?: 'common' | 'rare' | 'epic';
   progress: number;
   completed: boolean;
   xpReward: number;
@@ -20,6 +36,12 @@ export interface PlayerStats {
 export interface PlayerProgression {
   level: number;
   xp: number;
+  totalXpEarned: number;
+}
+
+export interface DailyQuestState {
+  categoriesPlayed: string[];
+  wikiWarsStreak: number;
 }
 
 export interface PlayerProfile {
@@ -28,7 +50,23 @@ export interface PlayerProfile {
   stats: PlayerStats;
   progression: PlayerProgression;
   dailyQuests: Quest[];
+  dailyQuestState: DailyQuestState;
   lastLoginDate: string; // YYYY-MM-DD
+}
+
+export interface LeaderboardEntry {
+  playerId: string;
+  displayName: string;
+  avatarId?: string;
+  avatarBgTheme?: string;
+  level: number;
+  totalXpEarned: number;
+  bestStreak: number;
+  wins: number;
+  losses: number;
+  draws: number;
+  gamesPlayed: number;
+  updatedAt: string;
 }
 
 /**
@@ -37,7 +75,7 @@ export interface PlayerProfile {
  * Boss level (99 → 100) = sum of all levels 1 → 98.
  *
  * Key milestones:
- *   Lvl 2: 50 XP  |  Lvl 50: 146  |  Lvl 90: 945
+ *   Lvl 2: 50 XP  |  Lvl 50: 146 XP to reach 50  |  Lvl 90: 945 XP to reach 90
  *   Lvl 99: 3 316  |  Boss: ~36 660  |  Total: ~73 320
  */
 
@@ -63,6 +101,14 @@ export function getXpForLevel(level: number): number {
   return _xpTable[level] ?? 0;
 }
 
+export function getTotalXpForProgress(level: number, xp: number): number {
+  let total = 0;
+  for (let i = 1; i < level && i < 100; i++) {
+    total += getXpForLevel(i);
+  }
+  return total + Math.max(0, xp);
+}
+
 export const LEVEL_TITLES = [
   { maxLevel: 9, key: 'profile.titles.novice' },
   { maxLevel: 19, key: 'profile.titles.apprentice' },
@@ -80,3 +126,23 @@ export const getTitleKeyForLevel = (level: number): string => {
   const titleObj = LEVEL_TITLES.find((t) => level <= t.maxLevel);
   return titleObj ? titleObj.key : 'profile.titles.omniscient';
 };
+
+export function createLeaderboardEntry(
+  profile: PlayerProfile,
+  options: { playerId?: string; displayName?: string; updatedAt?: string } = {}
+): LeaderboardEntry {
+  return {
+    playerId: options.playerId || 'local-player',
+    displayName: options.displayName || 'WikiDrama Player',
+    avatarId: profile.avatarId,
+    avatarBgTheme: profile.avatarBgTheme,
+    level: profile.progression.level,
+    totalXpEarned: profile.progression.totalXpEarned,
+    bestStreak: profile.stats.bestStreak,
+    wins: profile.stats.wins,
+    losses: profile.stats.losses,
+    draws: profile.stats.draws,
+    gamesPlayed: profile.stats.wins + profile.stats.losses + profile.stats.draws,
+    updatedAt: options.updatedAt || new Date().toISOString()
+  };
+}

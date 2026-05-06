@@ -17,11 +17,49 @@ export interface CustomBgTheme {
   colorClass: string; // Used for the palette circles
 }
 
+type DiceBearStatus = 'idle' | 'loading' | 'loaded' | 'failed';
+
+const diceBearStatusCache = new Map<string, DiceBearStatus>();
+
+function getDiceBearUrl(category: string, seed: string): string {
+  return `https://api.dicebear.com/9.x/${category}/svg?seed=${encodeURIComponent(seed)}&backgroundColor=transparent`;
+}
+
 function DiceBearAvatar({ category, seed }: { category: string; seed: string }) {
-  const [hasError, setHasError] = React.useState(false);
+  const url = getDiceBearUrl(category, seed);
+  const [status, setStatus] = React.useState<DiceBearStatus>(() => diceBearStatusCache.get(url) || 'idle');
   const label = seed.slice(0, 2).toUpperCase();
 
-  if (hasError) {
+  React.useEffect(() => {
+    const cachedStatus = diceBearStatusCache.get(url);
+    if (cachedStatus === 'loaded' || cachedStatus === 'failed') {
+      setStatus(cachedStatus);
+      return;
+    }
+
+    if (typeof Image === 'undefined') return;
+
+    diceBearStatusCache.set(url, 'loading');
+    setStatus('loading');
+
+    let isActive = true;
+    const image = new Image();
+    image.onload = () => {
+      diceBearStatusCache.set(url, 'loaded');
+      if (isActive) setStatus('loaded');
+    };
+    image.onerror = () => {
+      diceBearStatusCache.set(url, 'failed');
+      if (isActive) setStatus('failed');
+    };
+    image.src = url;
+
+    return () => {
+      isActive = false;
+    };
+  }, [url]);
+
+  if (status !== 'loaded') {
     return (
       <span className="flex h-full w-full items-center justify-center rounded-full bg-black/20 text-sm font-black tracking-wide text-current">
         {label}
@@ -31,24 +69,31 @@ function DiceBearAvatar({ category, seed }: { category: string; seed: string }) 
 
   return (
     <img
-      src={`https://api.dicebear.com/9.x/${category}/svg?seed=${encodeURIComponent(seed)}&backgroundColor=transparent`}
+      src={url}
       alt={`Avatar ${category} ${seed}`}
       className="h-full w-full rounded-full object-contain"
       loading="lazy"
-      onError={() => setHasError(true)}
+      onError={() => {
+        diceBearStatusCache.set(url, 'failed');
+        setStatus('failed');
+      }}
     />
   );
 }
 
 export const CUSTOM_BG_THEMES: CustomBgTheme[] = [
   { id: 'default', bg: '', border: '', glow: '', colorClass: 'bg-zinc-800' },
+  { id: 'white', bg: 'bg-white/25', border: 'border-white/60', glow: 'group-hover:shadow-[0_0_15px_rgba(255,255,255,0.45)]', colorClass: 'bg-white' },
+  { id: 'stone', bg: 'bg-stone-200/25', border: 'border-stone-200/60', glow: 'group-hover:shadow-[0_0_15px_rgba(231,229,228,0.45)]', colorClass: 'bg-stone-200' },
   { id: 'zinc', bg: 'bg-zinc-400/30', border: 'border-zinc-400/50', glow: 'group-hover:shadow-[0_0_15px_rgba(161,161,170,0.5)]', colorClass: 'bg-zinc-400' },
+  { id: 'slate', bg: 'bg-slate-600/25', border: 'border-slate-400/45', glow: 'group-hover:shadow-[0_0_15px_rgba(148,163,184,0.4)]', colorClass: 'bg-slate-600' },
   { id: 'amber', bg: 'bg-amber-500/20', border: 'border-amber-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(251,191,36,0.5)]', colorClass: 'bg-amber-500' },
   { id: 'cyan', bg: 'bg-cyan-500/20', border: 'border-cyan-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(34,211,238,0.5)]', colorClass: 'bg-cyan-500' },
   { id: 'purple', bg: 'bg-purple-500/20', border: 'border-purple-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(168,85,247,0.5)]', colorClass: 'bg-purple-500' },
   { id: 'rose', bg: 'bg-rose-500/20', border: 'border-rose-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(244,63,94,0.5)]', colorClass: 'bg-rose-500' },
   { id: 'green', bg: 'bg-green-500/20', border: 'border-green-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(74,222,128,0.5)]', colorClass: 'bg-green-500' },
   { id: 'blue', bg: 'bg-blue-500/20', border: 'border-blue-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)]', colorClass: 'bg-blue-500' },
+  { id: 'red', bg: 'bg-red-500/20', border: 'border-red-500/40', glow: 'group-hover:shadow-[0_0_15px_rgba(239,68,68,0.5)]', colorClass: 'bg-red-500' },
 ];
 
 const RAW_AVATARS: AvatarDefinition[] = [

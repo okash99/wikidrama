@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { fetchArticleData, fetchArticleFromCategory, fetchArticleByTitle, type ArticleData } from '../api/wikipedia'
-import { computeDramaScore } from '../utils/dramaScore'
+import { computeDramaScore, isLegendary } from '../utils/dramaScore'
 import { E } from '../utils/emojis'
 import eyeLogoRaw from '../assets/eye-logo.svg?raw'
 import { useSettings } from '../context/SettingsContext'
@@ -133,7 +133,9 @@ export default function Duel() {
             outcome: 'LOSS',
             mode,
             category: mode === 'thematic' ? category : undefined,
-            suddenDeath: true
+            suddenDeath: true,
+            protectedArticles: articles.filter((article) => article.stats.protected).length,
+            legendaryArticles: articles.map((article) => computeDramaScore(article.stats)).filter(isLegendary).length
           })
         }
         setPhase('sudden-death')
@@ -158,7 +160,9 @@ export default function Duel() {
       outcome,
       mode,
       category: mode === 'thematic' ? category : undefined,
-      suddenDeath: suddenDeathEnabled
+      suddenDeath: suddenDeathEnabled,
+      protectedArticles: articles.filter((article) => article.stats.protected).length,
+      legendaryArticles: [scoreA, scoreB].filter(isLegendary).length
     })
   }
 

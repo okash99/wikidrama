@@ -29,6 +29,11 @@ const sandbox = {
         ]
       };
     }
+    if (id === '../types/profile') {
+      return {
+        getTotalXpForProgress: (level, xp) => Math.max(0, level - 1) * 50 + Math.max(0, xp)
+      };
+    }
     throw new Error(`Unexpected import in profile migration check: ${id}`);
   }
 };
@@ -49,11 +54,16 @@ const initial = {
   },
   progression: {
     level: 1,
-    xp: 0
+    xp: 0,
+    totalXpEarned: 0
   },
   dailyQuests: [
     { id: 'q_play_3', type: 'PLAY_ANY', target: 3, progress: 0, completed: false, xpReward: 30 }
   ],
+  dailyQuestState: {
+    categoriesPlayed: [],
+    wikiWarsStreak: 0
+  },
   lastLoginDate: '2026-05-06'
 };
 
@@ -74,7 +84,9 @@ const checks = [
   ['fills missing gamesPlayedPerMode', migrated.stats.gamesPlayedPerMode && typeof migrated.stats.gamesPlayedPerMode === 'object'],
   ['fills missing progression level', migrated.progression.level === 1],
   ['fills missing progression xp', migrated.progression.xp === 0],
+  ['fills missing total XP earned', migrated.progression.totalXpEarned === 0],
   ['fills missing daily quests', Array.isArray(migrated.dailyQuests) && migrated.dailyQuests.length === 1],
+  ['fills missing daily quest state', Array.isArray(migrated.dailyQuestState.categoriesPlayed) && migrated.dailyQuestState.wikiWarsStreak === 0],
   ['fills missing lastLoginDate', migrated.lastLoginDate === '2026-05-06']
 ];
 

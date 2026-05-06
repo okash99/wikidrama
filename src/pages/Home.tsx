@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import SettingsModal from '../components/SettingsModal'
 import ProfileModal from '../components/ProfileModal'
+import LeaderboardModal from '../components/LeaderboardModal'
 import DramaTicker from '../components/DramaTicker'
+import Icon from '../components/Icon'
 import WikiDramaLogo from '../components/WikiDramaLogo'
 
 type ModeId = 'random' | 'thematic' | 'wikiwars'
@@ -61,6 +63,7 @@ export default function Home() {
   const [flipped, setFlipped] = useState<string | null>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const [showLeaderboard, setShowLeaderboard] = useState(false)
 
   const MODES = [
     {
@@ -93,6 +96,7 @@ export default function Home() {
     <>
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
       {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
+      {showLeaderboard && <LeaderboardModal onClose={() => setShowLeaderboard(false)} />}
 
       <main className="relative flex flex-col items-center justify-between flex-1 px-6 py-8">
         <div className="absolute top-5 right-5 z-20 flex items-center gap-3">
@@ -102,6 +106,14 @@ export default function Home() {
             aria-label={t('profile')}
           >
             <UserIcon />
+          </button>
+          <button
+            onClick={() => setShowLeaderboard(true)}
+            className="text-muted hover:text-text transition-colors p-1"
+            aria-label={t('leaderboard')}
+            title={t('leaderboard')}
+          >
+            <Icon name="trophy" className="h-[22px] w-[22px]" />
           </button>
           <button
             onClick={() => setShowSettings(true)}
