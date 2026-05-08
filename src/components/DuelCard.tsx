@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ArticleData } from '../api/wikipedia'
 import { computeDramaScore, getDramaColor, getDramaBarColor, getDramaTierKey, getDramaTierEmoji, isLegendary, isEnormous } from '../utils/dramaScore'
@@ -14,6 +15,42 @@ interface Props {
   dimmed?: boolean
 }
 
+const COUNT_UP_DURATION_MS = 1500
+const COUNT_UP_INTERVAL_MS = 16
+
+function useCountUp(target: number, active: boolean): number {
+  const [displayed, setDisplayed] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    if (!active) {
+      setDisplayed(0)
+      return
+    }
+
+    setDisplayed(0)
+    const steps = COUNT_UP_DURATION_MS / COUNT_UP_INTERVAL_MS
+    const increment = target / steps
+    let current = 0
+
+    intervalRef.current = setInterval(() => {
+      current += increment
+      if (current >= target) {
+        setDisplayed(target)
+        clearInterval(intervalRef.current!)
+      } else {
+        setDisplayed(Math.floor(current))
+      }
+    }, COUNT_UP_INTERVAL_MS)
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [target, active])
+
+  return displayed
+}
+
 function fmt(n: number): string {
   return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
 }
@@ -27,6 +64,8 @@ export default function DuelCard({ data, revealed, winner, onClick, disabled = f
   const isLoser   = revealed && !winner
   const legendary = isLegendary(score)
   const enormous  = isEnormous(score)
+
+  const displayedScore = useCountUp(score, revealed)
 
   const shortExtract = article.extract
     ? article.extract.split('.').slice(0, 2).join('.') + '.'
@@ -93,7 +132,7 @@ export default function DuelCard({ data, revealed, winner, onClick, disabled = f
             <span className={`font-extrabold text-4xl drop-shadow-lg ${colorText} ${
               legendary ? 'legendary-text-glow' : enormous ? 'enormous-text-glow' : ''
             }`}>
-              {score}%
+              {displayedScore}%
             </span>
             <p className={`text-xs font-semibold ${colorText}`}>
               {getDramaTierEmoji(score)} {t(getDramaTierKey(score))}

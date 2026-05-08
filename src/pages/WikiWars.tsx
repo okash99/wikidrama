@@ -15,6 +15,143 @@ type Phase = 'loading' | 'vote' | 'reveal' | 'sudden-death'
 
 const SUDDEN_DEATH_SECONDS = 5
 
+// ─── Count-up animation ───────────────────────────────────────────────────────
+
+const COUNT_UP_DURATION_MS = 1500
+const COUNT_UP_INTERVAL_MS = 16
+
+function useCountUp(target: number, active: boolean): number {
+  const [displayed, setDisplayed] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    if (!active) {
+      setDisplayed(0)
+      return
+    }
+
+    setDisplayed(0)
+    const steps = COUNT_UP_DURATION_MS / COUNT_UP_INTERVAL_MS
+    const increment = target / steps
+    let current = 0
+
+    intervalRef.current = setInterval(() => {
+      current += increment
+      if (current >= target) {
+        setDisplayed(target)
+        clearInterval(intervalRef.current!)
+      } else {
+        setDisplayed(Math.floor(current))
+      }
+    }, COUNT_UP_INTERVAL_MS)
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [target, active])
+
+  return displayed
+}
+
+// ─── WikiWarsCard ─────────────────────────────────────────────────────────────
+
+function WikiWarsCard({
+  card, isWinner, isLoser, isSuddenDeathExpired, phase, onVote, index, t,
+}: {
+  card: PageviewsData
+  isWinner: boolean
+  isLoser: boolean
+  isSuddenDeathExpired: boolean
+  phase: Phase
+  onVote: (i: 0 | 1) => void
+  index: 0 | 1
+  t: (key: string) => string
+}) {
+  const score     = viewsToScore(card.views)
+  const colorText = getPopularityColor(card.views)
+  const colorBar  = getPopularityBarColor(card.views)
+  const tier      = getPopularityTier(card.views)
+  const isViral   = tier === 'viral'
+  const isMondial = tier === 'mondial'
+
+  const displayedViews = useCountUp(card.views, phase === 'reveal')
+
+  return (
+    <div className="flex-1 overflow-hidden">
+      <button
+        onClick={() => onVote(index)}
+        disabled={phase === 'reveal' || isSuddenDeathExpired}
+        className={`relative w-full h-full overflow-hidden transition-all
+          ${isLoser || isSuddenDeathExpired ? 'opacity-40' : 'opacity-100'}
+          ${phase !== 'reveal' && !isSuddenDeathExpired ? 'active:brightness-110' : ''}
+        `}
+      >
+        {card.thumbnail
+          ? <img src={card.thumbnail} alt={card.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+          : <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />}
+
+        <div className={`absolute inset-0 ${
+          isViral   && isWinner ? 'bg-purple-950/50' :
+          isMondial && isWinner ? 'bg-yellow-950/40' :
+          isWinner  ? 'bg-black/40' : 'bg-black/60'
+        }`} />
+
+        {isViral   && isWinner && <div className="absolute inset-0 pointer-events-none legendary-shimmer" />}
+        {isMondial && isWinner && <div className="absolute inset-0 pointer-events-none enormous-shimmer" />}
+        {isWinner  && !isViral && !isMondial && (
+          <div className="absolute inset-0 border-4 border-purple-400 pointer-events-none" />
+        )}
+
+        <div className="relative z-10 flex flex-col items-center justify-center h-full px-5 gap-2">
+          {isWinner && (
+            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+              isViral   ? 'bg-purple-500/80 text-white legendary-badge-glow' :
+              isMondial ? 'bg-yellow-400 text-slate-900 enormous-badge-glow' :
+              'bg-purple-500 text-white'
+            }`}>
+              <Icon name="barChart" className="h-3.5 w-3.5" />
+              {t('wwMostViewed')}
+            </div>
+          )}
+
+          <h2 className="text-white font-extrabold text-xl text-center leading-tight drop-shadow-lg">
+            {card.title}
+          </h2>
+
+          {card.extract && (
+            <p className="text-white/90 text-xs text-center leading-relaxed bg-black/40 backdrop-blur-sm rounded-2xl px-4 py-3 max-w-sm line-clamp-3 w-full">
+              {card.extract}
+            </p>
+          )}
+
+          {phase !== 'reveal' && (
+            <span className="text-white/80 font-medium text-xs border-2 border-white/30 bg-black/20 backdrop-blur-sm rounded-full px-3 py-1">
+              {E.vote} {t('wwVote')}
+            </span>
+          )}
+
+          {phase === 'reveal' && (
+            <div className="flex flex-col items-center gap-1.5 fade-in w-full max-w-xs">
+              <span className={`font-extrabold text-3xl drop-shadow-lg ${colorText} ${
+                isViral ? 'legendary-text-glow' : isMondial ? 'enormous-text-glow' : ''
+              }`}>
+                {formatViews(displayedViews)}
+              </span>
+              <p className="text-white/50 text-xs">{t('wwViews12m')}</p>
+              <p className={`text-xs font-semibold ${colorText}`}>{t(getPopularityTierKey(card.views))}</p>
+              <div className="w-full h-1.5 rounded-full bg-white/20">
+                <div className={`h-1.5 rounded-full fill-bar ${colorBar}`} style={{ width: `${score}%` }} />
+              </div>
+            </div>
+          )}
+        </div>
+      </button>
+    </div>
+  )
+}
+
+// ─── Share modal ──────────────────────────────────────────────────────────────
+
 function dramaBar(score: number): string {
   const filled = Math.round(score / 10)
   return '\u2588'.repeat(filled) + '\u2591'.repeat(10 - filled)
@@ -144,6 +281,8 @@ function ShareModal({
   )
 }
 
+// ─── Main WikiWars component ──────────────────────────────────────────────────
+
 export default function WikiWars() {
   const navigate = useNavigate()
   const { t } = useTranslation()
@@ -222,7 +361,7 @@ export default function WikiWars() {
 
     const currentWinner = cards[0].views === cards[1].views ? 'tie' : (cards[0].views > cards[1].views ? 0 : 1)
     const outcome = currentWinner === 'tie' ? 'DRAW' : (currentWinner === index ? 'WIN' : 'LOSS')
-    
+
     addGameResult({
       outcome,
       mode: 'wikiwars',
@@ -295,92 +434,28 @@ export default function WikiWars() {
 
           {profile && profile.stats.currentStreak >= 2 && (
             <div className="absolute top-3 right-3 z-30 text-yellow-400 font-bold text-sm bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1.5">
-              🔥 {profile.stats.currentStreak}
+              <Icon name="flame" className="h-5 w-5" />
+              {profile.stats.currentStreak}
             </div>
           )}
 
-          {[0, 1].map((i) => {
-            const card      = cards[i as 0 | 1]
-            const isWinner  = phase === 'reveal' && (winner === i || isTie)
-            const isLoser   = phase === 'reveal' && !isWinner
-            const score     = viewsToScore(card.views)
-            const colorText = getPopularityColor(card.views)
-            const colorBar  = getPopularityBarColor(card.views)
-            const tier      = getPopularityTier(card.views)
-            const isViral   = tier === 'viral'
-            const isMondial = tier === 'mondial'
+          {([0, 1] as const).map((i) => {
+            const card     = cards[i]
+            const isWinner = phase === 'reveal' && (winner === i || isTie)
+            const isLoser  = phase === 'reveal' && !isWinner
 
             return (
-              <div key={i} className="flex-1 overflow-hidden">
-                <button
-                  onClick={() => handleVote(i as 0 | 1)}
-                  disabled={phase === 'reveal' || isSuddenDeathExpired}
-                  className={`relative w-full h-full overflow-hidden transition-all
-                    ${isLoser || isSuddenDeathExpired ? 'opacity-40' : 'opacity-100'}
-                    ${phase !== 'reveal' && !isSuddenDeathExpired ? 'active:brightness-110' : ''}
-                  `}
-                >
-                  {card.thumbnail
-                    ? <img src={card.thumbnail} alt={card.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-                    : <div className="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900" />}
-
-                  <div className={`absolute inset-0 ${
-                    isViral   && isWinner ? 'bg-purple-950/50' :
-                    isMondial && isWinner ? 'bg-yellow-950/40' :
-                    isWinner  ? 'bg-black/40' : 'bg-black/60'
-                  }`} />
-
-                  {isViral   && isWinner && <div className="absolute inset-0 pointer-events-none legendary-shimmer" />}
-                  {isMondial && isWinner && <div className="absolute inset-0 pointer-events-none enormous-shimmer" />}
-                  {isWinner  && !isViral && !isMondial && (
-                    <div className="absolute inset-0 border-4 border-purple-400 pointer-events-none" />
-                  )}
-
-                  <div className="relative z-10 flex flex-col items-center justify-center h-full px-5 gap-2">
-                    {isWinner && (
-                      <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                        isViral   ? 'bg-purple-500/80 text-white legendary-badge-glow' :
-                        isMondial ? 'bg-yellow-400 text-slate-900 enormous-badge-glow' :
-                        'bg-purple-500 text-white'
-                      }`}>
-                        <Icon name="barChart" className="h-3.5 w-3.5" />
-                        {t('wwMostViewed')}
-                      </div>
-                    )}
-
-                    <h2 className="text-white font-extrabold text-xl text-center leading-tight drop-shadow-lg">
-                      {card.title}
-                    </h2>
-
-                    {card.extract && (
-                      <p className="text-white/90 text-xs text-center leading-relaxed bg-black/40 backdrop-blur-sm rounded-2xl px-4 py-3 max-w-sm line-clamp-3 w-full">
-                        {card.extract}
-                      </p>
-                    )}
-
-                    {phase !== 'reveal' && (
-                      <span className="text-white/80 font-medium text-xs border-2 border-white/30 bg-black/20 backdrop-blur-sm rounded-full px-3 py-1">
-                        {E.vote} {t('wwVote')}
-                      </span>
-                    )}
-
-                    {phase === 'reveal' && (
-                      <div className="flex flex-col items-center gap-1.5 fade-in w-full max-w-xs">
-                        <span className={`font-extrabold text-3xl drop-shadow-lg ${colorText} ${
-                          isViral ? 'legendary-text-glow' : isMondial ? 'enormous-text-glow' : ''
-                        }`}>
-                          {formatViews(card.views)}
-                        </span>
-                        <p className="text-white/50 text-xs">{t('wwViews12m')}</p>
-                        <p className={`text-xs font-semibold ${colorText}`}>{t(getPopularityTierKey(card.views))}</p>
-                        <div className="w-full h-1.5 rounded-full bg-white/20">
-                          <div className={`h-1.5 rounded-full fill-bar ${colorBar}`} style={{ width: `${score}%` }} />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </button>
-              </div>
+              <WikiWarsCard
+                key={i}
+                index={i}
+                card={card}
+                isWinner={isWinner}
+                isLoser={isLoser}
+                isSuddenDeathExpired={isSuddenDeathExpired}
+                phase={phase}
+                onVote={handleVote}
+                t={t}
+              />
             )
           })}
 
