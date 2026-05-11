@@ -97,7 +97,7 @@ function WikiWarsCard({
           isWinner  ? 'bg-black/40' : 'bg-black/60'
         }`} />
 
-        {isViral   && isWinner && <div className="absolute inset-0 pointer-events-none legendary-shimmer" />}
+        {isViral   && isWinner && <div className="absolute inset-0 pointer-events-none viral-shimmer" />}
         {isMondial && isWinner && <div className="absolute inset-0 pointer-events-none enormous-shimmer" />}
         {isWinner  && !isViral && !isMondial && (
           <div className="absolute inset-0 border-4 border-purple-400 pointer-events-none" />
@@ -106,7 +106,7 @@ function WikiWarsCard({
         <div className="relative z-10 flex flex-col items-center justify-center h-full px-5 gap-2">
           {isWinner && (
             <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-              isViral   ? 'bg-purple-500/80 text-white legendary-badge-glow' :
+              isViral   ? 'bg-purple-500/80 text-white viral-badge-glow' :
               isMondial ? 'bg-yellow-400 text-slate-900 enormous-badge-glow' :
               'bg-purple-500 text-white'
             }`}>
@@ -135,7 +135,7 @@ function WikiWarsCard({
           {phase === 'reveal' && (
             <div className="flex flex-col items-center gap-1.5 fade-in w-full max-w-xs">
               <span className={`font-extrabold text-3xl drop-shadow-lg ${colorText} ${
-                isViral ? 'legendary-text-glow' : isMondial ? 'enormous-text-glow' : ''
+                isViral ? 'viral-text-glow' : isMondial ? 'enormous-text-glow' : ''
               }`}>
                 {formatViews(displayedViews)}
               </span>

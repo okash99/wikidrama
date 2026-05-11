@@ -159,7 +159,8 @@ body {
 }
 
 .duel-loading-logo .wikidrama-logo__keyhole {
-  transform-origin: center;
+  transform-box: fill-box;
+  transform-origin: center center;
   animation: duelLoadingLock 1.7s ease-in-out infinite;
 }
 
@@ -253,7 +254,8 @@ body {
 
 .wikidrama-logo__keyhole {
   fill: #ffffff;
-  transform-origin: center;
+  transform-box: fill-box;
+  transform-origin: center center;
   transition: fill 180ms ease, filter 180ms ease, transform 180ms ease;
 }
 
@@ -353,6 +355,26 @@ body {
   50%     { text-shadow: 0 0 22px rgba(56,189,248,1), 0 0 44px rgba(14,165,233,0.5); }
 }
 .legendary-text-glow { animation: textGlow 1.8s ease-in-out infinite; }
+
+/* VIRAL */
+@keyframes viralShimmer {
+  0%   { box-shadow: 0 0 8px 2px rgba(168,85,247,0.6), inset 0 0 8px rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.8); }
+  50%  { box-shadow: 0 0 28px 10px rgba(168,85,247,0.9), inset 0 0 18px rgba(168,85,247,0.3); border-color: rgba(216,180,254,1); }
+  100% { box-shadow: 0 0 8px 2px rgba(168,85,247,0.6), inset 0 0 8px rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.8); }
+}
+.viral-shimmer { border: 3px solid rgba(168,85,247,0.8); animation: viralShimmer 1.8s ease-in-out infinite; }
+
+@keyframes viralBadgeGlow {
+  0%,100% { box-shadow: 0 0 6px 2px rgba(168,85,247,0.8); }
+  50%     { box-shadow: 0 0 18px 6px rgba(168,85,247,1); }
+}
+.viral-badge-glow { animation: viralBadgeGlow 1.8s ease-in-out infinite; }
+
+@keyframes viralTextGlow {
+  0%,100% { text-shadow: 0 0 8px rgba(168,85,247,0.6); }
+  50%     { text-shadow: 0 0 22px rgba(168,85,247,1), 0 0 44px rgba(147,51,234,0.5); }
+}
+.viral-text-glow { animation: viralTextGlow 1.8s ease-in-out infinite; }
 
 /* ENORMOUS */
 @keyframes goldShimmer {
