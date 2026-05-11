@@ -18,6 +18,9 @@ const CATEGORY_HERO: Record<string, string> = {
   Tech:             'Elon Musk',
   'YouTubeurs FR':  'Norman Thavaud',
   'YouTubeurs US':  'Logan Paul',
+  Pays:             'United Nations',
+  'Jeux Vidéo':     'Video game',
+  Philosophy:       'Plato',
 }
 
 const CATEGORY_HERO_LANG: Record<string, string> = {
@@ -109,6 +112,38 @@ function CategoryIcon({ category }: { category: string }) {
         <text x="12" y="22" textAnchor="middle" fill="currentColor" stroke="none" fontSize="5" fontWeight="800">
           {category === 'YouTubeurs FR' ? 'FR' : 'US'}
         </text>
+      </svg>
+    )
+  }
+
+  if (category === 'Pays') {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" className={iconClass}>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3 12h18" />
+        <path d="M12 3a13.5 13.5 0 0 1 0 18" />
+        <path d="M12 3a13.5 13.5 0 0 0 0 18" />
+      </svg>
+    )
+  }
+
+  if (category === 'Jeux Vidéo') {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" className={iconClass}>
+        <rect x="3" y="8" width="18" height="9" rx="3" />
+        <path d="M8 12h3M9.5 10.5v3" />
+        <path d="M15 12h.01M18 12h.01" />
+      </svg>
+    )
+  }
+
+  if (category === 'Philosophy') {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" className={iconClass}>
+        <path d="M12 4a7 7 0 0 0-4 12.8V20h8v-3.2A7 7 0 0 0 12 4z" />
+        <path d="M9 20h6" />
+        <path d="M10 12h4" />
+        <path d="M12 9v6" />
       </svg>
     )
   }

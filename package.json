@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "i18next": "^26.0.8",
+    "lottie-react": "^2.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^17.0.6",

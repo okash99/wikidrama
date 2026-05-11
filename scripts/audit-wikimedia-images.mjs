@@ -16,11 +16,101 @@ const CATEGORY_FALLBACK_TITLES = {
   Histoire: { title: 'History', lang: 'en' },
   Religion: { title: 'Religion', lang: 'en' },
   Tech: { title: 'Technology', lang: 'en' },
-  'YouTubeurs FR': { title: 'YouTube', lang: 'fr' },
-  'YouTubeurs US': { title: 'YouTube', lang: 'en' },
+  'YouTubeurs FR': { title: 'Vidéaste web', lang: 'fr' },
+  'YouTubeurs US': { title: 'YouTuber', lang: 'en' },
+  Divers: { title: 'Internet meme', lang: 'en' },
+  Pays: { title: 'Earth', lang: 'en' },
+  'Jeux Vidéo': { title: 'Video game', lang: 'en' },
+  Philosophy: { title: 'Philosophy', lang: 'en' },
 }
 
 const DEFAULT_CATEGORY_FALLBACK = { title: 'Wikipedia', lang: 'en' }
+
+const COMMONS_REJECTED_TITLE_PATTERN =
+  /\b(logo|icon|map|flag|diagram|chart|seal|crest|coat of arms|wordmark|banner|emblem|symbol|poster|cover(?:\s*art)?|album art|book cover|game cover)\b/i
+
+const TRAILING_EVENT_WORDS = new Set([
+  'scandal',
+  'scandals',
+  'controversy',
+  'controversies',
+  'incident',
+  'incidents',
+  'case',
+  'cases',
+  'affair',
+  'affairs',
+  'allegation',
+  'allegations',
+  'abuse',
+  'crisis',
+  'disaster',
+  'protest',
+  'protests',
+  'movement',
+  'campaign',
+  'hoax',
+  'challenge',
+  'debate',
+  'strike',
+  'boycott',
+  'riot',
+  'riots',
+  'massacre',
+  'war',
+  'fraud',
+  'match',
+  'halftime',
+  'show',
+  'episode',
+  'stabbing',
+  'shooting',
+  'murder',
+  'death',
+  'attack',
+  'attacks',
+])
+
+const TRAILING_QUALIFIER_WORDS = new Set([
+  'child',
+  'children',
+  'sex',
+  'sexual',
+  'domestic',
+  'drug',
+  'drugs',
+  'doping',
+  'steroid',
+  'steroids',
+  'assault',
+  'assaults',
+  'harassment',
+  'email',
+  'emails',
+  'vote',
+  'voting',
+  'fixing',
+])
+
+const GENERIC_LEADING_TOPICS = new Set([
+  'doping',
+  'steroids',
+  'murder',
+  'death',
+  'shooting',
+  'attack',
+  'attacks',
+  'riot',
+  'riots',
+  'massacre',
+  'controversy',
+  'controversies',
+  'scandal',
+  'scandals',
+  'fraud',
+  'abuse',
+  'war',
+])
 
 function loadDramaData() {
   const source = fs.readFileSync('src/data/drama-articles.ts', 'utf8')
@@ -142,16 +232,51 @@ function scoreCommonsCandidate(query, page) {
   const title = (page.title ?? '').replace(/^File:/, '').toLowerCase()
   const normalizedQuery = query.toLowerCase()
   const mime = page.imageinfo?.[0]?.mime ?? ''
+  if (isRejectedCommonsCandidate(query, page)) return Number.NEGATIVE_INFINITY
   let score = 0
 
   for (const token of normalizedQuery.split(/\s+/).filter((part) => part.length > 2)) {
     if (title.includes(token)) score += 3
   }
   if (title.includes(normalizedQuery)) score += 8
-  if (mime.startsWith('image/')) score += 2
-  if (mime === 'image/svg+xml') score -= 3
-  if (/(logo|icon|map|flag|diagram|chart|seal)/i.test(title)) score -= 2
+  if (title.startsWith(normalizedQuery)) score += 4
+  if (mime === 'image/jpeg') score += 3
+  else if (mime === 'image/png') score -= 1
+  else if (mime.startsWith('image/')) score += 1
   return score
+}
+
+function countMatchedQueryTokens(query, normalizedTitle) {
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((part) => part.length > 2)
+    .filter((token) => normalizedTitle.includes(token)).length
+}
+
+function isRejectedCommonsCandidate(query, page) {
+  const rawTitle = (page.title ?? '').replace(/^File:/, '')
+  const normalizedTitle = rawTitle.toLowerCase()
+  const normalizedQuery = query.trim().toLowerCase()
+  const mime = page.imageinfo?.[0]?.mime ?? ''
+  const queryTokens = normalizedQuery.split(/\s+/).filter((part) => part.length > 2)
+  const matchedTokens = countMatchedQueryTokens(query, normalizedTitle)
+
+  if (!mime.startsWith('image/')) return true
+  if (mime === 'image/svg+xml') return true
+  if (COMMONS_REJECTED_TITLE_PATTERN.test(normalizedTitle)) return true
+  if (queryTokens.length >= 3 && matchedTokens < 2) return true
+  if (queryTokens.length >= 2 && matchedTokens === 0) return true
+
+  if (
+    mime === 'image/png' &&
+    normalizedQuery.length > 0 &&
+    (normalizedTitle.startsWith(`${normalizedQuery}-`) || normalizedTitle.startsWith(`${normalizedQuery} -`))
+  ) {
+    return true
+  }
+
+  return false
 }
 
 async function fetchCommonsImage(query) {
@@ -171,9 +296,84 @@ async function fetchCommonsImage(query) {
   const pages = Object.values(data?.query?.pages ?? {})
   const best = pages
     .map((page) => ({ page, score: scoreCommonsCandidate(query, page) }))
-    .filter(({ page, score }) => score > 0 && page.imageinfo?.[0]?.mime?.startsWith('image/'))
+    .filter(({ score }) => Number.isFinite(score) && score > 0)
     .sort((a, b) => b.score - a.score)[0]?.page
   return best?.imageinfo?.[0]?.thumburl ?? best?.imageinfo?.[0]?.url ?? null
+}
+
+function simplifySearchQuery(title) {
+  const candidates = []
+
+  const addCandidate = (value) => {
+    const normalized = value
+      ?.replace(/\s*\(.*?\)\s*/g, ' ')
+      .replace(/[,:;]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+    if (!normalized || normalized.length < 3 || normalized === title || candidates.includes(normalized)) return
+    candidates.push(normalized)
+  }
+
+  const isCapitalizedWord = (word) => {
+    const cleaned = word.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}'.-]+$/gu, '')
+    return /^[A-ZÀ-ÖØ-Þ][\p{L}\p{N}'’.:-]*$/u.test(cleaned) || /^[A-Z]{2,}$/.test(cleaned)
+  }
+
+  const trimTrailingNoise = (value) => {
+    const words = value.split(/\s+/)
+    let removedEventWord = false
+
+    while (words.length > 1) {
+      const last = words[words.length - 1].toLowerCase()
+      if (TRAILING_EVENT_WORDS.has(last)) {
+        words.pop()
+        removedEventWord = true
+        continue
+      }
+      if (removedEventWord && TRAILING_QUALIFIER_WORDS.has(last)) {
+        words.pop()
+        continue
+      }
+      break
+    }
+
+    return words.join(' ').trim()
+  }
+
+  const noParens = title.replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s+/g, ' ').trim()
+  const words = noParens.split(/\s+/)
+
+  if (words.length >= 2 && isCapitalizedWord(words[0]) && isCapitalizedWord(words[1])) {
+    addCandidate(words.slice(0, 2).join(' '))
+  }
+
+  const stripped = trimTrailingNoise(noParens)
+  if (stripped !== noParens) {
+    addCandidate(stripped)
+  }
+
+  const prepMatch = noParens.match(/^(.+?)\s+(in|at the|at|of|vs\.?|v\.)\s+(.+)$/i)
+  if (prepMatch) {
+    const [, beforeRaw, relation, afterRaw] = prepMatch
+    const before = trimTrailingNoise(beforeRaw.trim())
+    const after = trimTrailingNoise(afterRaw.trim())
+    const lead = before.split(/\s+/)[0]?.toLowerCase()
+
+    if (relation.toLowerCase() === 'of' || GENERIC_LEADING_TOPICS.has(lead)) {
+      addCandidate(after)
+      addCandidate(before)
+    } else {
+      addCandidate(after)
+      addCandidate(before)
+    }
+  }
+
+  if (noParens !== title) {
+    addCandidate(noParens)
+  }
+
+  return candidates
 }
 
 async function fetchCategoryFallbackImage(category) {
@@ -204,6 +404,20 @@ async function resolveImage(entry, canonicalTitles) {
 
     const commonsImage = await fetchCommonsImage(summary.data.title)
     if (commonsImage) return { ...entry, canonicalTitle: summary.data.title, status: 'ok', imageSource: 'commons', imageUrl: commonsImage }
+
+    const simplifiedQueries = simplifySearchQuery(summary.data.title)
+    for (const query of simplifiedQueries) {
+      const simplifiedImage = await fetchCommonsImage(query)
+      if (simplifiedImage) {
+        return {
+          ...entry,
+          canonicalTitle: summary.data.title,
+          status: `ok:simplified:${query}`,
+          imageSource: 'commons',
+          imageUrl: simplifiedImage,
+        }
+      }
+    }
   }
 
   const fallbackImage = await fetchCategoryFallbackImage(entry.category)

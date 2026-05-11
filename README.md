@@ -4,6 +4,8 @@
 
 WikiDrama is a mobile-first React app that turns Wikipedia edit wars and pageview data into quick duel games. It includes the classic Drama Score mode, a thematic duel mode, and WikiWars, a special mode based on Wikimedia pageviews.
 
+Recent updates include a refreshed duel card UI, richer reveal states, smarter Wikipedia/Commons image fallback logic, and expanded thematic pools for Countries, Video Games, and Philosophy.
+
 <p align="center">
   <img src="public/img/screenshot-home.png" alt="WikiDrama Home Screen" width="350" />
   <img src="public/img/screenshot-profile.png" alt="WikiDrama Profile & Quests" width="350" />
@@ -19,7 +21,7 @@ Two Wikipedia articles are drawn at random from a curated pool of over 850 contr
 
 ### Thematic Duel
 
-Pick a category and compare two articles from the same universe. Current categories include Politics, Sport, Pop Culture, Science, History, Religion, Tech, French YouTubers, US YouTubers, and Miscellaneous.
+Pick a category and compare two articles from the same universe. Current categories include Politics, Sport, Pop Culture, Science, History, Religion, Tech, Countries, Video Games, Philosophy, French YouTubers, US YouTubers, and Miscellaneous.
 
 ### WikiWars
 
@@ -65,6 +67,10 @@ WikiDrama includes a player profile and leveling system inspired by classic RPGs
 Players earn XP through daily quests and winning duels, unlocking progressively prestigious titles along the way. Progression is stored as a local browser profile using `localStorage`; it is not synced across devices.
 
 
+## Images & Fallbacks
+
+Article visuals are fetched from Wikipedia summaries first, then improved with Wikimedia Commons fallback logic when needed. The image resolver filters out poor matches such as logos, flags, diagrams, and low-signal file names, and can retry with simplified search queries for better article art.
+
 ## Data Sources
 
 - Wikipedia REST API for article summaries and thumbnails
@@ -79,6 +85,7 @@ The app is frontend-only and uses public APIs with no account or backend require
 - React 18 + TypeScript
 - Vite
 - Tailwind CSS
+- lottie-react
 - i18next / react-i18next
 - React Router
 - Cloudflare Pages

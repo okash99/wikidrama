@@ -8,6 +8,9 @@ export type CategoryId =
   | 'tech'
   | 'youtube-fr'
   | 'youtube-us'
+  | 'countries'
+  | 'video-games'
+  | 'philosophy'
   | 'misc';
 
 export interface DramaCategory {
@@ -26,6 +29,9 @@ export const DRAMA_CATEGORY_DEFINITIONS: DramaCategory[] = [
   { id: 'tech', poolKey: 'Tech', i18nKey: 'cat_Tech' },
   { id: 'youtube-fr', poolKey: 'YouTubeurs FR', i18nKey: 'cat_YtFR' },
   { id: 'youtube-us', poolKey: 'YouTubeurs US', i18nKey: 'cat_YtUS' },
+  { id: 'countries', poolKey: 'Pays', i18nKey: 'cat_Pays' },
+  { id: 'video-games', poolKey: 'Jeux Vidéo', i18nKey: 'cat_JeuxVideo' },
+  { id: 'philosophy', poolKey: 'Philosophy', i18nKey: 'cat_Philosophy' },
   { id: 'misc', poolKey: 'Divers', i18nKey: 'cat_Divers' },
 ];
 
@@ -48,6 +54,14 @@ const LEGACY_CATEGORY_ALIASES: Record<string, CategoryId> = {
   Histoire: 'history',
   'YouTubeurs FR': 'youtube-fr',
   'YouTubeurs US': 'youtube-us',
+  Pays: 'countries',
+  Country: 'countries',
+  Countries: 'countries',
+  'Jeux Vidéo': 'video-games',
+  'Jeux Video': 'video-games',
+  'Video Games': 'video-games',
+  Philosophy: 'philosophy',
+  Philosophie: 'philosophy',
   Divers: 'misc',
 };
 

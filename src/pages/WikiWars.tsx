@@ -10,6 +10,7 @@ import { useProfile } from '../context/ProfileContext'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import Icon from '../components/Icon'
 import SuddenDeathOverlay from '../components/SuddenDeathOverlay'
+import VoteArrow from '../components/VoteArrow'
 
 type Phase = 'loading' | 'vote' | 'reveal' | 'sudden-death'
 
@@ -109,7 +110,7 @@ function WikiWarsCard({
               isMondial ? 'bg-yellow-400 text-slate-900 enormous-badge-glow' :
               'bg-purple-500 text-white'
             }`}>
-              <Icon name="barChart" className="h-3.5 w-3.5" />
+              <Icon name="eyesOnOutlined" className="h-3.5 w-3.5" />
               {t('wwMostViewed')}
             </div>
           )}
@@ -126,7 +127,8 @@ function WikiWarsCard({
 
           {phase !== 'reveal' && (
             <span className="text-white/80 font-medium text-xs border-2 border-white/30 bg-black/20 backdrop-blur-sm rounded-full px-3 py-1">
-              {E.vote} {t('wwVote')}
+              <VoteArrow className="mr-1" />
+              {t('wwVote')}
             </span>
           )}
 
@@ -240,7 +242,7 @@ function ShareModal({
       >
         <div className="w-10 h-1 bg-border-strong rounded-full mx-auto" />
         <p id="ww-share-title" className="flex items-center justify-center gap-1.5 text-sm font-semibold text-text text-center">
-          <Icon name="barChart" className="h-4 w-4 text-emerald-300" />
+          <Icon name="wikiWarsStats" className="h-4 w-4 text-emerald-300" />
           {t('wwShareTitle')}
         </p>
 
@@ -399,7 +401,7 @@ export default function WikiWars() {
   if (phase === 'loading') {
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-4">
-        <Icon name="barChart" className="h-12 w-12 animate-pulse text-purple-300" />
+        <Icon name="wikiWarsStats" className="h-12 w-12 animate-pulse text-purple-300" />
         <p className="text-muted text-sm">{t('wwLoading')}</p>
       </main>
     )
@@ -482,7 +484,7 @@ export default function WikiWars() {
       <div className="flex-shrink-0 bg-base border-t border-border px-3 py-2.5">
         {phase === 'vote' && (
           <p className="flex items-center justify-center gap-1.5 text-center text-muted text-xs py-1">
-            <Icon name="pointerUp" className="h-3.5 w-3.5 text-yellow-400" />
+            <VoteArrow className="text-yellow-400 text-sm" />
             {t('wwInstruction')}
           </p>
         )}

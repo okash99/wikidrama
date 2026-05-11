@@ -3,7 +3,6 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { fetchArticleData, fetchArticleFromCategory, fetchArticleByTitle, type ArticleData } from '../api/wikipedia'
 import { computeDramaScore, isLegendary } from '../utils/dramaScore'
-import { E } from '../utils/emojis'
 import eyeLogoRaw from '../assets/eye-logo.svg?raw'
 import { useSettings } from '../context/SettingsContext'
 import { useProfile } from '../context/ProfileContext'
@@ -12,6 +11,7 @@ import CategoryPicker from '../components/CategoryPicker'
 import ShareButton from '../components/ShareButton'
 import Icon from '../components/Icon'
 import SuddenDeathOverlay from '../components/SuddenDeathOverlay'
+import VoteArrow from '../components/VoteArrow'
 
 type Phase = 'pick-category' | 'loading' | 'vote' | 'reveal' | 'sudden-death'
 export type WinnerState = 0 | 1 | 'tie'
@@ -239,7 +239,13 @@ export default function Duel() {
     const isOfflineError = error === 'offline'
     return (
       <main className="flex flex-col flex-1 items-center justify-center gap-5 px-6 text-center">
-        <span className="text-5xl">{isOfflineError ? E.satellite : E.noEntry}</span>
+        <div className={`flex h-16 w-16 items-center justify-center rounded-3xl border backdrop-blur-sm ${
+          isOfflineError
+            ? 'border-red-400/20 bg-red-500/10 text-red-300'
+            : 'border-border-strong bg-card/80 text-text'
+        }`}>
+          <Icon name={isOfflineError ? 'wifiOff' : 'alertCircle'} className="h-8 w-8" />
+        </div>
         <div className="flex flex-col gap-1">
           <p className="text-white font-bold">
             {t(isOfflineError ? 'duelOfflineTitle' : 'duelErrorTitle')}
@@ -268,15 +274,16 @@ export default function Duel() {
         <div className="flex flex-col flex-1 overflow-hidden relative">
           <button
             onClick={() => navigate('/')}
-            className="absolute top-3 left-3 z-30 text-white/60 text-sm bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full"
+            className="absolute top-3 left-3 z-30 flex h-10 w-10 items-center justify-center rounded-xl bg-black/35 text-white/70 ring-1 ring-white/10 backdrop-blur-md transition-all hover:bg-black/45 hover:text-white active:scale-95"
             aria-label={t('backHome')}
           >
-            {E.arrowLeft}
+            <Icon name="arrowLeft" className="h-4 w-4" />
           </button>
 
           {profile && profile.stats.currentStreak >= 2 && (
             <div className="absolute top-3 right-3 z-30 text-yellow-400 font-bold text-sm bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1.5">
-              🔥 {profile.stats.currentStreak}
+              <Icon name="flame" className="h-5 w-5" />
+              {profile.stats.currentStreak}
             </div>
           )}
 
@@ -329,7 +336,7 @@ export default function Duel() {
       <div className="flex-shrink-0 bg-base border-t border-border px-3 py-2.5">
         {phase === 'vote' && (
           <p className="flex items-center justify-center gap-1.5 text-center text-muted text-xs py-1">
-            <Icon name="pointerUp" className="h-3.5 w-3.5 text-yellow-400" />
+            <VoteArrow className="text-yellow-400 text-sm" />
             {t('duelTapArticle')}
           </p>
         )}
@@ -367,3 +374,4 @@ export default function Duel() {
     </main>
   )
 }
+

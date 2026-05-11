@@ -5,6 +5,7 @@ import { useFocusTrap } from '../hooks/useFocusTrap'
 import { getTitleKeyForLevel, getXpForLevel, Quest } from '../types/profile'
 import { AVATARS, CUSTOM_BG_THEMES } from '../constants/avatars'
 import { getCategoryI18nKey } from '../data/categories'
+import Icon from './Icon'
 
 interface ProfileModalProps {
   onClose: () => void
@@ -226,8 +227,8 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
                   <span className="text-xs text-zinc-500 font-medium uppercase mt-1">{t('profileDraws')}</span>
                 </div>
                 <div className="bg-zinc-800/40 border border-zinc-800 rounded-xl p-3 flex flex-col items-center justify-center text-center">
-                  <span className="text-2xl font-black text-yellow-400">{profile.stats.bestStreak} 
-                    <span className="text-yellow-400/50 text-sm ml-0.5">🔥</span>
+                  <span className="inline-flex items-center gap-1 text-2xl font-black text-yellow-400">{profile.stats.bestStreak}
+                    <Icon name="flame" className="h-6 w-6 text-yellow-400/60" />
                   </span>
                   <span className="text-xs text-zinc-500 font-medium uppercase mt-1">{t('profileBestStreak')}</span>
                 </div>
@@ -250,7 +251,7 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
             
             {/* Color Palette Selection */}
             <div className="mb-5 flex flex-col gap-3">
-              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-center">{t('profileCustomColor', 'Couleur de fond')}</span>
+              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-center">{t('profileCustomColor')}</span>
               <div className="grid grid-cols-4 justify-items-center gap-x-1.5 gap-y-2 pt-2 pb-3 px-8">
                 {CUSTOM_BG_THEMES.map((theme) => {
                   const isThemeSelected = profile.avatarBgTheme === theme.id || (!profile.avatarBgTheme && theme.id === 'default');
@@ -259,7 +260,7 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
                       key={theme.id}
                       onClick={() => updateAvatarBg(theme.id === 'default' ? undefined : theme.id)}
                       className="flex min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-full transition-transform duration-300 hover:scale-105 active:scale-95"
-                      aria-label={`Select ${theme.id} color`}
+                      aria-label={t('profileColorOption', { color: theme.id })}
                     >
                       <span
                         className={`flex h-7 w-7 items-center justify-center rounded-full border-2 transition-all duration-300 ${theme.colorClass}
@@ -317,3 +318,4 @@ export default function ProfileModal({ onClose }: ProfileModalProps) {
     </div>
   )
 }
+

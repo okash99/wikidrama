@@ -1,10 +1,11 @@
 import { DRAMA_POOL_FLAT } from '../data/drama-articles'
+import { resolveArticleImage, type SummaryData } from './wikipedia'
 import i18n from '../i18n'
 
 const PAGEVIEWS_URL = 'https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/all-agents'
 const SUMMARY_URL   = 'https://en.wikipedia.org/api/rest_v1/page/summary'
 const CACHE_TTL     = 1000 * 60 * 60 * 6 // 6h
-const CACHE_VERSION = 'pv2'
+const CACHE_VERSION = 'pv3'
 const FETCH_TIMEOUT = 8000
 
 export interface PageviewsData {
@@ -100,9 +101,10 @@ export async function fetchSummaryForWikiWars(): Promise<PageviewsData> {
   let thumbnail: string | undefined
 
   if (summaryRes.ok) {
-    const s   = await summaryRes.json()
-    extract   = s.extract?.slice(0, 300) || ''
-    thumbnail = s.thumbnail?.source
+    const s: SummaryData = await summaryRes.json()
+    extract = (s.extract ?? '').slice(0, 300)
+    const image = await resolveArticleImage(title, 'en', s)
+    thumbnail = image.thumbnail
   }
 
   const result: PageviewsData = {
