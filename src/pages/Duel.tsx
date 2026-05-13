@@ -199,8 +199,8 @@ export default function Duel() {
 
   if (phase === 'pick-category') {
     return (
-      <main className="flex flex-col flex-1 px-4 py-6 gap-5">
-        <div className="flex items-center justify-between">
+      <main className="flex h-dvh min-h-0 flex-col gap-5 overflow-hidden px-4 py-6">
+        <div className="flex flex-shrink-0 items-center justify-between">
           <button 
             onClick={() => navigate('/')} 
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-muted hover:text-text hover:bg-white/10 ring-1 ring-white/10 transition-all active:scale-95"
