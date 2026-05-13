@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { DRAMA_CATEGORIES, DRAMA_POOL } from '../data/drama-articles'
 import { getCategoryI18nKey } from '../data/categories'
@@ -28,6 +28,9 @@ const CATEGORY_HERO_LANG: Record<string, string> = {
 }
 
 type ThumbnailMap = Record<string, string | null>
+
+const AUTO_SCROLL_EDGE_SIZE = 120
+const AUTO_SCROLL_MAX_SPEED = 14
 
 function CategoryIcon({ category }: { category: string }) {
   const iconClass = "h-7 w-7 shrink-0 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"
@@ -169,6 +172,11 @@ async function fetchThumbnail(title: string, lang = 'en'): Promise<string | null
 export default function CategoryPicker({ onChange, onPlay }: Props) {
   const { t } = useTranslation()
   const [thumbnails, setThumbnails] = useState<ThumbnailMap>({})
+  const listRef = useRef<HTMLDivElement>(null)
+  const animationFrameRef = useRef<number | null>(null)
+  const scrollSpeedRef = useRef(0)
+  const webPointerRef = useRef(false)
+  const reducedMotionRef = useRef(false)
 
   useEffect(() => {
     Promise.all(
@@ -181,8 +189,91 @@ export default function CategoryPicker({ onChange, onPlay }: Props) {
     ).then((entries) => setThumbnails(Object.fromEntries(entries)))
   }, [])
 
+  const stopAutoScroll = useCallback(() => {
+    scrollSpeedRef.current = 0
+    if (animationFrameRef.current !== null) {
+      window.cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
+    }
+  }, [])
+
+  const autoScroll = useCallback(() => {
+    const list = listRef.current
+    const speed = scrollSpeedRef.current
+
+    if (!list || speed === 0) {
+      animationFrameRef.current = null
+      return
+    }
+
+    list.scrollTop += speed
+    animationFrameRef.current = window.requestAnimationFrame(autoScroll)
+  }, [])
+
+  const startAutoScroll = useCallback((speed: number) => {
+    scrollSpeedRef.current = speed
+    if (animationFrameRef.current === null) {
+      animationFrameRef.current = window.requestAnimationFrame(autoScroll)
+    }
+  }, [autoScroll])
+
+  const handleMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    if (!webPointerRef.current || reducedMotionRef.current) return
+
+    const list = listRef.current
+    if (!list) return
+
+    const rect = list.getBoundingClientRect()
+    const distanceFromTop = event.clientY - rect.top
+    const distanceFromBottom = rect.bottom - event.clientY
+
+    if (distanceFromTop < AUTO_SCROLL_EDGE_SIZE) {
+      const intensity = (AUTO_SCROLL_EDGE_SIZE - Math.max(0, distanceFromTop)) / AUTO_SCROLL_EDGE_SIZE
+      startAutoScroll(-AUTO_SCROLL_MAX_SPEED * intensity)
+      return
+    }
+
+    if (distanceFromBottom < AUTO_SCROLL_EDGE_SIZE) {
+      const intensity = (AUTO_SCROLL_EDGE_SIZE - Math.max(0, distanceFromBottom)) / AUTO_SCROLL_EDGE_SIZE
+      startAutoScroll(AUTO_SCROLL_MAX_SPEED * intensity)
+      return
+    }
+
+    stopAutoScroll()
+  }, [startAutoScroll, stopAutoScroll])
+
+  useEffect(() => {
+    const webPointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)')
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+    const syncPointer = () => {
+      webPointerRef.current = webPointerQuery.matches
+      if (!webPointerQuery.matches) stopAutoScroll()
+    }
+    const syncMotion = () => {
+      reducedMotionRef.current = reducedMotionQuery.matches
+      if (reducedMotionQuery.matches) stopAutoScroll()
+    }
+
+    syncPointer()
+    syncMotion()
+    webPointerQuery.addEventListener('change', syncPointer)
+    reducedMotionQuery.addEventListener('change', syncMotion)
+
+    return () => {
+      webPointerQuery.removeEventListener('change', syncPointer)
+      reducedMotionQuery.removeEventListener('change', syncMotion)
+      stopAutoScroll()
+    }
+  }, [stopAutoScroll])
+
   return (
-    <div className="flex flex-col gap-3 flex-1 overflow-y-auto scrollbar-none px-0.5 py-0.5">
+    <div
+      ref={listRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={stopAutoScroll}
+      className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto scrollbar-none px-0.5 py-0.5"
+    >
       {DRAMA_CATEGORIES.map((cat) => {
         const thumb        = thumbnails[cat]
         const articleCount = DRAMA_POOL[cat]?.length ?? 0
@@ -195,7 +286,7 @@ export default function CategoryPicker({ onChange, onPlay }: Props) {
               onChange(cat)
               if (onPlay) onPlay(cat)
             }}
-            className="relative w-full h-20 rounded-2xl text-left transition-all active:scale-[0.98]"
+            className="relative h-20 w-full shrink-0 rounded-2xl text-left transition-all active:scale-[0.98] motion-safe:hover:scale-[1.018] motion-safe:hover:shadow-xl motion-safe:hover:shadow-black/25"
           >
             <div className="absolute inset-0 rounded-2xl overflow-hidden">
               {thumb ? (
