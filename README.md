@@ -4,8 +4,6 @@
 
 WikiDrama is a mobile-first React app that turns Wikipedia edit wars and pageview data into quick duel games. It includes the classic Drama Score mode, a thematic duel mode, and WikiWars, a special mode based on Wikimedia pageviews.
 
-Recent updates include a refreshed duel card UI, richer reveal states, smarter Wikipedia/Commons image fallback logic, and expanded thematic pools for Countries, Video Games, and Philosophy.
-
 <p align="center">
   <img src="public/img/screenshot-home.png" alt="WikiDrama Home Screen" width="350" />
   <img src="public/img/screenshot-profile.png" alt="WikiDrama Profile & Quests" width="350" />
@@ -17,7 +15,7 @@ Recent updates include a refreshed duel card UI, richer reveal states, smarter W
 
 ### Random Duel
 
-Two Wikipedia articles are drawn at random from a curated pool of over 850 controversial topics. Guess which one generated the most controversy.
+Two Wikipedia articles are drawn at random from a curated pool of over 850+ controversial topics. Guess which one generated the most controversy.
 
 ### Thematic Duel
 
